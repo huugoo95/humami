@@ -1,11 +1,12 @@
 package com.hugo.humami.domain;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-@Getter
+@Data
+@NoArgsConstructor
 public class Ingredient {
     private String name;
-    private List<String> links;
+    private Integer quantity;
+    private String unit;
 }

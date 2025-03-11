@@ -1,19 +1,21 @@
-package com.hugo.humami.domain;
+package com.hugo.humami.dto.response;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 @Data
-@NoArgsConstructor
-public class Recipe {
-    private String id;
+public class RecipeResponse {
     private String name;
     private String description;
     private List<String> instructions;
-    private List<Ingredient> ingredients;
+    private List<IngredientResponse> ingredients;
     private Integer prepTime;
     private String difficulty;
     private Integer portions;
+
 }
