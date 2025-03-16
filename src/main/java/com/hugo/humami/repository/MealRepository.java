@@ -50,4 +50,6 @@ public interface MealRepository extends MongoRepository<MealEntity, String> {
             "{ '$limit': 5 }"
     })
     List<MealEntity> autocompleteRecipeNames(String query);
+
+    List<MealEntity> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String query1, String query2);
 }
