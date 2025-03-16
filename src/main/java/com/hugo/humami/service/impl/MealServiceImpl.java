@@ -44,7 +44,13 @@ public class MealServiceImpl implements MealService {
     @Override
     public MealResponse save(MealRequest mealRequest) {
         MealEntity mealEntity = mealMapper.toEntity(mealRequest);
-        //ToDo add embedding
+        String ingredientsText = mealEntity.getRecipes().stream()
+                .map(recipe -> recipe.getIngredients() + ".")
+                .collect(Collectors.joining(", "));
+        String text = String.format("%s. %s. Ingredients: %s",
+                mealEntity.getName(),
+                mealEntity.getDescription(), ingredientsText);
+        mealEntity.setEmbedding(embeddingService.getEmbedding(text));
         MealEntity savedMeal = mealRepository.save(mealEntity);
         return mealMapper.toResponse(savedMeal);
     }
@@ -56,11 +62,21 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public List<MealResponse> search(String query) {
-        List<Double> queryVector = embeddingService.generateEmbedding(query);
-        List<MealEntity> meals = mealRepository.searchByEmbedding(queryVector);
+        List<Double> queryVector = embeddingService.getEmbedding(query);
+        List<MealEntity> meals = isValidEmbedding(queryVector)
+                ? mealRepository.searchByEmbedding(queryVector)
+                : fallbackSearch(query);
         return meals.stream()
                 .map(mealMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    private boolean isValidEmbedding(List<Double> embedding) {
+        return embedding != null && !embedding.isEmpty();
+    }
+
+    private List<MealEntity> fallbackSearch(String query) {
+        return mealRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query);
     }
 
     @Override
