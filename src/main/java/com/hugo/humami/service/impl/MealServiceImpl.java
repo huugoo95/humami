@@ -9,10 +9,12 @@ import com.hugo.humami.mapper.MealMapper;
 import com.hugo.humami.repository.MealRepository;
 import com.hugo.humami.service.EmbeddingService;
 import com.hugo.humami.service.MealService;
+import com.hugo.humami.service.S3Service;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,11 +23,13 @@ public class MealServiceImpl implements MealService {
     private final MealRepository mealRepository;
     private final MealMapper mealMapper;
     private final EmbeddingService embeddingService;
+    private final S3Service s3Service;
 
-    public MealServiceImpl(MealRepository mealRepository, MealMapper mealMapper, EmbeddingService embeddingService) {
+    public MealServiceImpl(MealRepository mealRepository, MealMapper mealMapper, EmbeddingService embeddingService, S3Service s3Service) {
         this.mealRepository = mealRepository;
         this.mealMapper = mealMapper;
         this.embeddingService = embeddingService;
+        this.s3Service = s3Service;
     }
 
     @Override
@@ -36,9 +40,14 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public MealResponse getById(String id) {
-        Optional<MealEntity> mealEntity = mealRepository.findById(id);
-        return mealEntity.map(mealMapper::toResponse).orElse(null);
+    public MealResponse getById(String id) throws ChangeSetPersister.NotFoundException, IOException {
+        MealEntity mealEntity = mealRepository.findById(id)
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
+        MealResponse response = mealMapper.toResponse(mealEntity);
+        String imageUrl = s3Service.getTempUrl(mealEntity.getImage());
+        response.setImage(imageUrl);
+
+        return response;
     }
 
     @Override
@@ -91,7 +100,6 @@ public class MealServiceImpl implements MealService {
                 .flatMap(meal -> meal.getRecipes().stream().map(Recipe::getName))
                 .distinct()
                 .collect(Collectors.toList());
-
         return new AutocompleteResponse(mealNames, recipeTitles);
     }
 }
