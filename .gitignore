@@ -18,6 +18,7 @@ target/
 *.iws
 *.iml
 *.ipr
+*.jar
 
 ### NetBeans ###
 /nbproject/private/
@@ -30,4 +31,31 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
+.vscode/
+
+# node / frontend
+node_modules/
+.next/
+dist/
+out/
+.env.local
+.env.*.local
+*.log
+
+# backend
+target/
+.idea/
+*.iml
+
+# docker
+docker-compose.override.yml
+**/mongo-data/
+**/minio-data/
+
+# sistema
+.DS_Store
+*.swp
+*.tmp
+
+# VSCode settings
 .vscode/

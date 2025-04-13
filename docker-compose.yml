@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: humami-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  s3:
+    image: minio/minio
+    container_name: humami-s3
+    ports:
+      - "9000:9000"      # API
+      - "9001:9001"      # Console
+    environment:
+      MINIO_ROOT_USER: humami
+      MINIO_ROOT_PASSWORD: humami123
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+
+  backend:
+    build:
+      context: ./humami-backend
+      dockerfile: Dockerfile
+    container_name: humami-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+      - s3
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/humami
+      S3_ENDPOINT: http://s3:9000
+      S3_ACCESS_KEY: humami
+      S3_SECRET_KEY: humami123
+
+  frontend:
+    build:
+      context: ./humami-web
+      dockerfile: Dockerfile
+    container_name: humami-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+
+volumes:
+  mongo-data:
+  minio-data:
