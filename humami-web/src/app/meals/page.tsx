@@ -41,7 +41,7 @@ export default function MealsPage() {
           onChange={(e) => setQuery(e.target.value)}
         />
         <button
-          className="px-6 py-3 bg-burgundy-700 text-white font-semibold rounded-lg shadow hover:bg-burgundy-800 transition"
+          className="px-6 py-3 text-burgundy-700 font-semibold rounded-lg shadow hover:bg-burgundy-800 transition"
           onClick={handleSearch}
         >
           Buscar

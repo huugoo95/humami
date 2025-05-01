@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Ignorar directorios
+node_modules/
+.next/
+dist/
+out/
+
+*.log
+
+# Ignorar imágenes o archivos temporales grandes
+*.zip
+*.tar.gz
+.DS_Store
