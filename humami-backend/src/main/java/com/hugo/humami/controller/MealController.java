@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/meals/")
+@RequestMapping("api/meals")
 public class MealController {
 
     private final MealService mealService;
