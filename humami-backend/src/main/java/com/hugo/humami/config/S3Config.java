@@ -15,9 +15,6 @@ import java.net.URI;
 @Configuration
 public class S3Config {
 
-    @Value("${aws.s3.endpoint}")
-    private String endpoint;
-
     @Value("${aws.s3.access-key}")
     private String accessKey;
 
@@ -31,11 +28,9 @@ public class S3Config {
     public S3Client s3Client() {
         return S3Client.builder()
                 .region(Region.of(region))
-                .endpointOverride(URI.create(endpoint))
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)
                 ))
-                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                 .build();
     }
 
@@ -43,13 +38,9 @@ public class S3Config {
     public S3Presigner s3Presigner() {
         return S3Presigner.builder()
                 .region(Region.of(region))
-                .endpointOverride(URI.create(endpoint))
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)
                 ))
-                .serviceConfiguration(S3Configuration.builder()
-                        .pathStyleAccessEnabled(true)
-                        .build())
                 .build();
     }
 }

@@ -9,23 +9,6 @@ services:
     volumes:
       - mongo-data:/data/db
     profiles: ["local", "prod"]
-
-  s3:
-    image: minio/minio
-    container_name: humami-s3
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    env_file:
-      - .env      
-    environment:
-      MINIO_ROOT_USER: ${S3_ACCESS_KEY}
-      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
-    volumes:
-      - minio-data:/data
-    command: server /data --console-address ":9001"
-    profiles: ["local", "prod"]
-
   backend:
     build:
       context: ./humami-backend
@@ -37,12 +20,10 @@ services:
       - "8080:8080"
     depends_on:
       - mongo
-      - s3
     env_file:
       - .env      
     environment:
       SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
-      S3_ENDPOINT: ${S3_ENDPOINT}
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
       S3_SECRET_KEY: ${S3_SECRET_KEY}
       S3_BUCKET: ${S3_BUCKET}
@@ -90,4 +71,3 @@ services:
 
 volumes:
   mongo-data:
-  minio-data:
