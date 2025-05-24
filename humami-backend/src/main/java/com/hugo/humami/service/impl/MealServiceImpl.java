@@ -71,7 +71,9 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public List<MealResponse> search(String query) {
-        List<Double> queryVector = embeddingService.getEmbedding(query);
+        List<Double> queryVector = null;
+        // ToDo get embedding
+        //  embeddingService.getEmbedding(query);
         List<MealEntity> meals = isValidEmbedding(queryVector)
                 ? mealRepository.searchByEmbedding(queryVector)
                 : fallbackSearch(query);
