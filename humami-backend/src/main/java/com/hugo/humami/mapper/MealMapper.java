@@ -11,6 +11,7 @@ import com.hugo.humami.dto.response.MealResponse;
 import com.hugo.humami.dto.response.RecipeResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 
@@ -22,6 +23,7 @@ public interface MealMapper {
     @Mapping(target = "updatedAt", expression = "java(java.time.Instant.now())")
     MealEntity toEntity(MealRequest mealRequest);
 
+    void updateMealFromRequest(@MappingTarget MealEntity target, MealRequest source);
     MealResponse toResponse(MealEntity mealEntity);
 
     Recipe toEntity(RecipeRequest recipeRequest);

@@ -9,4 +9,6 @@ public class Ingredient {
     private String name;
     private Integer quantity;
     private String unit;
+    private String link;
+
 }

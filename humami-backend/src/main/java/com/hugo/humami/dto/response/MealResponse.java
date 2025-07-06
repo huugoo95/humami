@@ -16,7 +16,7 @@ public class MealResponse {
     private String name;
     private String description;
     private String image;
-    private List<Recipe> recipes; // Devolvemos la información completa de las recetas
+    private List<Recipe> recipes;
     private Instant createdAt;
     private Instant updatedAt;
 }

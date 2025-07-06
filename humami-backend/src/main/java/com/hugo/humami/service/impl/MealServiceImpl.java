@@ -12,6 +12,7 @@ import com.hugo.humami.service.MealService;
 import com.hugo.humami.service.S3Service;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,17 +52,46 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public MealResponse save(MealRequest mealRequest) {
+    public MealResponse update(String id, MealRequest mealRequest, MultipartFile image) throws IOException {
+        MealEntity existing = mealRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Meal not found"));
+
+        mealMapper.updateMealFromRequest(existing, mealRequest);
+
+        if (image != null && !image.isEmpty()) {
+            String imageKey = s3Service.uploadImage(image);
+            existing.setImage(imageKey);
+        }
+
+        String textForEmbedding = getStringForEmbedding(existing);
+        existing.setEmbedding(embeddingService.getEmbedding(textForEmbedding));
+
+        MealEntity saved = mealRepository.save(existing);
+        return mealMapper.toResponse(saved);
+    }
+
+    private static String getStringForEmbedding(MealEntity updated) {
+        String text = updated.getName() + ". " + updated.getDescription() + ". " +
+                updated.getRecipes().stream()
+                        .map(r -> r.getIngredients().toString())
+                        .collect(Collectors.joining(", "));
+        return text;
+    }
+
+    @Override
+    public MealResponse create(MealRequest mealRequest, MultipartFile image) throws IOException {
         MealEntity mealEntity = mealMapper.toEntity(mealRequest);
-        String ingredientsText = mealEntity.getRecipes().stream()
-                .map(recipe -> recipe.getIngredients() + ".")
-                .collect(Collectors.joining(", "));
-        String text = String.format("%s. %s. Ingredients: %s",
-                mealEntity.getName(),
-                mealEntity.getDescription(), ingredientsText);
-        mealEntity.setEmbedding(embeddingService.getEmbedding(text));
-        MealEntity savedMeal = mealRepository.save(mealEntity);
-        return mealMapper.toResponse(savedMeal);
+
+        if(image != null && !image.isEmpty()){
+            String imageKey = s3Service.uploadImage(image);
+            mealEntity.setImage(imageKey);
+        }
+
+        String embeddingText = getStringForEmbedding(mealEntity);
+        mealEntity.setEmbedding(embeddingService.getEmbedding(embeddingText));
+
+        MealEntity saved = mealRepository.save(mealEntity);
+        return mealMapper.toResponse(saved);
     }
 
     @Override

@@ -6,8 +6,10 @@ import com.hugo.humami.dto.response.MealResponse;
 import com.hugo.humami.service.MealService;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -40,16 +42,23 @@ public class MealController {
         return new ResponseEntity(meal, HttpStatus.OK);
     }
 
-    @PostMapping("")
-    public ResponseEntity<?> create(@RequestBody MealRequest mealRequest) {
-        mealService.save(mealRequest);
-        return new ResponseEntity(HttpStatus.CREATED);
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MealResponse> createMeal(
+            @RequestPart("mealRequest") MealRequest mealRequest,
+            @RequestPart("image") MultipartFile image
+    ) throws IOException {
+        MealResponse created = mealService.create(mealRequest, image);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<?> update(MealRequest mealRequest) {
-        mealService.save(mealRequest);
-        return new ResponseEntity(HttpStatus.CREATED);
+    public ResponseEntity<MealResponse> update(
+            @PathVariable String id,
+            @RequestBody MealRequest mealRequest,
+            @RequestPart("image") MultipartFile image
+    ) throws IOException {
+        MealResponse updated = mealService.update(id, mealRequest, image);
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/autocomplete")

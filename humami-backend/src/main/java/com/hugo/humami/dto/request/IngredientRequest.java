@@ -7,4 +7,5 @@ public class IngredientRequest {
     private String name;
     private Integer quantity;
     private String unit;
+    private String link;
 }
