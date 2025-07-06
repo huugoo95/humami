@@ -13,12 +13,11 @@ export default function MealsPage() {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get(
+      const res = await apiClient.get(
         `/meals/search?search=${encodeURIComponent(query)}`
       );
-      setMeals(response.data);
-    } catch (error) {
-      console.error("Error al buscar menús:", error);
+      setMeals(res.data);
+    } catch {
       setMeals([]);
     } finally {
       setLoading(false);
@@ -26,50 +25,84 @@ export default function MealsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-gray-50 shadow-lg rounded-lg text-gray-900">
-      <h1 className="text-4xl font-extrabold text-burgundy-800 mb-6">
-        Buscar Menús
-      </h1>
+    <div className="px-3 sm:px-4 md:px-6 py-8">
+      <div
+        className={`
+          w-full
+          max-w-md        /* a tope de ancho en móvil */
+          sm:max-w-7xl    /* más ancho a partir de sm */
+          mx-auto
+          bg-humami-bg-light
+          shadow-lg
+          rounded-lg
+          p-3 sm:p-6      /* padding interior dinámico */
+          text-humami-text-base
+        `}
+      >
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-humami-accent mb-4 sm:mb-6">
+          Buscar Recetas
+        </h1>
 
-      {/* Barra de búsqueda */}
-      <div className="mb-6 flex gap-4">
-        <input
-          type="text"
-          className="border border-gray-300 p-3 flex-1 rounded-lg shadow-sm"
-          placeholder="Ingresa el nombre o descripción del menú..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button
-          className="px-6 py-3 text-burgundy-700 font-semibold rounded-lg shadow hover:bg-burgundy-800 transition"
-          onClick={handleSearch}
-        >
-          Buscar
-        </button>
-      </div>
-
-      {/* Resultado de búsqueda */}
-      {loading ? (
-        <p className="text-gray-700 text-lg">Cargando...</p>
-      ) : meals.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {meals.map((meal) => (
-            <div
-              key={meal.id}
-              className="bg-white p-4 rounded-lg shadow-md border border-gray-200"
-            >
-              <Link href={`/meals/${meal.id}`}>
-                <h2 className="text-2xl font-semibold text-burgundy-700 hover:underline cursor-pointer">
-                  {meal.name}
-                </h2>
-              </Link>
-              <p className="text-gray-600 mt-2">{meal.description}</p>
-            </div>
-          ))}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
+          <input
+            type="text"
+            className="
+              flex-1
+              border border-gray-200
+              rounded-lg
+              px-3 py-2
+              focus:outline-none focus:ring-2 focus:ring-humami-accent
+            "
+            placeholder="Ingresa nombre o descripción..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button
+            onClick={handleSearch}
+            className="
+              w-full sm:w-auto
+              px-5 sm:px-6 py-2.5
+              bg-humami-accent text-humami-bg
+              font-semibold rounded-lg shadow
+              hover:bg-humami-accent-dark
+              transition
+            "
+          >
+            {loading ? "Buscando…" : "Buscar"}
+          </button>
         </div>
-      ) : (
-        !loading && <p className="text-gray-700 text-lg">No se encontraron menús.</p>
-      )}
+
+        {loading ? (
+          <p className="text-center text-humami-text-base">Cargando…</p>
+        ) : meals.length > 0 ? (
+          <div className="space-y-4">
+            {meals.map((m) => (
+              <div
+                key={m.id}
+                className="
+                  bg-humami-bg
+                  p-3 sm:p-4
+                  rounded-lg shadow-md
+                  border border-gray-200
+                "
+              >
+                <Link href={`/meals/${m.id}`}>
+                  <h2 className="text-xl sm:text-2xl font-semibold text-humami-accent hover:underline">
+                    {m.name}
+                  </h2>
+                </Link>
+                <p className="text-humami-text-base mt-1 sm:mt-2">
+                  {m.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-humami-text-base">
+            No se encontraron recetas.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
