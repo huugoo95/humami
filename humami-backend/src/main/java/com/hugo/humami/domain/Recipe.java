@@ -13,7 +13,5 @@ public class Recipe {
     private String description;
     private List<String> instructions;
     private List<Ingredient> ingredients;
-    private Integer prepTime;
-    private String difficulty;
-    private Integer portions;
+
 }

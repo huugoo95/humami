@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -30,10 +31,10 @@ public class MealController {
         return new ResponseEntity<>(meals, HttpStatus.OK);
     }
 
-    @GetMapping("search")
-    public ResponseEntity<List<MealResponse>> search(String search) {
-        List<MealResponse> meals = mealService.search(search);
-        return new ResponseEntity<>(meals, HttpStatus.OK);
+    @GetMapping("/search")
+    public ResponseEntity<List<MealResponse>> search(@RequestParam("query") String query) {
+        List<MealResponse> meals = mealService.search(query);
+        return ResponseEntity.ok(meals);
     }
 
     @GetMapping("{id}")
@@ -42,23 +43,30 @@ public class MealController {
         return new ResponseEntity(meal, HttpStatus.OK);
     }
 
-    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MealResponse> createMeal(
-            @RequestPart("mealRequest") MealRequest mealRequest,
-            @RequestPart("image") MultipartFile image
-    ) throws IOException {
-        MealResponse created = mealService.create(mealRequest, image);
+    @PostMapping(value = "")
+    public ResponseEntity<MealResponse> create(
+            @RequestBody @Valid MealRequest mealRequest
+    ) {
+        MealResponse created = mealService.create(mealRequest);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @PatchMapping("{id}")
     public ResponseEntity<MealResponse> update(
             @PathVariable String id,
-            @RequestBody MealRequest mealRequest,
+            @RequestBody MealRequest mealRequest
+    ) {
+        MealResponse updated = mealService.update(id, mealRequest);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> setMealImage(
+            @PathVariable String id,
             @RequestPart("image") MultipartFile image
     ) throws IOException {
-        MealResponse updated = mealService.update(id, mealRequest, image);
-        return ResponseEntity.ok(updated);
+        mealService.setImage(id, image);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/autocomplete")

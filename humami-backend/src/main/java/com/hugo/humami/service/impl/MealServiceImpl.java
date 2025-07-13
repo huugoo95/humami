@@ -45,29 +45,37 @@ public class MealServiceImpl implements MealService {
         MealEntity mealEntity = mealRepository.findById(id)
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
         MealResponse response = mealMapper.toResponse(mealEntity);
-        String imageUrl = s3Service.getTempUrl(mealEntity.getImage());
-        response.setImage(imageUrl);
+
+        if (mealEntity.hasImage()){
+            response.setImage(getImageUrl(mealEntity.getImage()));
+        }
 
         return response;
     }
 
     @Override
-    public MealResponse update(String id, MealRequest mealRequest, MultipartFile image) throws IOException {
+    public MealResponse update(String id, MealRequest mealRequest){
         MealEntity existing = mealRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Meal not found"));
 
         mealMapper.updateMealFromRequest(existing, mealRequest);
-
-        if (image != null && !image.isEmpty()) {
-            String imageKey = s3Service.uploadImage(image);
-            existing.setImage(imageKey);
-        }
 
         String textForEmbedding = getStringForEmbedding(existing);
         existing.setEmbedding(embeddingService.getEmbedding(textForEmbedding));
 
         MealEntity saved = mealRepository.save(existing);
         return mealMapper.toResponse(saved);
+    }
+
+    @Override
+    public void setImage(String id, MultipartFile image) throws IOException {
+        MealEntity existing = mealRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Meal not found"));
+        if (image != null && !image.isEmpty()) {
+            String imageKey = s3Service.uploadImage(image, existing.getName());
+            existing.setImage(imageKey);
+            mealRepository.save(existing);
+        }
     }
 
     private static String getStringForEmbedding(MealEntity updated) {
@@ -79,13 +87,8 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public MealResponse create(MealRequest mealRequest, MultipartFile image) throws IOException {
+    public MealResponse create(MealRequest mealRequest) {
         MealEntity mealEntity = mealMapper.toEntity(mealRequest);
-
-        if(image != null && !image.isEmpty()){
-            String imageKey = s3Service.uploadImage(image);
-            mealEntity.setImage(imageKey);
-        }
 
         String embeddingText = getStringForEmbedding(mealEntity);
         mealEntity.setEmbedding(embeddingService.getEmbedding(embeddingText));
@@ -133,5 +136,9 @@ public class MealServiceImpl implements MealService {
                 .distinct()
                 .collect(Collectors.toList());
         return new AutocompleteResponse(mealNames, recipeTitles);
+    }
+
+    private String getImageUrl(String image) throws IOException {
+        return s3Service.getTempUrl(image);
     }
 }

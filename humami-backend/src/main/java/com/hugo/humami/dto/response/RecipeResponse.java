@@ -1,5 +1,6 @@
 package com.hugo.humami.dto.response;
 
+import com.hugo.humami.dto.request.FaqRequest;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,8 +15,5 @@ public class RecipeResponse {
     private String description;
     private List<String> instructions;
     private List<IngredientResponse> ingredients;
-    private Integer prepTime;
-    private String difficulty;
-    private Integer portions;
 
 }

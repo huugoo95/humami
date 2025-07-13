@@ -21,6 +21,7 @@ public class S3ServiceImpl implements S3Service {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
     private final String bucketName = "humami";
+    private final int expirationImageUrlInHours = 1;
 
     public S3ServiceImpl(S3Client s3Client, S3Presigner s3Presigner) {
         this.s3Client = s3Client;
@@ -35,7 +36,7 @@ public class S3ServiceImpl implements S3Service {
                 .build();
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofHours(1))
+                .signatureDuration(Duration.ofHours(expirationImageUrlInHours))
                 .getObjectRequest(getObjectRequest)
                 .build();
 
@@ -44,8 +45,8 @@ public class S3ServiceImpl implements S3Service {
     }
 
     @Override
-    public String uploadImage(MultipartFile image) throws IOException {
-        String key = UUID.randomUUID() + "-" + image.getOriginalFilename();
+    public String uploadImage(MultipartFile image, String name) throws IOException {
+        String key = generateImageKey(name);
 
         s3Client.putObject(
                 PutObjectRequest.builder()
@@ -55,9 +56,11 @@ public class S3ServiceImpl implements S3Service {
                         .build(),
                 RequestBody.fromInputStream(image.getInputStream(), image.getSize())
         );
-
         return key;
     }
 
+    private String generateImageKey(String name) {
+        return name + "_" + UUID.randomUUID();
+    }
 
 }

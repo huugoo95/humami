@@ -14,7 +14,7 @@ public interface MealService {
 
     MealResponse getById(String id) throws ChangeSetPersister.NotFoundException, IOException;
 
-    MealResponse create(MealRequest mealRequest, MultipartFile image) throws IOException;
+    MealResponse create(MealRequest mealRequest);
 
     void delete(String id);
 
@@ -22,5 +22,7 @@ public interface MealService {
 
     AutocompleteResponse autocomplete(String query);
 
-    MealResponse update(String id, MealRequest mealRequest, MultipartFile image) throws IOException;
+    MealResponse update(String id, MealRequest mealRequest);
+
+    void setImage(String id, MultipartFile image) throws IOException;
 }
