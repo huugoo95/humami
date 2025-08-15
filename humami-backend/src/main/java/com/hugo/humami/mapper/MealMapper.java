@@ -11,11 +11,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
-
-
 @Mapper(componentModel = "spring")
 public interface MealMapper {
+
     MealMapper INSTANCE = Mappers.getMapper(MealMapper.class);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "image", ignore = true)
     @Mapping(source = "type", target = "type")
@@ -27,6 +27,7 @@ public interface MealMapper {
     void updateMealFromRequest(@MappingTarget MealEntity target, MealRequest source);
     MealResponse toResponse(MealEntity mealEntity);
 
+    MealResponse toTinyResponse(MealEntity mealEntity);
     Recipe toEntity(RecipeRequest request);
     Ingredient toEntity(IngredientRequest request);
     Faq toEntity(FaqRequest request);
@@ -34,6 +35,8 @@ public interface MealMapper {
 
     RecipeResponse toResponse(Recipe recipe);
 
+    @Mapping(target = "unit",
+            expression = "java(ingredient.getUnit() != null ? ingredient.getUnit().getLabel() : null)")
     IngredientResponse toResponse(Ingredient ingredient);
 
     default MealTypeEnum map(MealTypeEnumDTO dto) {

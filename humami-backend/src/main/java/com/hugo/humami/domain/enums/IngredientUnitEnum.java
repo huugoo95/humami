@@ -2,6 +2,7 @@ package com.hugo.humami.domain.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
@@ -25,5 +26,6 @@ public enum IngredientUnitEnum {
     DASH("chorro"),
     DROP("gotas");
 
+    @Getter
     private final String label;
 }

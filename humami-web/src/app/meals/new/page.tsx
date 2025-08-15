@@ -3,6 +3,7 @@
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/config/api';
+import { Meal } from "@/types/meal";
 
 type Ingredient = {
   name: string;
@@ -124,14 +125,19 @@ export default function CreateMealPage() {
   }
 
   try {
-    const { data: created } = await apiClient.post<MealResponse>('/meals', formData, {
+    const { data: created } = await apiClient.post<Meal>('/meals', formData, {
       headers: { /* no Content-Type aquí */ },
     });
     router.push(`/meals/${created.id}`);
-  } catch (err: any) {
+  } catch (err) {
+  if (err instanceof Error) {
     console.error(err);
-    alert('falllaaaaaa: ' + err.message);
-  } finally {
+    alert('error: ' + err.message);
+  } else {
+    console.error('Error desconocido', err);
+    alert('error (desconocido)');
+  }
+}finally {
     setSubmitting(false);
   }
 };

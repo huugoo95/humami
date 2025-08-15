@@ -20,7 +20,12 @@ export interface Ingredient {
     name: string;
     description: string;
     image: string;
+    difficulty?: 'fácil' | 'media' | 'difícil';
+    type?: string;
+    servings?: number;
     recipes: Recipe[];
-    createdAt: string | null;
-    updatedAt: string | null;
+    faqs?: {
+    question: string;
+    answer: string;
+  }[];
   }

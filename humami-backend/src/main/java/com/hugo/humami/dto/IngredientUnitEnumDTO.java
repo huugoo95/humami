@@ -1,6 +1,8 @@
 package com.hugo.humami.dto;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
 public enum IngredientUnitEnumDTO {
@@ -23,5 +25,6 @@ public enum IngredientUnitEnumDTO {
     DASH("chorro"),
     DROP("gotas");
 
+    @Getter
     private final String label;
 }

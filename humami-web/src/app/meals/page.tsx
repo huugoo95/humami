@@ -14,7 +14,7 @@ export default function MealsPage() {
     setLoading(true);
     try {
       const res = await apiClient.get(
-        `/meals/search?search=${encodeURIComponent(query)}`
+        `/meals/search?query=${encodeURIComponent(query)}`
       );
       setMeals(res.data);
     } catch {

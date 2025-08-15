@@ -60,7 +60,7 @@ public class S3ServiceImpl implements S3Service {
     }
 
     private String generateImageKey(String name) {
-        return name + "_" + UUID.randomUUID();
+        return name.replace(" ", "_") + "_" + UUID.randomUUID();
     }
 
 }

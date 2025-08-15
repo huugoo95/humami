@@ -12,7 +12,6 @@ async function getMealById(id: string): Promise<Meal| null> {
     return null;
   }
 }
-
 export default async function MealPage({ params }: { params: { id: string } }) {
   const meal = await getMealById(params.id);
   if (!meal) return notFound();
@@ -22,8 +21,22 @@ export default async function MealPage({ params }: { params: { id: string } }) {
       <h1 className="text-4xl font-extrabold text-burgundy-800 mb-4">
         {meal.name}
       </h1>
-      <p className="text-gray-700 text-lg mb-6">{meal.description}</p>
+      <p className="text-gray-700 text-lg mb-4">{meal.description}</p>
 
+      {/* METADATOS DEL MENÚ */}
+      <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">
+        <span className="bg-burgundy-100 text-burgundy-800 px-3 py-1 rounded-full font-medium">
+          Dificultad: {meal.difficulty?.toLowerCase()}
+        </span>
+        <span className="bg-burgundy-100 text-burgundy-800 px-3 py-1 rounded-full font-medium">
+          Tipo: {meal.type?.toLowerCase()}
+        </span>
+        <span className="bg-burgundy-100 text-burgundy-800 px-3 py-1 rounded-full font-medium">
+          Raciones: {meal.servings}
+        </span>
+      </div>
+
+      {/* IMAGEN */}
       {meal.image && (
         <div className="mb-6">
           <Image
@@ -36,6 +49,7 @@ export default async function MealPage({ params }: { params: { id: string } }) {
         </div>
       )}
 
+      {/* RECETAS */}
       {meal.recipes.map((recipe, idx) => (
         <div
           key={idx}
@@ -47,6 +61,7 @@ export default async function MealPage({ params }: { params: { id: string } }) {
           <p className="text-gray-600 mb-4">{recipe.description}</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Ingredientes */}
             <div className="p-4 bg-gray-100 border-l-4 border-burgundy-500 rounded shadow">
               <h3 className="text-xl font-medium text-gray-900 mb-2">
                 Ingredientes
@@ -55,7 +70,7 @@ export default async function MealPage({ params }: { params: { id: string } }) {
                 {recipe.ingredients.map((ingredient, iIndex) => (
                   <li key={iIndex}>
                     <span className="font-semibold">
-                      {ingredient.quantity} {ingredient.unit}
+                      {ingredient.quantity} {ingredient.unit.toLowerCase()}
                     </span>{" "}
                     de {ingredient.name}
                   </li>
@@ -63,6 +78,7 @@ export default async function MealPage({ params }: { params: { id: string } }) {
               </ul>
             </div>
 
+            {/* Instrucciones */}
             <div className="p-4 bg-gray-100 border-l-4 border-burgundy-700 rounded shadow">
               <h3 className="text-xl font-medium text-gray-900 mb-2">
                 Instrucciones
@@ -81,6 +97,25 @@ export default async function MealPage({ params }: { params: { id: string } }) {
           </div>
         </div>
       ))}
+
+ {/* PREGUNTAS FRECUENTES */}
+      {meal.faqs && meal.faqs.length > 0 && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-semibold text-burgundy-800 mb-4">
+            Preguntas frecuentes
+          </h2>
+          <div className="space-y-4">
+            {meal.faqs.map((faq, index) => (
+              <div key={index} className="bg-white p-4 rounded shadow">
+                <h3 className="font-semibold text-burgundy-700 mb-1">
+                  {faq.question}
+                </h3>
+                <p className="text-gray-700">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
