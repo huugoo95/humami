@@ -1,66 +1,49 @@
 # Contributing Guide
 
-This project uses a lightweight but strict workflow to keep development reliable and easy to review.
+This project follows a spec-first workflow with explicit engineering rules.
+
+## Core references (read first)
+
+- `ENGINEERING_RULES.md`
+- `docs/workflow.md`
+- `docs/branching.md`
+- `docs/architecture.md`
+- `docs/approved-libraries.md`
 
 ## Branching model
 
 - `master`: always stable
-- Feature branches:
-  - `feat/<short-name>`
+- Branches:
+  - `feat/<spec-id>-<short-name>`
   - `fix/<short-name>`
   - `chore/<short-name>`
   - `docs/<short-name>`
 
-Examples:
-- `feat/auth-refresh-token`
-- `fix/login-timeout`
-- `docs/onboarding-flow`
-
 ## Feature planning (required)
 
-Before coding, create a feature note using `docs/features/TEMPLATE.md`.
+Before coding, create a spec from `specs/000-template.md`.
 
-Minimum required sections:
-- Goal
-- Scope (in/out)
-- Acceptance criteria
-- Risks
-- Technical checklist
-
-## Commit convention
-
-Use clear, intent-based commits:
-- `feat: ...`
-- `fix: ...`
-- `refactor: ...`
-- `docs: ...`
-- `test: ...`
-- `chore: ...`
-
-Guidelines:
-- Prefer small, focused commits
-- One intent per commit
-- Avoid mixing refactor + feature in same commit unless necessary
+Required sections:
+- Problem
+- Goal and metric
+- Scope in/out
+- Acceptance criteria (Given/When/Then)
+- Risks/dependencies
 
 ## Pull requests
 
-Every PR should include:
-1. What changed
-2. Why it changed
-3. How to test
-4. Risks and rollback notes
-
-Suggested PR title format:
-- `feat: ...`
-- `fix: ...`
-- `docs: ...`
+Every PR must:
+1. Reference spec ID
+2. Fill `.github/pull_request_template.md`
+3. Include test evidence
+4. Include risks and rollback notes
 
 ## Quality gates (before merge)
 
 - Lint passes
 - Tests pass
 - Build passes
-- No obvious security/config regressions
+- PR compliance checklist completed
 
 ## Progress tracking
 

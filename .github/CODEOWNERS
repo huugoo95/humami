@@ -1,0 +1,8 @@
+# Default reviewers
+* @huugoo95
+
+# Optional split ownership
+/humami-backend/ @huugoo95
+/humami-web/ @huugoo95
+/docs/ @huugoo95
+/specs/ @huugoo95
