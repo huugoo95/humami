@@ -59,6 +59,11 @@ PR must include:
 - risks and rollback
 - completed checklist
 
+Branch targets:
+- `feat/*` and `fix/*` -> `develop`
+- `release/*` -> `master`, then back-merge to `develop`
+- `hotfix/*` -> `master`, then back-merge to `develop`
+
 ## 7) Merge and follow-up
 
 - squash merge preferred for feature branches
