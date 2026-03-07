@@ -110,37 +110,39 @@ export default function CreateMealPage() {
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  if (!imageFile) return alert('Debes subir una imagen');
-  setSubmitting(true);
+    e.preventDefault();
 
-  const mealRequest = { name, description, recipes };
-  const formData = new FormData();
-  formData.append('mealRequest', new Blob([JSON.stringify(mealRequest)], { type: 'application/json' }));
-  formData.append('image', imageFile);
+    if (!imageFile) {
+      alert('Debes subir una imagen');
+      return;
+    }
 
-  // *** Debug: imprimimos las entries de FormData ***
-  for (const [key, val] of formData.entries()) {
-    console.log('▶️ formData entry:', key, val);
-  }
+    setSubmitting(true);
 
-  try {
-    const { data: created } = await apiClient.post<Meal>('/meals', formData, {
-      headers: { /* no Content-Type aquí */ },
-    });
-    router.push(`/meals/${created.id}`);
-  } catch (err) {
-  if (err instanceof Error) {
-    console.error(err);
-    alert('error: ' + err.message);
-  } else {
-    console.error('Error desconocido', err);
-    alert('error (desconocido)');
-  }
-}finally {
-    setSubmitting(false);
-  }
-};
+    const mealRequest = { name, description, recipes };
+
+    try {
+      const { data: created } = await apiClient.post<Meal>('/meals', mealRequest);
+      const mealId = created.id;
+
+      const formData = new FormData();
+      formData.append('image', imageFile);
+
+      await apiClient.put(`/meals/${mealId}/image`, formData);
+
+      router.push(`/meals/${mealId}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error(err);
+        alert('error: ' + err.message);
+      } else {
+        console.error('Error desconocido', err);
+        alert('error (desconocido)');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="bg-humami-bg-light min-h-screen py-10 px-4 sm:px-6 lg:px-8">
