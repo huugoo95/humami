@@ -3,7 +3,7 @@
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/config/api';
-import { Meal } from "@/types/meal";
+import { submitMealWithImage } from './submitMeal';
 
 type Ingredient = {
   name: string;
@@ -119,16 +119,14 @@ export default function CreateMealPage() {
 
     setSubmitting(true);
 
-    const mealRequest = { name, description, recipes };
-
     try {
-      const { data: created } = await apiClient.post<Meal>('/meals', mealRequest);
-      const mealId = created.id;
-
-      const formData = new FormData();
-      formData.append('image', imageFile);
-
-      await apiClient.put(`/meals/${mealId}/image`, formData);
+      const mealId = await submitMealWithImage({
+        apiClient,
+        name,
+        description,
+        recipes,
+        imageFile,
+      });
 
       router.push(`/meals/${mealId}`);
     } catch (err) {
