@@ -6,6 +6,7 @@ This project follows a spec-first workflow with explicit engineering rules.
 
 - `ENGINEERING_RULES.md`
 - `docs/workflow.md`
+- `docs/git-flow.md`
 - `docs/branching.md`
 - `docs/architecture.md`
 - `docs/approved-libraries.md`
@@ -13,9 +14,12 @@ This project follows a spec-first workflow with explicit engineering rules.
 ## Branching model
 
 - `master`: always stable
+- `develop`: integration branch for upcoming release
 - Branches:
   - `feat/<spec-id>-<short-name>`
   - `fix/<short-name>`
+  - `release/<version>`
+  - `hotfix/<short-name>`
   - `chore/<short-name>`
   - `docs/<short-name>`
 
