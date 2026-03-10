@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@Document(collection = "blogPosts")
+@Document(collection = "blog_posts")
 public class BlogPostEntity {
     @Id
     private String id;

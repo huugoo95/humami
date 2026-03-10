@@ -46,6 +46,12 @@ Required in PR:
 
 ## 5) Code style and conventions
 
+### Database naming (MongoDB)
+
+- Collection names should use `snake_case` and plural form (e.g., `blog_posts`, `user_profiles`).
+- Avoid mixed naming styles across collections.
+
+
 - Respect repository formatter/linter config.
 - `.editorconfig` defaults:
   - UTF-8
