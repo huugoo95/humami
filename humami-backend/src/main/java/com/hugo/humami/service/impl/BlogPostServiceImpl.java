@@ -3,6 +3,7 @@ package com.hugo.humami.service.impl;
 import com.hugo.humami.domain.blog.BlogPostEntity;
 import com.hugo.humami.dto.request.BlogPostRequest;
 import com.hugo.humami.dto.response.BlogPostResponse;
+import com.hugo.humami.mapper.BlogPostMapper;
 import com.hugo.humami.repository.BlogPostRepository;
 import com.hugo.humami.service.BlogPostService;
 import com.hugo.humami.service.S3Service;
@@ -23,23 +24,25 @@ public class BlogPostServiceImpl implements BlogPostService {
 
     private final BlogPostRepository blogPostRepository;
     private final S3Service s3Service;
+    private final BlogPostMapper blogPostMapper;
 
-    public BlogPostServiceImpl(BlogPostRepository blogPostRepository, S3Service s3Service) {
+    public BlogPostServiceImpl(BlogPostRepository blogPostRepository, S3Service s3Service, BlogPostMapper blogPostMapper) {
         this.blogPostRepository = blogPostRepository;
         this.s3Service = s3Service;
+        this.blogPostMapper = blogPostMapper;
     }
 
     @Override
     public List<BlogPostResponse> listPublished() {
         return blogPostRepository.findByStatusOrderByPublishedAtDesc(PUBLISHED)
-                .stream().map(this::toResponse).toList();
+                .stream().map(blogPostMapper::toResponse).toList();
     }
 
     @Override
     public BlogPostResponse getPublishedBySlug(String slug) throws IOException {
         BlogPostEntity post = blogPostRepository.findBySlugAndStatus(slug, PUBLISHED)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Blog post not found"));
-        BlogPostResponse response = toResponse(post);
+        BlogPostResponse response = blogPostMapper.toResponse(post);
         if (post.getCoverImage() != null && !post.getCoverImage().isBlank()) {
             response.setCoverImage(s3Service.getTempUrl(post.getCoverImage()));
         }
@@ -55,13 +58,12 @@ public class BlogPostServiceImpl implements BlogPostService {
             throw new ResponseStatusException(CONFLICT, "slug already exists");
         }
 
-        BlogPostEntity entity = new BlogPostEntity();
-        applyRequest(entity, request);
+        BlogPostEntity entity = blogPostMapper.toEntity(request);
         Instant now = Instant.now();
         entity.setCreatedAt(now);
         entity.setUpdatedAt(now);
 
-        return toResponse(blogPostRepository.save(entity));
+        return blogPostMapper.toResponse(blogPostRepository.save(entity));
     }
 
     @Override
@@ -73,9 +75,9 @@ public class BlogPostServiceImpl implements BlogPostService {
             throw new ResponseStatusException(CONFLICT, "slug already exists");
         }
 
-        applyRequest(entity, request);
+        blogPostMapper.updateFromRequest(entity, request);
         entity.setUpdatedAt(Instant.now());
-        return toResponse(blogPostRepository.save(entity));
+        return blogPostMapper.toResponse(blogPostRepository.save(entity));
     }
 
     @Override
@@ -91,35 +93,4 @@ public class BlogPostServiceImpl implements BlogPostService {
         }
     }
 
-    private void applyRequest(BlogPostEntity entity, BlogPostRequest request) {
-        if (request.getSlug() != null) entity.setSlug(request.getSlug());
-        if (request.getTitle() != null) entity.setTitle(request.getTitle());
-        if (request.getExcerpt() != null) entity.setExcerpt(request.getExcerpt());
-        if (request.getContent() != null) entity.setContent(request.getContent());
-        if (request.getAuthor() != null) entity.setAuthor(request.getAuthor());
-        if (request.getTags() != null) entity.setTags(request.getTags());
-        if (request.getStatus() != null) entity.setStatus(request.getStatus());
-        if (request.getSeoTitle() != null) entity.setSeoTitle(request.getSeoTitle());
-        if (request.getSeoDescription() != null) entity.setSeoDescription(request.getSeoDescription());
-        if (request.getPublishedAt() != null) entity.setPublishedAt(request.getPublishedAt());
-    }
-
-    private BlogPostResponse toResponse(BlogPostEntity entity) {
-        BlogPostResponse response = new BlogPostResponse();
-        response.setId(entity.getId());
-        response.setSlug(entity.getSlug());
-        response.setTitle(entity.getTitle());
-        response.setExcerpt(entity.getExcerpt());
-        response.setContent(entity.getContent());
-        response.setCoverImage(entity.getCoverImage());
-        response.setAuthor(entity.getAuthor());
-        response.setTags(entity.getTags());
-        response.setStatus(entity.getStatus());
-        response.setSeoTitle(entity.getSeoTitle());
-        response.setSeoDescription(entity.getSeoDescription());
-        response.setPublishedAt(entity.getPublishedAt());
-        response.setCreatedAt(entity.getCreatedAt());
-        response.setUpdatedAt(entity.getUpdatedAt());
-        return response;
-    }
 }

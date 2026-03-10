@@ -31,6 +31,7 @@ Required in PR:
   - persistence/repository
 - Keep HTTP-specific concerns out of domain logic.
 - Input validation at boundaries.
+- Use MapStruct mappers for DTO/entity transformations (avoid ad-hoc manual mapping in services/controllers).
 
 ### Frontend (`humami-web`)
 
