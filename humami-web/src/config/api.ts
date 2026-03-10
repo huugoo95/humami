@@ -1,8 +1,13 @@
 // src/config/api.ts
 import axios from 'axios';
 
+const baseURL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  'http://localhost:8080/api';
+
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  baseURL,
   headers: {
     Accept: 'application/json',
   },
