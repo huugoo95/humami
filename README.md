@@ -27,6 +27,22 @@ Start here:
 4. Open PR to `develop` with required template/checks.
 5. Release via gitflow strategy (`release/*` / `hotfix/*`).
 
+## Manual deploy and rollback
+
+Production operations are manual and environment-driven:
+
+- `scripts/deploy.sh`
+- `scripts/rollback.sh`
+
+Both scripts require an external env file (`DEPLOY_ENV_FILE`, default `/etc/humami/.env`) and never store secrets in the repository.
+
+Example:
+
+```bash
+DEPLOY_ENV_FILE=/etc/humami/.env DEPLOY_BRANCH=master scripts/deploy.sh
+DEPLOY_ENV_FILE=/etc/humami/.env scripts/rollback.sh
+```
+
 ## Current priorities
 
 See `PROGRESS.md` and active specs:

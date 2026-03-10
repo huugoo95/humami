@@ -3,7 +3,7 @@
 _Last updated: 2026-03-10_
 
 ## In progress
-- Drafting roadmap specs to harden web foundations before content scale.
+- Implementing CI baseline (Spec 003): backend test/build + frontend lint/test/build on PR.
 
 ## Blocked
 - None.
