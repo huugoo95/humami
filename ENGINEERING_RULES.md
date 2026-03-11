@@ -31,6 +31,7 @@ Required in PR:
   - persistence/repository
 - Keep HTTP-specific concerns out of domain logic.
 - Input validation at boundaries.
+- Use MapStruct mappers for DTO/entity transformations (avoid ad-hoc manual mapping in services/controllers).
 
 ### Frontend (`humami-web`)
 
@@ -45,6 +46,12 @@ Required in PR:
 - Keep one library per concern when possible.
 
 ## 5) Code style and conventions
+
+### Database naming (MongoDB)
+
+- Collection names should use `snake_case` and plural form (e.g., `blog_posts`, `user_profiles`).
+- Avoid mixed naming styles across collections.
+
 
 - Respect repository formatter/linter config.
 - `.editorconfig` defaults:
