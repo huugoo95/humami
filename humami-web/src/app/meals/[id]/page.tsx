@@ -83,29 +83,33 @@ export default async function MealPage({ params }: { params: { id: string } }) {
         </div>
       )}
 
-      {/* ELABORACIONES */}
-      {meal.recipes.map((recipe, idx) => (
-        <div
-          key={idx}
-          className="mb-6 sm:mb-8 p-3 sm:p-5 bg-white rounded-lg shadow-sm border-l-4 border-burgundy-700"
-        >
-          <h2 className="text-xl sm:text-2xl font-semibold text-burgundy-700 mb-2">
-            {recipe.name}
+      {/* INSTRUCCIONES */}
+      {meal.recipes && meal.recipes.length > 0 && (
+        <div className="mb-8 sm:mb-10">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-burgundy-800 mb-3 sm:mb-4">
+            Instrucciones
           </h2>
-          <p className="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">{recipe.description}</p>
 
-          <div className="p-3 sm:p-4 bg-gray-50 border-l-4 border-burgundy-700 rounded">
-            <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">Instrucciones</h3>
-            <ol className="list-decimal list-inside space-y-2 text-gray-700">
-              {recipe.instructions.map((step, sIndex) => (
-                <li key={sIndex} className="bg-burgundy-50 p-2 rounded-md">
-                  {step}
-                </li>
-              ))}
-            </ol>
+          <div className="space-y-3 sm:space-y-4">
+            {meal.recipes.map((recipe, idx) => (
+              <div
+                key={idx}
+                className="p-3 sm:p-4 bg-white rounded-lg shadow-sm border-l-4 border-burgundy-700"
+              >
+                <h3 className="text-lg sm:text-xl font-semibold text-burgundy-700 mb-2">
+                  {recipe.name}
+                </h3>
+
+                <ol className="list-decimal pl-5 space-y-2 text-gray-700">
+                  {recipe.instructions.map((step, sIndex) => (
+                    <li key={sIndex}>{step}</li>
+                  ))}
+                </ol>
+              </div>
+            ))}
           </div>
         </div>
-      ))}
+      )}
 
       {/* PREGUNTAS FRECUENTES */}
       {meal.faqs && meal.faqs.length > 0 && (
