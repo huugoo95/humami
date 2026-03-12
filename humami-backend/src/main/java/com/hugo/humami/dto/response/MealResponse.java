@@ -17,6 +17,7 @@ public class MealResponse {
     private String name;
     private String description;
     private String image;
+    private List<RecipeIngredientsGroupResponse> ingredientsByRecipe;
     private List<RecipeResponse> recipes;
     private TimingsResponse timings;
     private String difficulty;

@@ -49,7 +49,37 @@ export default async function MealPage({ params }: { params: { id: string } }) {
         </div>
       )}
 
-      {/* RECETAS */}
+      {/* INGREDIENTES AGRUPADOS POR ELABORACIÓN */}
+      {meal.ingredientsByRecipe && meal.ingredientsByRecipe.length > 0 && (
+        <div className="mb-12">
+          <h2 className="text-3xl font-semibold text-burgundy-800 mb-4">
+            Ingredientes (por elaboración)
+          </h2>
+
+          <div className="space-y-4">
+            {meal.ingredientsByRecipe.map((group, gIndex) => (
+              <div key={gIndex} className="p-4 bg-gray-100 border-l-4 border-burgundy-500 rounded shadow">
+                <h3 className="text-xl font-medium text-gray-900 mb-1">{group.recipeName}</h3>
+                {group.recipeDescription && (
+                  <p className="text-gray-600 mb-2">{group.recipeDescription}</p>
+                )}
+                <ul className="list-disc list-inside text-gray-700">
+                  {group.ingredients.map((ingredient, iIndex) => (
+                    <li key={iIndex}>
+                      <span className="font-semibold">
+                        {ingredient.quantity} {ingredient.unit?.toLowerCase()}
+                      </span>{" "}
+                      de {ingredient.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ELABORACIONES */}
       {meal.recipes.map((recipe, idx) => (
         <div
           key={idx}
@@ -60,40 +90,20 @@ export default async function MealPage({ params }: { params: { id: string } }) {
           </h2>
           <p className="text-gray-600 mb-4">{recipe.description}</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Ingredientes */}
-            <div className="p-4 bg-gray-100 border-l-4 border-burgundy-500 rounded shadow">
-              <h3 className="text-xl font-medium text-gray-900 mb-2">
-                Ingredientes
-              </h3>
-              <ul className="list-disc list-inside text-gray-700">
-                {recipe.ingredients.map((ingredient, iIndex) => (
-                  <li key={iIndex}>
-                    <span className="font-semibold">
-                      {ingredient.quantity} {ingredient.unit.toLowerCase()}
-                    </span>{" "}
-                    de {ingredient.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Instrucciones */}
-            <div className="p-4 bg-gray-100 border-l-4 border-burgundy-700 rounded shadow">
-              <h3 className="text-xl font-medium text-gray-900 mb-2">
-                Instrucciones
-              </h3>
-              <ol className="list-decimal list-inside space-y-2 text-gray-700">
-                {recipe.instructions.map((step, sIndex) => (
-                  <li
-                    key={sIndex}
-                    className="bg-burgundy-50 p-2 rounded-md shadow-sm"
-                  >
-                    {step}
-                  </li>
-                ))}
-              </ol>
-            </div>
+          <div className="p-4 bg-gray-100 border-l-4 border-burgundy-700 rounded shadow">
+            <h3 className="text-xl font-medium text-gray-900 mb-2">
+              Instrucciones
+            </h3>
+            <ol className="list-decimal list-inside space-y-2 text-gray-700">
+              {recipe.instructions.map((step, sIndex) => (
+                <li
+                  key={sIndex}
+                  className="bg-burgundy-50 p-2 rounded-md shadow-sm"
+                >
+                  {step}
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       ))}

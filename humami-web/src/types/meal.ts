@@ -14,6 +14,12 @@ export interface Ingredient {
     difficulty: string;
     portions: number;
   }
+
+  export interface RecipeIngredientsGroup {
+    recipeName: string;
+    recipeDescription?: string;
+    ingredients: Ingredient[];
+  }
   
   export interface Meal {
     id: string;
@@ -23,6 +29,7 @@ export interface Ingredient {
     difficulty?: 'fácil' | 'media' | 'difícil';
     type?: string;
     servings?: number;
+    ingredientsByRecipe?: RecipeIngredientsGroup[];
     recipes: Recipe[];
     faqs?: {
     question: string;

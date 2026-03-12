@@ -4,7 +4,9 @@ import com.hugo.humami.domain.MealEntity;
 import com.hugo.humami.domain.Recipe;
 import com.hugo.humami.dto.request.MealRequest;
 import com.hugo.humami.dto.response.AutocompleteResponse;
+import com.hugo.humami.dto.response.IngredientResponse;
 import com.hugo.humami.dto.response.MealResponse;
+import com.hugo.humami.dto.response.RecipeIngredientsGroupResponse;
 import com.hugo.humami.mapper.MealMapper;
 import com.hugo.humami.repository.MealRepository;
 import com.hugo.humami.service.EmbeddingService;
@@ -45,6 +47,7 @@ public class MealServiceImpl implements MealService {
         MealEntity mealEntity = mealRepository.findById(id)
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
         MealResponse response = mealMapper.toResponse(mealEntity);
+        response.setIngredientsByRecipe(buildIngredientsByRecipe(mealEntity));
 
         if (mealEntity.hasImage()){
             response.setImage(getImageUrl(mealEntity.getImage()));
@@ -140,5 +143,24 @@ public class MealServiceImpl implements MealService {
 
     private String getImageUrl(String image) throws IOException {
         return s3Service.getTempUrl(image);
+    }
+
+    private List<RecipeIngredientsGroupResponse> buildIngredientsByRecipe(MealEntity mealEntity) {
+        if (mealEntity.getRecipes() == null) {
+            return List.of();
+        }
+
+        return mealEntity.getRecipes().stream().map(recipe -> {
+            RecipeIngredientsGroupResponse group = new RecipeIngredientsGroupResponse();
+            group.setRecipeName(recipe.getName());
+            group.setRecipeDescription(recipe.getDescription());
+
+            List<IngredientResponse> ingredients = recipe.getIngredients() == null
+                    ? List.of()
+                    : recipe.getIngredients().stream().map(mealMapper::toResponse).toList();
+
+            group.setIngredients(ingredients);
+            return group;
+        }).toList();
     }
 }
