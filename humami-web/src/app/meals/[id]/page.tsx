@@ -125,7 +125,7 @@ export default async function MealPage({ params }: { params: { id: string } }) {
                   {group.recipeName}
                 </h3>
 
-                <ul className="space-y-1.5 text-gray-700">
+                <ul className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-1.5 text-gray-700">
                   {group.ingredients.map((ingredient, iIndex) => (
                     <li key={iIndex} className="grid grid-cols-[96px_1fr] gap-2 items-start">
                       <span className="font-semibold text-gray-800 whitespace-nowrap">
