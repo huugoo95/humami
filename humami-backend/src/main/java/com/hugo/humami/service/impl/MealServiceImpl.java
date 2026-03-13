@@ -6,6 +6,7 @@ import com.hugo.humami.dto.request.MealRequest;
 import com.hugo.humami.dto.response.AutocompleteResponse;
 import com.hugo.humami.dto.response.IngredientResponse;
 import com.hugo.humami.dto.response.MealResponse;
+import com.hugo.humami.dto.response.PagedResponse;
 import com.hugo.humami.dto.response.RecipeIngredientsGroupResponse;
 import com.hugo.humami.mapper.MealMapper;
 import com.hugo.humami.repository.MealRepository;
@@ -13,6 +14,9 @@ import com.hugo.humami.service.EmbeddingService;
 import com.hugo.humami.service.MealService;
 import com.hugo.humami.service.S3Service;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,8 +42,31 @@ public class MealServiceImpl implements MealService {
     @Override
     public List<MealResponse> getAll() {
         return mealRepository.findAll().stream()
-                .map(mealMapper::toResponse)
+                .map(this::toResponseWithImageIfAvailable)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PagedResponse<MealResponse> getPaged(String query, int page, int limit) {
+        int normalizedPage = Math.max(page, 1);
+        int normalizedLimit = Math.min(Math.max(limit, 1), 48);
+        Pageable pageable = PageRequest.of(normalizedPage - 1, normalizedLimit);
+
+        Page<MealEntity> pageResult = (query == null || query.isBlank())
+                ? mealRepository.findAll(pageable)
+                : mealRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query, pageable);
+
+        List<MealResponse> items = pageResult.getContent().stream()
+                .map(this::toResponseWithImageIfAvailable)
+                .toList();
+
+        return new PagedResponse<>(
+                items,
+                normalizedPage,
+                normalizedLimit,
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages()
+        );
     }
 
     @Override
@@ -114,7 +141,7 @@ public class MealServiceImpl implements MealService {
                 ? mealRepository.searchByEmbedding(queryVector)
                 : fallbackSearch(query);
         return meals.stream()
-                .map(mealMapper::toResponse)
+                .map(this::toResponseWithImageIfAvailable)
                 .collect(Collectors.toList());
     }
 
@@ -143,6 +170,18 @@ public class MealServiceImpl implements MealService {
 
     private String getImageUrl(String image) throws IOException {
         return s3Service.getTempUrl(image);
+    }
+
+    private MealResponse toResponseWithImageIfAvailable(MealEntity mealEntity) {
+        MealResponse response = mealMapper.toResponse(mealEntity);
+        if (mealEntity.hasImage()) {
+            try {
+                response.setImage(getImageUrl(mealEntity.getImage()));
+            } catch (IOException ignored) {
+                // keep response without image URL if signing fails
+            }
+        }
+        return response;
     }
 
     private List<RecipeIngredientsGroupResponse> buildIngredientsByRecipe(MealEntity mealEntity) {
