@@ -74,6 +74,13 @@ public class MealController {
         return ResponseEntity.ok().build();
     }
 
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        mealService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/autocomplete")
     public AutocompleteResponse autocomplete(@RequestParam String query) {
         return mealService.autocomplete(query);
