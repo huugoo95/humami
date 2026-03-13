@@ -3,6 +3,64 @@ import apiClient from "@/config/api";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
+const difficultyLabels: Record<string, string> = {
+  EASY: "fácil",
+  INTERMEDIATE: "media",
+  HARD: "difícil",
+};
+
+const typeLabels: Record<string, string> = {
+  BREAKFAST: "desayuno",
+  BRUNCH: "brunch",
+  STARTER: "entrante",
+  MAIN: "principal",
+  SIDE: "acompañamiento",
+  SAUCE: "salsa",
+  DESSERT: "postre",
+  SNACK: "snack",
+  DRINK: "bebida",
+  BREAD: "pan",
+  SOUP: "sopa",
+};
+
+function formatDifficulty(value?: string) {
+  if (!value) return "-";
+  const key = value.toUpperCase();
+  return difficultyLabels[key] ?? value.toLowerCase();
+}
+
+function formatType(value?: string) {
+  if (!value) return "-";
+  const key = value.toUpperCase();
+  return typeLabels[key] ?? value.toLowerCase();
+}
+
+function formatIngredientUnit(quantity: number, unit?: string) {
+  if (!unit) return "";
+
+  const normalized = unit.toLowerCase();
+  const isPlural = quantity > 1;
+
+  if (!isPlural) return normalized;
+
+  const pluralMap: Record<string, string> = {
+    unidad: "unidades",
+    diente: "dientes",
+    cucharada: "cucharadas",
+    cucharadita: "cucharaditas",
+    rama: "ramas",
+    hoja: "hojas",
+    rodaja: "rodajas",
+    rebanada: "rebanadas",
+    taza: "tazas",
+    vaso: "vasos",
+    lata: "latas",
+    paquete: "paquetes",
+  };
+
+  return pluralMap[normalized] ?? normalized;
+}
+
 async function getMealById(id: string): Promise<Meal | null> {
   try {
     const response = await apiClient.get(`/meals/${id}`);
@@ -27,10 +85,10 @@ export default async function MealPage({ params }: { params: { id: string } }) {
       {/* METADATOS DEL MENÚ */}
       <div className="flex flex-wrap gap-2 text-xs sm:text-sm text-gray-600 mb-5">
         <span className="bg-burgundy-100 text-burgundy-800 px-3 py-1 rounded-full font-medium">
-          Dificultad: {meal.difficulty?.toLowerCase()}
+          Dificultad: {formatDifficulty(meal.difficulty)}
         </span>
         <span className="bg-burgundy-100 text-burgundy-800 px-3 py-1 rounded-full font-medium">
-          Tipo: {meal.type?.toLowerCase()}
+          Tipo: {formatType(meal.type)}
         </span>
         <span className="bg-burgundy-100 text-burgundy-800 px-3 py-1 rounded-full font-medium">
           Raciones: {meal.servings}
@@ -71,7 +129,7 @@ export default async function MealPage({ params }: { params: { id: string } }) {
                   {group.ingredients.map((ingredient, iIndex) => (
                     <li key={iIndex} className="grid grid-cols-[96px_1fr] gap-2 items-start">
                       <span className="font-semibold text-gray-800 whitespace-nowrap">
-                        {ingredient.quantity} {ingredient.unit?.toLowerCase()}
+                        {ingredient.quantity} {formatIngredientUnit(ingredient.quantity, ingredient.unit)}
                       </span>
                       <span>{ingredient.name}</span>
                     </li>
