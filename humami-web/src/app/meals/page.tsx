@@ -75,7 +75,7 @@ export default function MealsPage() {
         {loading ? (
           <p className="text-center text-humami-text-base">Cargando…</p>
         ) : meals.length > 0 ? (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             {meals.map((m) => (
               <div
                 key={m.id}
@@ -84,6 +84,7 @@ export default function MealsPage() {
                   p-3 sm:p-4
                   rounded-lg shadow-md
                   border border-gray-200
+                  h-full
                 "
               >
                 <Link href={`/meals/${m.id}`}>
