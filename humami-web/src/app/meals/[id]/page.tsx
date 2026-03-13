@@ -128,10 +128,10 @@ export default async function MealPage({ params }: { params: { id: string } }) {
                 <ul className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-1.5 text-gray-700">
                   {group.ingredients.map((ingredient, iIndex) => (
                     <li key={iIndex} className="grid grid-cols-[96px_1fr] gap-2 items-start">
-                      <span className="font-semibold text-gray-800 whitespace-nowrap">
+                      <span className="font-semibold text-gray-800 whitespace-nowrap tabular-nums text-sm sm:text-base">
                         {ingredient.quantity} {formatIngredientUnit(ingredient.quantity, ingredient.unit)}
                       </span>
-                      <span className="pl-1">de {ingredient.name}</span>
+                      <span className="pl-1 leading-tight text-sm sm:text-base">de {ingredient.name}</span>
                     </li>
                   ))}
                 </ul>
