@@ -131,7 +131,7 @@ export default async function MealPage({ params }: { params: { id: string } }) {
                       <span className="font-semibold text-gray-800 whitespace-nowrap">
                         {ingredient.quantity} {formatIngredientUnit(ingredient.quantity, ingredient.unit)}
                       </span>
-                      <span>{ingredient.name}</span>
+                      <span className="pl-1">de {ingredient.name}</span>
                     </li>
                   ))}
                 </ul>
