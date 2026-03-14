@@ -3,6 +3,7 @@ package com.hugo.humami.controller;
 import com.hugo.humami.dto.request.MealRequest;
 import com.hugo.humami.dto.response.AutocompleteResponse;
 import com.hugo.humami.dto.response.MealResponse;
+import com.hugo.humami.dto.response.PagedResponse;
 import com.hugo.humami.service.MealService;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
@@ -26,8 +27,12 @@ public class MealController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<MealResponse>> getAll() {
-        List<MealResponse> meals = mealService.getAll();
+    public ResponseEntity<PagedResponse<MealResponse>> getAll(
+            @RequestParam(value = "query", defaultValue = "") String query,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "limit", defaultValue = "12") int limit
+    ) {
+        PagedResponse<MealResponse> meals = mealService.getPaged(query, page, limit);
         return new ResponseEntity<>(meals, HttpStatus.OK);
     }
 
