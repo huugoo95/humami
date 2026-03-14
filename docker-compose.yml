@@ -24,9 +24,11 @@ services:
       - .env      
     environment:
       SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
-      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
-      S3_SECRET_KEY: ${S3_SECRET_KEY}
-      S3_BUCKET: ${S3_BUCKET}
+      S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
+      S3_BUCKET: ${AWS_S3_BUCKET_NAME}
+      AWS_S3_REGION: ${AWS_S3_REGION}
+      HUMAMI_WRITE_SECRET: ${HUMAMI_WRITE_SECRET}
     profiles: ["local", "prod"]
 
   frontend:
