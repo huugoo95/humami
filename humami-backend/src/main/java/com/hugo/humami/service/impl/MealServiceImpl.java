@@ -129,6 +129,13 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public void delete(String id) {
+        MealEntity existing = mealRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Meal not found"));
+
+        if (existing.hasImage()) {
+            s3Service.deleteImage(existing.getImage());
+        }
+
         mealRepository.deleteById(id);
     }
 
