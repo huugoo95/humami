@@ -32,7 +32,7 @@ class MealServiceImplTest {
 
         Ingredient ingredient = new Ingredient();
         ingredient.setName("yogur griego");
-        ingredient.setQuantity(200);
+        ingredient.setQuantity(new java.math.BigDecimal("200"));
         ingredient.setUnit(IngredientUnitEnum.GRAM);
 
         Recipe recipe = new Recipe();
@@ -51,7 +51,7 @@ class MealServiceImplTest {
 
         IngredientResponse ingredientResponse = new IngredientResponse();
         ingredientResponse.setName("yogur griego");
-        ingredientResponse.setQuantity(200);
+        ingredientResponse.setQuantity(new java.math.BigDecimal("200"));
         ingredientResponse.setUnit("g");
 
         when(mealRepository.findById("meal-1")).thenReturn(Optional.of(meal));

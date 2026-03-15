@@ -14,6 +14,7 @@ public class RecipeResponse {
     private String name;
     private String description;
     private List<String> instructions;
+    private List<InstructionStepResponse> instructionSteps;
     private List<IngredientResponse> ingredients;
 
 }
