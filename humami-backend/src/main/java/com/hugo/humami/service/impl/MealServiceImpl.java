@@ -52,23 +52,40 @@ public class MealServiceImpl implements MealService {
     public PagedResponse<MealResponse> getPaged(String query, int page, int limit) {
         int normalizedPage = Math.max(page, 1);
         int normalizedLimit = Math.min(Math.max(limit, 1), 48);
-        Pageable pageable = PageRequest.of(normalizedPage - 1, normalizedLimit);
 
-        Page<MealEntity> pageResult = (query == null || query.isBlank())
-                ? mealRepository.findAll(pageable)
-                : mealRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query, pageable);
+        if (query == null || query.isBlank()) {
+            Pageable pageable = PageRequest.of(normalizedPage - 1, normalizedLimit);
+            Page<MealEntity> pageResult = mealRepository.findAll(pageable);
+            List<MealResponse> items = pageResult.getContent().stream()
+                    .map(this::toResponseWithImageIfAvailable)
+                    .toList();
 
-        List<MealResponse> items = pageResult.getContent().stream()
-                .map(this::toResponseWithImageIfAvailable)
+            return new PagedResponse<>(
+                    items,
+                    normalizedPage,
+                    normalizedLimit,
+                    pageResult.getTotalElements(),
+                    pageResult.getTotalPages()
+            );
+        }
+
+        String normalizedQuery = normalizeText(query);
+        List<ScoredMeal> scored = mealRepository.findAll().stream()
+                .map(meal -> new ScoredMeal(meal, fuzzyScore(meal, normalizedQuery)))
+                .filter(scoredMeal -> scoredMeal.score > 0)
+                .sorted(Comparator.comparingInt((ScoredMeal s) -> s.score).reversed())
                 .toList();
 
-        return new PagedResponse<>(
-                items,
-                normalizedPage,
-                normalizedLimit,
-                pageResult.getTotalElements(),
-                pageResult.getTotalPages()
-        );
+        int totalItems = scored.size();
+        int totalPages = Math.max((int) Math.ceil((double) totalItems / normalizedLimit), 1);
+        int from = Math.min((normalizedPage - 1) * normalizedLimit, totalItems);
+        int to = Math.min(from + normalizedLimit, totalItems);
+
+        List<MealResponse> items = scored.subList(from, to).stream()
+                .map(scoredMeal -> toResponseWithImageIfAvailable(scoredMeal.meal))
+                .toList();
+
+        return new PagedResponse<>(items, normalizedPage, normalizedLimit, totalItems, totalPages);
     }
 
     @Override
