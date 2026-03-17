@@ -12,6 +12,8 @@ import java.util.List;
 public class RecipeRequest {
     private String name;
     private String description;
+    // legacy support during migration
     private List<String> instructions;
+    private List<InstructionStepRequest> instructionSteps;
     private List<IngredientRequest> ingredients;
 }

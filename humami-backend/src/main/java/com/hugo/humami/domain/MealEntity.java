@@ -1,5 +1,6 @@
 package com.hugo.humami.domain;
 
+import com.hugo.humami.domain.enums.DifficultyEnum;
 import com.hugo.humami.domain.enums.MealTypeEnum;
 import com.hugo.humami.dto.request.TimingsRequest;
 import lombok.Data;
@@ -23,7 +24,7 @@ public class MealEntity {
     private List<Double> embedding;
     private TimingsRequest timings;
     private MealTypeEnum type;
-    private String difficulty;
+    private DifficultyEnum difficulty;
     private Integer servings;
     private List<Faq> faqs;
     private Instant createdAt;

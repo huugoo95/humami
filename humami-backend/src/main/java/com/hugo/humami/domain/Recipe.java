@@ -12,6 +12,7 @@ public class Recipe {
     private String name;
     private String description;
     private List<String> instructions;
+    private List<InstructionStep> instructionSteps;
     private List<Ingredient> ingredients;
 
 }

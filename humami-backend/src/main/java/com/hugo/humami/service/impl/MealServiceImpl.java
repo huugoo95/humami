@@ -1,5 +1,7 @@
 package com.hugo.humami.service.impl;
 
+import com.hugo.humami.domain.Ingredient;
+import com.hugo.humami.domain.InstructionStep;
 import com.hugo.humami.domain.MealEntity;
 import com.hugo.humami.domain.Recipe;
 import com.hugo.humami.dto.request.MealRequest;
@@ -89,6 +91,7 @@ public class MealServiceImpl implements MealService {
                 .orElseThrow(() -> new RuntimeException("Meal not found"));
 
         mealMapper.updateMealFromRequest(existing, mealRequest);
+        normalizeRecipeStructure(existing);
 
         String textForEmbedding = getStringForEmbedding(existing);
         existing.setEmbedding(embeddingService.getEmbedding(textForEmbedding));
@@ -119,6 +122,7 @@ public class MealServiceImpl implements MealService {
     @Override
     public MealResponse create(MealRequest mealRequest) {
         MealEntity mealEntity = mealMapper.toEntity(mealRequest);
+        normalizeRecipeStructure(mealEntity);
 
         String embeddingText = getStringForEmbedding(mealEntity);
         mealEntity.setEmbedding(embeddingService.getEmbedding(embeddingText));
@@ -208,5 +212,36 @@ public class MealServiceImpl implements MealService {
             group.setIngredients(ingredients);
             return group;
         }).toList();
+    }
+
+    private void normalizeRecipeStructure(MealEntity mealEntity) {
+        if (mealEntity.getRecipes() == null) {
+            return;
+        }
+
+        for (Recipe recipe : mealEntity.getRecipes()) {
+            if ((recipe.getInstructionSteps() == null || recipe.getInstructionSteps().isEmpty())
+                    && recipe.getInstructions() != null
+                    && !recipe.getInstructions().isEmpty()) {
+                List<InstructionStep> steps = new java.util.ArrayList<>();
+                int order = 1;
+                for (String text : recipe.getInstructions()) {
+                    InstructionStep step = new InstructionStep();
+                    step.setOrder(order++);
+                    step.setText(text);
+                    steps.add(step);
+                }
+                recipe.setInstructionSteps(steps);
+            }
+
+            if (recipe.getIngredients() != null) {
+                for (Ingredient ingredient : recipe.getIngredients()) {
+                    // Ensure null-safe defaults in persisted docs
+                    if (ingredient != null) {
+                        ingredient.setOptional(ingredient.isOptional());
+                    }
+                }
+            }
+        }
     }
 }

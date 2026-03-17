@@ -131,7 +131,7 @@ export default async function MealPage({ params }: { params: { id: string } }) {
                       <span className="font-semibold text-gray-800 whitespace-nowrap tabular-nums text-sm sm:text-base">
                         {ingredient.quantity} {formatIngredientUnit(ingredient.quantity, ingredient.unit)}
                       </span>
-                      <span className="pl-1 leading-tight text-sm sm:text-base">de {ingredient.name}</span>
+                      <span className="pl-1 leading-tight text-sm sm:text-base">de {ingredient.name}{ingredient.isOptional ? ' (opcional)' : ''}</span>
                     </li>
                   ))}
                 </ul>
@@ -159,7 +159,10 @@ export default async function MealPage({ params }: { params: { id: string } }) {
                 </h3>
 
                 <ol className="list-decimal pl-5 space-y-2 text-gray-700">
-                  {recipe.instructions.map((step, sIndex) => (
+                  {(recipe.instructionSteps && recipe.instructionSteps.length > 0
+                    ? [...recipe.instructionSteps].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((step) => step.text)
+                    : (recipe.instructions || [])
+                  ).map((step, sIndex) => (
                     <li key={sIndex}>{step}</li>
                   ))}
                 </ol>
