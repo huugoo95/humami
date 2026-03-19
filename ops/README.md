@@ -1,6 +1,14 @@
 # Ops Handbook (Humami)
 
-This directory is the operational memory of the project.
+This directory is the **operational memory** of the project.
+
+## Boundary with `docs/`
+To avoid overlap:
+- `docs/` = product + engineering knowledge (**what/why**)
+- `ops/` = execution playbooks (**how to run/operate repeatedly**)
+
+If content answers "what are we building and why?" -> put it in `docs/`.
+If content answers "how do we execute this safely every time?" -> put it in `ops/`.
 
 ## Why this exists
 When work spans backend, frontend, deploy, recipes, and SEO, context gets fragmented.
