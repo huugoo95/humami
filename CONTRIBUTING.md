@@ -37,10 +37,14 @@ Required sections:
 ## Pull requests
 
 Every PR must:
-1. Reference spec ID
+1. Reference spec ID (except docs-only PRs)
 2. Fill `.github/pull_request_template.md`
-3. Include test evidence
-4. Include risks and rollback notes
+3. Include test evidence (as applicable)
+4. Include risks and rollback notes (as applicable)
+
+Docs-only PRs do not require a spec unless they alter product behavior, API contract, or release policy.
+
+Direct commits to `develop` and `master` are not allowed.
 
 ## Quality gates (before merge)
 

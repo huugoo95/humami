@@ -8,10 +8,16 @@ Define:
 - Goal and metric
 - Priority
 - Non-goals
+- Primary track (`BE/API`, `FE/UX`, `Infra/Deploy`, `Data/Recipes`, `SEO/Growth`)
+
+Before execution, write the minimum task line:
+`[TRACK] objective | done-criteria | deadline`
 
 ## 1) Functional spec
 
-Create `specs/XXX-feature-name.md` from template.
+Create `specs/XXX-feature-name.md` from template for product/code changes.
+
+Docs-only changes do not require a spec unless they change product behavior, API contract, or release policy.
 
 Minimum required:
 - user story
@@ -59,6 +65,9 @@ PR must include:
 - risks and rollback
 - completed checklist
 
+Direct commits to long-lived branches are not allowed (`develop`, `master`).
+All changes must land via PR.
+
 Branch targets:
 - `feat/*` and `fix/*` -> `develop`
 - `release/*` -> `master`, then back-merge to `develop`
@@ -69,3 +78,13 @@ Branch targets:
 - squash merge preferred for feature branches
 - verify in staging
 - update progress docs if needed
+- if operational learning happened, update `ops/` runbooks and logs (`ops/decisions.md`, `ops/incidents.md`)
+
+## Operational memory
+
+For recurring execution knowledge (intake/execution mode, deploy, recipes ops, SEO cycles), use:
+- `ops/README.md`
+- `ops/work-mode.md`
+- `ops/runbook-deploy.md`
+- `ops/runbook-recipes.md`
+- `ops/runbook-seo.md`

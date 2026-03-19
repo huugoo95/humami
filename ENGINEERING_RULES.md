@@ -4,9 +4,10 @@ This file is the engineering source of truth for Humami. If there is a conflict,
 
 ## 1) Delivery model
 
-- Every change starts from a written feature spec in `specs/`.
-- Every PR must reference one spec ID.
-- No direct commits to `master`.
+- Every product/code change starts from a written feature spec in `specs/`.
+- Every non-docs PR must reference one spec ID.
+- Docs-only PRs do not require a spec unless they define/alter product behavior, API contract, or release policy.
+- No direct commits to long-lived branches (`develop`, `master`).
 
 ## 2) TDD (required)
 
