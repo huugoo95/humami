@@ -1,9 +1,12 @@
 package com.hugo.humami.controller;
 
+import com.hugo.humami.dto.request.AboutRequest;
 import com.hugo.humami.dto.response.AboutResponse;
 import com.hugo.humami.service.AboutService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,5 +23,10 @@ public class AboutController {
     @GetMapping
     public ResponseEntity<AboutResponse> getAbout() {
         return ResponseEntity.ok(aboutService.getAbout());
+    }
+
+    @PatchMapping
+    public ResponseEntity<AboutResponse> updateAbout(@RequestBody AboutRequest request) {
+        return ResponseEntity.ok(aboutService.updateAbout(request));
     }
 }
