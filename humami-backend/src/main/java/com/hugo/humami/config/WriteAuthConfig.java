@@ -16,6 +16,6 @@ public class WriteAuthConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(writeAuthInterceptor)
-                .addPathPatterns("/api/meals/**", "/api/blog/**");
+                .addPathPatterns("/api/meals/**", "/api/blog/**", "/api/about/**");
     }
 }
