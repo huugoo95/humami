@@ -17,9 +17,48 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class MealServiceImplTest {
+
+    @Test
+    void searchShouldReturnTypoTolerantResultsFromFallback() {
+        MealRepository mealRepository = mock(MealRepository.class);
+        MealMapper mealMapper = mock(MealMapper.class);
+        EmbeddingService embeddingService = mock(EmbeddingService.class);
+        S3Service s3Service = mock(S3Service.class);
+
+        MealServiceImpl service = new MealServiceImpl(mealRepository, mealMapper, embeddingService, s3Service);
+
+        Ingredient ingredient = new Ingredient();
+        ingredient.setName("cookies");
+
+        Recipe recipe = new Recipe();
+        recipe.setName("Salsa de cookies");
+        recipe.setIngredients(List.of(ingredient));
+
+        MealEntity cookiesMeal = new MealEntity();
+        cookiesMeal.setId("meal-1");
+        cookiesMeal.setName("Cookies caseras");
+        cookiesMeal.setDescription("Galletas suaves estilo bakery");
+        cookiesMeal.setRecipes(List.of(recipe));
+
+        when(mealRepository.searchBySemanticText(anyString())).thenReturn(List.of());
+        when(mealRepository.findAll()).thenReturn(List.of(cookiesMeal));
+
+        MealResponse mapped = new MealResponse();
+        mapped.setId("meal-1");
+        mapped.setName("Cookies caseras");
+        when(mealMapper.toResponse(cookiesMeal)).thenReturn(mapped);
+
+        List<MealResponse> result = service.search("coockies");
+
+        assertEquals(1, result.size());
+        assertEquals("Cookies caseras", result.get(0).getName());
+        verify(mealRepository).searchBySemanticText("coockies");
+        verify(mealRepository).findAll();
+    }
 
     @Test
     void getByIdShouldPopulateIngredientsByRecipeGrouped() throws Exception {

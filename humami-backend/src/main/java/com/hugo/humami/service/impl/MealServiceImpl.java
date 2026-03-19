@@ -23,11 +23,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class MealServiceImpl implements MealService {
+
+    private static final int SEARCH_RESULTS_LIMIT = 20;
 
     private final MealRepository mealRepository;
     private final MealMapper mealMapper;
@@ -72,8 +79,8 @@ public class MealServiceImpl implements MealService {
         String normalizedQuery = normalizeText(query);
         List<ScoredMeal> scored = mealRepository.findAll().stream()
                 .map(meal -> new ScoredMeal(meal, fuzzyScore(meal, normalizedQuery)))
-                .filter(scoredMeal -> scoredMeal.score > 0)
-                .sorted(Comparator.comparingInt((ScoredMeal s) -> s.score).reversed())
+                .filter(scoredMeal -> scoredMeal.score() > 0)
+                .sorted(Comparator.comparingInt(ScoredMeal::score).reversed())
                 .toList();
 
         int totalItems = scored.size();
@@ -82,7 +89,7 @@ public class MealServiceImpl implements MealService {
         int to = Math.min(from + normalizedLimit, totalItems);
 
         List<MealResponse> items = scored.subList(from, to).stream()
-                .map(scoredMeal -> toResponseWithImageIfAvailable(scoredMeal.meal))
+                .map(scoredMeal -> toResponseWithImageIfAvailable(scoredMeal.meal()))
                 .toList();
 
         return new PagedResponse<>(items, normalizedPage, normalizedLimit, totalItems, totalPages);
@@ -129,11 +136,10 @@ public class MealServiceImpl implements MealService {
     }
 
     private static String getStringForEmbedding(MealEntity updated) {
-        String text = updated.getName() + ". " + updated.getDescription() + ". " +
+        return updated.getName() + ". " + updated.getDescription() + ". " +
                 updated.getRecipes().stream()
                         .map(r -> r.getIngredients().toString())
                         .collect(Collectors.joining(", "));
-        return text;
     }
 
     @Override
@@ -162,23 +168,32 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public List<MealResponse> search(String query) {
-        List<Double> queryVector = null;
-        // ToDo get embedding
-        //  embeddingService.getEmbedding(query);
-        List<MealEntity> meals = isValidEmbedding(queryVector)
-                ? mealRepository.searchByEmbedding(queryVector)
-                : fallbackSearch(query);
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+
+        String normalizedQuery = normalizeText(query);
+
+        List<MealEntity> meals;
+        try {
+            meals = mealRepository.searchBySemanticText(query);
+        } catch (Exception ignored) {
+            meals = List.of();
+        }
+
+        if (meals == null || meals.isEmpty()) {
+            meals = mealRepository.findAll().stream()
+                    .map(meal -> new ScoredMeal(meal, fuzzyScore(meal, normalizedQuery)))
+                    .filter(scoredMeal -> scoredMeal.score() > 0)
+                    .sorted(Comparator.comparingInt(ScoredMeal::score).reversed())
+                    .limit(SEARCH_RESULTS_LIMIT)
+                    .map(ScoredMeal::meal)
+                    .toList();
+        }
+
         return meals.stream()
                 .map(this::toResponseWithImageIfAvailable)
                 .collect(Collectors.toList());
-    }
-
-    private boolean isValidEmbedding(List<Double> embedding) {
-        return embedding != null && !embedding.isEmpty();
-    }
-
-    private List<MealEntity> fallbackSearch(String query) {
-        return mealRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query);
     }
 
     @Override
@@ -253,7 +268,6 @@ public class MealServiceImpl implements MealService {
 
             if (recipe.getIngredients() != null) {
                 for (Ingredient ingredient : recipe.getIngredients()) {
-                    // Ensure null-safe defaults in persisted docs
                     if (ingredient != null) {
                         ingredient.setOptional(ingredient.isOptional());
                     }
@@ -261,4 +275,151 @@ public class MealServiceImpl implements MealService {
             }
         }
     }
+
+    private int fuzzyScore(MealEntity meal, String normalizedQuery) {
+        if (normalizedQuery == null || normalizedQuery.isBlank()) {
+            return 0;
+        }
+
+        int score = 0;
+
+        score += scoreText(meal.getName(), normalizedQuery, 120);
+        score += scoreText(meal.getDescription(), normalizedQuery, 70);
+
+        if (meal.getRecipes() != null) {
+            for (Recipe recipe : meal.getRecipes()) {
+                score += scoreText(recipe.getName(), normalizedQuery, 80);
+                score += scoreText(recipe.getDescription(), normalizedQuery, 35);
+
+                if (recipe.getIngredients() != null) {
+                    for (Ingredient ingredient : recipe.getIngredients()) {
+                        if (ingredient != null) {
+                            score += scoreText(ingredient.getName(), normalizedQuery, 75);
+                        }
+                    }
+                }
+            }
+        }
+
+        return score;
+    }
+
+    private int scoreText(String rawText, String normalizedQuery, int boost) {
+        if (rawText == null || rawText.isBlank()) {
+            return 0;
+        }
+
+        String normalizedText = normalizeText(rawText);
+        if (normalizedText.isBlank()) {
+            return 0;
+        }
+
+        if (normalizedText.equals(normalizedQuery)) {
+            return boost + 30;
+        }
+
+        if (normalizedText.contains(normalizedQuery)) {
+            return boost + 15;
+        }
+
+        List<String> textTokens = tokenize(normalizedText);
+        List<String> queryTokens = tokenize(normalizedQuery);
+
+        if (textTokens.isEmpty() || queryTokens.isEmpty()) {
+            return 0;
+        }
+
+        int tokenScore = 0;
+        for (String qToken : queryTokens) {
+            int bestForToken = 0;
+            for (String tToken : textTokens) {
+                int similarity = tokenSimilarity(qToken, tToken);
+                if (similarity > bestForToken) {
+                    bestForToken = similarity;
+                }
+            }
+            tokenScore += bestForToken;
+        }
+
+        int normalizedTokenScore = tokenScore / queryTokens.size();
+        if (normalizedTokenScore < 55) {
+            return 0;
+        }
+
+        return Math.round(boost * (normalizedTokenScore / 100f));
+    }
+
+    private int tokenSimilarity(String a, String b) {
+        if (Objects.equals(a, b)) {
+            return 100;
+        }
+
+        if (a.contains(b) || b.contains(a)) {
+            return 90;
+        }
+
+        int distance = levenshteinDistance(a, b);
+        int maxLen = Math.max(a.length(), b.length());
+        if (maxLen == 0) {
+            return 0;
+        }
+
+        float ratio = 1f - ((float) distance / maxLen);
+        return Math.max(0, Math.round(ratio * 100));
+    }
+
+    private int levenshteinDistance(String a, String b) {
+        int[][] dp = new int[a.length() + 1][b.length() + 1];
+
+        for (int i = 0; i <= a.length(); i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= b.length(); j++) {
+            dp[0][j] = j;
+        }
+
+        for (int i = 1; i <= a.length(); i++) {
+            for (int j = 1; j <= b.length(); j++) {
+                int cost = a.charAt(i - 1) == b.charAt(j - 1) ? 0 : 1;
+                dp[i][j] = Math.min(
+                        Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1),
+                        dp[i - 1][j - 1] + cost
+                );
+            }
+        }
+
+        return dp[a.length()][b.length()];
+    }
+
+    private List<String> tokenize(String text) {
+        if (text == null || text.isBlank()) {
+            return List.of();
+        }
+
+        String[] split = text.split("\\s+");
+        List<String> tokens = new ArrayList<>(split.length);
+        for (String token : split) {
+            if (!token.isBlank()) {
+                tokens.add(token);
+            }
+        }
+        return tokens;
+    }
+
+    private String normalizeText(String text) {
+        if (text == null) {
+            return "";
+        }
+
+        String normalized = Normalizer.normalize(text, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9\\s]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+
+        return normalized;
+    }
+
+    private record ScoredMeal(MealEntity meal, int score) {}
 }
