@@ -15,7 +15,9 @@ Before execution, write the minimum task line:
 
 ## 1) Functional spec
 
-Create `specs/XXX-feature-name.md` from template.
+Create `specs/XXX-feature-name.md` from template for product/code changes.
+
+Docs-only changes do not require a spec unless they change product behavior, API contract, or release policy.
 
 Minimum required:
 - user story

@@ -26,7 +26,13 @@ Record decisions that should persist beyond chat history.
 - Impact: PR flow has one explicit reviewer by default.
 - Revisit trigger: Team grows or review load becomes a bottleneck.
 
+## 2026-03-19
+- Decision: Docs-only PRs do not require a spec, unless they alter product behavior, API contract, or release policy.
+- Scope/Track: Cross-track
+- Rationale: Avoid process overhead for pure documentation maintenance while protecting behavior-affecting changes.
+- Impact: Faster docs iteration with clear exception boundaries.
+- Revisit trigger: Repeated docs PRs cause behavior drift without specs.
+
 ## Pending decisions
-- Spec strictness: do docs-only PRs always require a spec, or allow a lightweight exception label?
 - Release gate: should deploy to production require `master` only, or is `develop` deployment acceptable by policy?
 - Incident severity: define P1/P2/P3 levels and mandatory response checklist.
