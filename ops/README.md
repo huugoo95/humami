@@ -40,10 +40,12 @@ Example:
 - Sensitive internal host details not required for team work
 
 ## Files
+- `quick-start.md`
+- `task-template.md`
+- `closure-checklist.md`
 - `runbook-deploy.md`
 - `runbook-recipes.md`
 - `runbook-seo.md`
 - `execution-model.md`
 - `decisions.md`
 - `incidents.md`
-- `task-template.md`
