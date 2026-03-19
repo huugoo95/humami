@@ -1,0 +1,33 @@
+{
+  "name": "",
+  "description": "",
+  "recipes": [
+    {
+      "name": "",
+      "description": "",
+      "instructionSteps": [
+        {
+          "order": 1,
+          "text": ""
+        }
+      ],
+      "ingredients": [
+        {
+          "name": "",
+          "quantity": 0,
+          "unit": "GRAM",
+          "link": "",
+          "isOptional": false
+        }
+      ]
+    }
+  ],
+  "timings": {
+    "prepTimeInHours": 0.5,
+    "totalTimeInHours": 1.0
+  },
+  "difficulty": "EASY",
+  "type": "MAIN",
+  "servings": 2,
+  "faqs": []
+}

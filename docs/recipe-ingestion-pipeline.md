@@ -74,6 +74,38 @@ For each published item, retain:
 - created meal ID
 - publication timestamp
 
+Use these references:
+- `ops/recipe-import-template.json` (pipeline tracking)
+- `ops/mealrequest-template.json` (payload ready for API)
+
+---
+
+## Iteration policy
+This pipeline is versioned and expected to evolve.
+
+When quality issues appear:
+1. log issue type
+2. add normalization or QA rule
+3. run next batch with updated rule set
+4. document change in `ops/decisions.md`
+
+---
+
+## Out of scope (v1)
+- fully autonomous OCR-to-publish without human QA
+- bulk public ingestion with zero review
+- automatic SEO enrichment during ingestion
+es (50+)
+
+---
+
+## Data contract checkpoint
+For each published item, retain:
+- source reference (book/page)
+- normalized payload snapshot
+- created meal ID
+- publication timestamp
+
 ---
 
 ## Iteration policy

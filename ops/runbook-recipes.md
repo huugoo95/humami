@@ -29,4 +29,5 @@ Publish meal/recipe content without breaking API contract or semantics.
 - `docs/RECIPES.md`
 - `docs/recipe-ingestion-pipeline.md`
 - `ops/recipe-import-template.json`
+- `ops/mealrequest-template.json`
 - `memory/humami-contracts.md` (operational contract memory)
