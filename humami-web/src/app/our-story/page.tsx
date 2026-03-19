@@ -62,9 +62,6 @@ export default async function OurStoryPage() {
               className="w-full max-w-sm rounded-2xl border border-humami-text-base/15 shadow-sm object-cover"
               loading="lazy"
             />
-            <figcaption className="mt-2 text-sm text-humami-text-base/70">
-              Foto servida desde origen externo (S3/CDN).
-            </figcaption>
           </figure>
         ) : (
           <div className="mt-8 rounded-xl border border-dashed border-humami-text-base/25 p-4 md:p-5 bg-humami-bg-light/50">
