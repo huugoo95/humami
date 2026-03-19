@@ -43,6 +43,7 @@ Example:
 - `runbook-deploy.md`
 - `runbook-recipes.md`
 - `runbook-seo.md`
+- `execution-model.md`
 - `decisions.md`
 - `incidents.md`
 - `task-template.md`
