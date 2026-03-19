@@ -1,9 +1,9 @@
 # Project Progress
 
-_Last updated: 2026-03-10_
+_Last updated: 2026-03-19_
 
 ## In progress
-- Drafting roadmap specs to harden web foundations before content scale.
+- Spec 010: backend endpoint coverage uplift for meal/blog controllers and write-auth paths.
 
 ## Blocked
 - None.
