@@ -1,0 +1,36 @@
+{
+  "source": {
+    "book": "",
+    "page": "",
+    "extractedAt": ""
+  },
+  "draft": {
+    "title": "",
+    "ingredients": [
+      {
+        "raw": ""
+      }
+    ],
+    "steps": [
+      {
+        "raw": ""
+      }
+    ],
+    "timing": "",
+    "servings": "",
+    "notes": ""
+  },
+  "normalized": {
+    "mealRequest": {},
+    "validation": {
+      "contractValid": false,
+      "editorialChecked": false,
+      "duplicateChecked": false
+    }
+  },
+  "publish": {
+    "mealId": "",
+    "imageUploaded": false,
+    "publishedAt": ""
+  }
+}
