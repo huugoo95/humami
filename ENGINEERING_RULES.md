@@ -6,7 +6,7 @@ This file is the engineering source of truth for Humami. If there is a conflict,
 
 - Every change starts from a written feature spec in `specs/`.
 - Every PR must reference one spec ID.
-- No direct commits to `master`.
+- No direct commits to long-lived branches (`develop`, `master`).
 
 ## 2) TDD (required)
 

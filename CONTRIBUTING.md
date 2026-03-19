@@ -42,6 +42,8 @@ Every PR must:
 3. Include test evidence
 4. Include risks and rollback notes
 
+Direct commits to `develop` and `master` are not allowed.
+
 ## Quality gates (before merge)
 
 - Lint passes

@@ -63,6 +63,9 @@ PR must include:
 - risks and rollback
 - completed checklist
 
+Direct commits to long-lived branches are not allowed (`develop`, `master`).
+All changes must land via PR.
+
 Branch targets:
 - `feat/*` and `fix/*` -> `develop`
 - `release/*` -> `master`, then back-merge to `develop`
@@ -77,8 +80,9 @@ Branch targets:
 
 ## Operational memory
 
-For recurring execution knowledge (deploy, recipes ops, SEO cycles), use:
+For recurring execution knowledge (intake/execution mode, deploy, recipes ops, SEO cycles), use:
 - `ops/README.md`
+- `ops/work-mode.md`
 - `ops/runbook-deploy.md`
 - `ops/runbook-recipes.md`
 - `ops/runbook-seo.md`

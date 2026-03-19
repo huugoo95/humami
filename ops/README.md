@@ -48,12 +48,9 @@ Example:
 - Sensitive internal host details not required for team work
 
 ## Files
-- `quick-start.md`
-- `task-template.md`
-- `closure-checklist.md`
+- `work-mode.md` (intake, execution mode, closure checks, reporting)
 - `runbook-deploy.md`
 - `runbook-recipes.md`
 - `runbook-seo.md`
-- `execution-model.md`
 - `decisions.md`
 - `incidents.md`
