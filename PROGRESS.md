@@ -3,12 +3,13 @@
 _Last updated: 2026-03-19_
 
 ## In progress
-- Spec 012: persist About content in MongoDB + add protected `PATCH /api/about` update path.
+- Spec 013: add `PUT /api/about/image` multipart upload flow (S3-backed) and keep `GET /api/about` photo URL usable.
 
 ## Blocked
 - None.
 
 ## Done
+- Spec 012 merged: persist About content in MongoDB + protected `PATCH /api/about` update path.
 - Spec 011 merged: `GET /api/about` endpoint with title/story/photoUrl/updatedAt contract.
 - Spec 010 merged: backend endpoint coverage uplift for meal/blog controllers and write-auth paths.
 - Established engineering workflow and git flow documentation.
