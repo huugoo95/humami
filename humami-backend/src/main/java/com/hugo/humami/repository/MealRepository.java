@@ -19,8 +19,8 @@ public interface MealRepository extends MongoRepository<MealEntity, String> {
                     "     'should': [ " +
                     "       { 'text': { 'query': ?0, 'path': 'name', 'score': { 'boost': { 'value': 5 } }, 'fuzzy': { 'maxEdits': 2 } } }, " +
                     "       { 'text': { 'query': ?0, 'path': 'description', 'score': { 'boost': { 'value': 3 } }, 'fuzzy': { 'maxEdits': 2 } } }, " +
-                    "       { 'embeddedDocuments': { 'path': 'recipes', 'operator': { 'text': { 'query': ?0, 'path': 'recipes.title', 'score': { 'boost': { 'value': 2 } }, 'fuzzy': { 'maxEdits': 2 } } } } }, " +
-                    "       { 'embeddedDocuments': { 'path': 'recipes', 'operator': { 'text': { 'query': ?0, 'path': 'recipes.ingredients', 'fuzzy': { 'maxEdits': 2 } } } } } " +
+                    "       { 'embeddedDocuments': { 'path': 'recipes', 'operator': { 'text': { 'query': ?0, 'path': 'recipes.name', 'score': { 'boost': { 'value': 2 } }, 'fuzzy': { 'maxEdits': 2 } } } } }, " +
+                    "       { 'embeddedDocuments': { 'path': 'recipes.ingredients', 'operator': { 'text': { 'query': ?0, 'path': 'recipes.ingredients.name', 'fuzzy': { 'maxEdits': 2 } } } } } " +
                     "     ], " +
                     "     'minimumShouldMatch': 1 " +
                     "   } " +
