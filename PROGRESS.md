@@ -3,12 +3,13 @@
 _Last updated: 2026-03-19_
 
 ## In progress
-- Spec 010: backend endpoint coverage uplift for meal/blog controllers and write-auth paths.
+- Spec 011: `GET /api/about` endpoint with title/story/photoUrl/updatedAt contract.
 
 ## Blocked
 - None.
 
 ## Done
+- Spec 010 merged: backend endpoint coverage uplift for meal/blog controllers and write-auth paths.
 - Established engineering workflow and git flow documentation.
 - Added operating docs (`docs/HUMAMI.md`, `docs/BRAND.md`, `docs/DEV.md`, `docs/RECIPES.md`, `docs/CONTENT.md`, `docs/brief-template.md`).
 - Drafted new specs:
