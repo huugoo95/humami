@@ -8,6 +8,10 @@ Define:
 - Goal and metric
 - Priority
 - Non-goals
+- Primary track (`BE/API`, `FE/UX`, `Infra/Deploy`, `Data/Recipes`, `SEO/Growth`)
+
+Before execution, write the minimum task line:
+`[TRACK] objective | done-criteria | deadline`
 
 ## 1) Functional spec
 
@@ -69,3 +73,12 @@ Branch targets:
 - squash merge preferred for feature branches
 - verify in staging
 - update progress docs if needed
+- if operational learning happened, update `ops/` runbooks and logs (`ops/decisions.md`, `ops/incidents.md`)
+
+## Operational memory
+
+For recurring execution knowledge (deploy, recipes ops, SEO cycles), use:
+- `ops/README.md`
+- `ops/runbook-deploy.md`
+- `ops/runbook-recipes.md`
+- `ops/runbook-seo.md`
