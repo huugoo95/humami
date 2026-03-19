@@ -19,8 +19,14 @@ Record decisions that should persist beyond chat history.
 - Impact: Faster onboarding and more consistent execution.
 - Revisit trigger: If process overhead becomes too high or tracks need splitting.
 
+## 2026-03-19
+- Decision: Default reviewer is `huugoo95` (Hugo) across all tracks.
+- Scope/Track: Cross-track
+- Rationale: Single accountable human reviewer simplifies quality gate and decision latency.
+- Impact: PR flow has one explicit reviewer by default.
+- Revisit trigger: Team grows or review load becomes a bottleneck.
+
 ## Pending decisions
-- Track ownership model: who is default reviewer/owner per track?
 - Spec strictness: do docs-only PRs always require a spec, or allow a lightweight exception label?
 - Release gate: should deploy to production require `master` only, or is `develop` deployment acceptable by policy?
 - Incident severity: define P1/P2/P3 levels and mandatory response checklist.
