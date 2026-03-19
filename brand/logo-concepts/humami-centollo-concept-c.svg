@@ -1,0 +1,27 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="400" fill="#0E2A47"/>
+
+  <!-- Sello circular premium -->
+  <g transform="translate(80,40)">
+    <circle cx="160" cy="160" r="130" fill="none" stroke="#F5F1E8" stroke-width="8"/>
+    <circle cx="160" cy="160" r="92" fill="none" stroke="#F5F1E8" stroke-width="5" opacity="0.9"/>
+
+    <!-- centollo lineal -->
+    <g stroke="#F5F1E8" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="160" cy="162" rx="45" ry="34"/>
+      <path d="M118 154 L94 142"/>
+      <path d="M118 171 L94 182"/>
+      <path d="M202 154 L226 142"/>
+      <path d="M202 171 L226 182"/>
+      <path d="M135 132 L124 114"/>
+      <path d="M185 132 L196 114"/>
+      <circle cx="148" cy="156" r="2.8" fill="#F5F1E8"/>
+      <circle cx="172" cy="156" r="2.8" fill="#F5F1E8"/>
+    </g>
+
+    <text x="160" y="258" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" fill="#F5F1E8" letter-spacing="2.5">HUGO · UMAMI</text>
+  </g>
+
+  <text x="420" y="220" font-family="Cormorant Garamond, Georgia, serif" font-size="122" fill="#F5F1E8" letter-spacing="2">HUMAMI</text>
+  <text x="425" y="270" font-family="Inter, Arial, sans-serif" font-size="24" fill="#F5F1E8" opacity="0.9" letter-spacing="3">COCINA GALLEGA CONTEMPORÁNEA</text>
+</svg>
