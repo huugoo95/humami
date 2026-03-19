@@ -16,6 +16,12 @@
 - Integration/E2E:
 - Manual validation:
 
+## TDD note (required for non-trivial logic changes)
+
+- RED (failing test first):
+- GREEN (minimal pass):
+- REFACTOR (cleanup with tests green):
+
 ## Risks and rollback
 
 - Risks:

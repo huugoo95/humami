@@ -36,3 +36,6 @@ Record decisions that should persist beyond chat history.
 ## Pending decisions
 - Release gate: should deploy to production require `master` only, or is `develop` deployment acceptable by policy?
 - Incident severity: define P1/P2/P3 levels and mandatory response checklist.
+
+## Pending action
+- Apply GitHub branch protection on `develop` and `master` in `huugoo95/humami` (PR required, 1 approval, no force push). Attempt from `tenacitas-dev` token returned 404 (likely missing admin rights on upstream repo).
