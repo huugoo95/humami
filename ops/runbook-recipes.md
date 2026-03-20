@@ -27,4 +27,9 @@ Publish meal/recipe content without breaking API contract or semantics.
 
 ## References
 - `docs/RECIPES.md`
+- `docs/recipe-ingestion-pipeline.md`
+- `docs/meal-authoring-playbook.md`
+- `ops/recipe-import-template.json`
+- `ops/mealrequest-template.json`
+- `scripts/validate-mealrequest.py`
 - `memory/humami-contracts.md` (operational contract memory)
