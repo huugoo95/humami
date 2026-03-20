@@ -61,23 +61,22 @@ def validate(payload: dict) -> list[str]:
                 errors.append(f"{prefix} must include instructionSteps[] or instructions[]")
 
             ingredients = recipe.get("ingredients")
-            if ingredients is not None:
-                if not isinstance(ingredients, list):
-                    errors.append(f"{prefix}.ingredients must be an array when present")
-                else:
-                    for j, ing in enumerate(ingredients):
-                        ip = f"{prefix}.ingredients[{j}]"
-                        if not isinstance(ing, dict):
-                            errors.append(f"{ip} must be an object")
-                            continue
-                        if not isinstance(ing.get("name"), str) or not ing["name"].strip():
-                            errors.append(f"{ip}.name is required")
-                        qty_present = "quantity" in ing and ing.get("quantity") is not None
-                        unit = ing.get("unit")
-                        if qty_present and unit not in ALLOWED_UNITS:
-                            errors.append(f"{ip}.unit must be one of {sorted(ALLOWED_UNITS)} when quantity is present")
-                        if unit is not None and unit not in ALLOWED_UNITS:
-                            errors.append(f"{ip}.unit is invalid: {unit}")
+            if not isinstance(ingredients, list) or len(ingredients) == 0:
+                errors.append(f"{prefix}.ingredients is required and must include at least 1 ingredient")
+            else:
+                for j, ing in enumerate(ingredients):
+                    ip = f"{prefix}.ingredients[{j}]"
+                    if not isinstance(ing, dict):
+                        errors.append(f"{ip} must be an object")
+                        continue
+                    if not isinstance(ing.get("name"), str) or not ing["name"].strip():
+                        errors.append(f"{ip}.name is required")
+                    qty_present = "quantity" in ing and ing.get("quantity") is not None
+                    unit = ing.get("unit")
+                    if qty_present and unit not in ALLOWED_UNITS:
+                        errors.append(f"{ip}.unit must be one of {sorted(ALLOWED_UNITS)} when quantity is present")
+                    if unit is not None and unit not in ALLOWED_UNITS:
+                        errors.append(f"{ip}.unit is invalid: {unit}")
 
     difficulty = payload.get("difficulty")
     if difficulty not in ALLOWED_DIFFICULTY:

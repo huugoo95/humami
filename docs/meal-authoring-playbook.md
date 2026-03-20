@@ -38,6 +38,8 @@ Validation checks:
 - required shape
 - allowed enums (`difficulty`, `type`, `ingredients[].unit`)
 - minimum content constraints (recipes/instructions/servings)
+- each recipe must include at least 1 ingredient
+- each recipe must include at least 2 steps
 
 ### 4) Human QA
 Quick review before publish:
