@@ -1,6 +1,8 @@
 import Link from "next/link";
 import apiClient from "@/config/api";
 
+export const dynamic = "force-dynamic";
+
 type AboutPayload = {
   title: string;
   story: string[];
