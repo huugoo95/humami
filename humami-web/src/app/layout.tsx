@@ -20,11 +20,13 @@ export const metadata: Metadata = {
     siteName: "Humami",
     title: "Humami",
     description: "Recetas y cocina con sabor auténtico.",
+    images: [{ url: "/og-default.jpg", alt: "Humami" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Humami",
     description: "Recetas y cocina con sabor auténtico.",
+    images: ["/og-default.jpg"],
   },
 };
 
