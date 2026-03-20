@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import apiClient from "@/config/api";
 import { Meal } from "@/types/meal";
 
@@ -19,10 +18,6 @@ const SCROLL_KEY = "humami:meals:scrollY";
 const ANCHOR_KEY = "humami:meals:anchorId";
 
 export default function MealsPage() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
   const [meals, setMeals] = useState<Meal[]>([]);
@@ -32,7 +27,9 @@ export default function MealsPage() {
   const [initialized, setInitialized] = useState(false);
 
   const updateUrlState = (nextPage: number, nextQuery: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
 
     if (nextPage > 1) params.set("page", String(nextPage));
     else params.delete("page");
@@ -41,7 +38,8 @@ export default function MealsPage() {
     else params.delete("query");
 
     const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    const nextUrl = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+    window.history.replaceState({}, "", nextUrl);
   };
 
   const loadMeals = async (nextPage: number, nextQuery: string) => {
@@ -66,8 +64,9 @@ export default function MealsPage() {
   useEffect(() => {
     if (initialized) return;
 
-    const initialQuery = (searchParams.get("query") || "").trim();
-    const pageParam = Number(searchParams.get("page") || "1");
+    const params = new URLSearchParams(window.location.search);
+    const initialQuery = (params.get("query") || "").trim();
+    const pageParam = Number(params.get("page") || "1");
     const initialPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
 
     setQuery(initialQuery);
@@ -75,7 +74,7 @@ export default function MealsPage() {
     setInitialized(true);
     loadMeals(initialPage, initialQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialized, searchParams]);
+  }, [initialized]);
 
   useEffect(() => {
     if (loading || meals.length === 0) return;
