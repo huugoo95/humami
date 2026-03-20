@@ -27,7 +27,7 @@ export default function Home() {
       </section>
 
       <section className="mx-auto mt-16 md:mt-24 max-w-3xl rounded-2xl border border-humami-text-base/10 bg-white/60 p-6 md:p-8 shadow-sm">
-        <h2 className="text-2xl md:text-3xl font-heading text-humami-text-heading mb-4">
+        <h2 className="text-2xl md:text-3xl font-heading text-humami-accent-dark mb-4">
           Sobre nosotros
         </h2>
         <p className="text-base md:text-lg leading-relaxed font-body">
