@@ -1,0 +1,39 @@
+{
+  "name": "Tostada de tomate y aceite",
+  "description": "Desayuno simple y rápido con producto fresco.",
+  "recipes": [
+    {
+      "name": "Montaje",
+      "description": "Preparación base",
+      "instructionSteps": [
+        { "order": 1, "text": "Tostar el pan." },
+        { "order": 2, "text": "Rallar tomate y extender sobre el pan." },
+        { "order": 3, "text": "Añadir aceite y sal al gusto." }
+      ],
+      "ingredients": [
+        {
+          "name": "Pan",
+          "quantity": 2,
+          "unit": "SLICE",
+          "link": "",
+          "isOptional": false
+        },
+        {
+          "name": "Tomate",
+          "quantity": 1,
+          "unit": "UNIT",
+          "link": "",
+          "isOptional": false
+        }
+      ]
+    }
+  ],
+  "timings": {
+    "prepTimeInHours": 0.1,
+    "totalTimeInHours": 0.15
+  },
+  "difficulty": "EASY",
+  "type": "BREAKFAST",
+  "servings": 1,
+  "faqs": []
+}

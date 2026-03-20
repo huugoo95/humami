@@ -1,0 +1,22 @@
+{
+  "source": {
+    "book": "",
+    "page": "",
+    "extractedAt": ""
+  },
+  "draft": {
+    "title": "",
+    "ingredients": [],
+    "steps": [],
+    "timing": "",
+    "servings": ""
+  },
+  "normalized": {
+    "mealRequest": {}
+  },
+  "publish": {
+    "mealId": "",
+    "imageUploaded": false,
+    "publishedAt": ""
+  }
+}
