@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import apiClient from "@/config/api";
 import { Meal } from "@/types/meal";
 
@@ -14,13 +15,34 @@ type MealsPageResponse = {
   totalPages: number;
 };
 
+const SCROLL_KEY = "humami:meals:scrollY";
+const ANCHOR_KEY = "humami:meals:anchorId";
+
 export default function MealsPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [initialized, setInitialized] = useState(false);
+
+  const updateUrlState = (nextPage: number, nextQuery: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (nextPage > 1) params.set("page", String(nextPage));
+    else params.delete("page");
+
+    if (nextQuery.trim()) params.set("query", nextQuery.trim());
+    else params.delete("query");
+
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
 
   const loadMeals = async (nextPage: number, nextQuery: string) => {
     setLoading(true);
@@ -31,17 +53,54 @@ export default function MealsPage() {
       setMeals(res.data.items || []);
       setPage(res.data.page || 1);
       setTotalPages(Math.max(res.data.totalPages || 1, 1));
+      updateUrlState(res.data.page || 1, nextQuery);
     } catch {
       setMeals([]);
       setTotalPages(1);
+      updateUrlState(1, nextQuery);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadMeals(1, "");
-  }, []);
+    if (initialized) return;
+
+    const initialQuery = (searchParams.get("query") || "").trim();
+    const pageParam = Number(searchParams.get("page") || "1");
+    const initialPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+
+    setQuery(initialQuery);
+    setSubmittedQuery(initialQuery);
+    setInitialized(true);
+    loadMeals(initialPage, initialQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialized, searchParams]);
+
+  useEffect(() => {
+    if (loading || meals.length === 0) return;
+
+    const anchorId = sessionStorage.getItem(ANCHOR_KEY);
+    const scrollY = sessionStorage.getItem(SCROLL_KEY);
+
+    if (anchorId) {
+      const el = document.getElementById(`meal-card-${anchorId}`);
+      if (el) {
+        el.scrollIntoView({ block: "center", behavior: "auto" });
+      }
+      sessionStorage.removeItem(ANCHOR_KEY);
+      sessionStorage.removeItem(SCROLL_KEY);
+      return;
+    }
+
+    if (scrollY) {
+      const y = Number(scrollY);
+      if (Number.isFinite(y)) {
+        window.scrollTo({ top: y, behavior: "auto" });
+      }
+      sessionStorage.removeItem(SCROLL_KEY);
+    }
+  }, [loading, meals]);
 
   const handleSearch = () => {
     const normalized = query.trim();
@@ -112,6 +171,7 @@ export default function MealsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {meals.map((m) => (
                 <div
+                  id={`meal-card-${m.id}`}
                   key={m.id}
                   className="
                     bg-humami-bg
@@ -138,7 +198,13 @@ export default function MealsPage() {
                     </div>
                   )}
 
-                  <Link href={`/meals/${m.id}`}>
+                  <Link
+                    href={`/meals/${m.id}`}
+                    onClick={() => {
+                      sessionStorage.setItem(SCROLL_KEY, String(window.scrollY));
+                      sessionStorage.setItem(ANCHOR_KEY, m.id);
+                    }}
+                  >
                     <h2 className="text-xl sm:text-2xl font-semibold text-humami-accent hover:underline">
                       {m.name}
                     </h2>
