@@ -2,6 +2,7 @@ import { Meal } from "@/types/meal";
 import apiClient from "@/config/api";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 const difficultyLabels: Record<string, string> = {
   EASY: "fácil",
@@ -69,6 +70,38 @@ async function getMealById(id: string): Promise<Meal | null> {
     console.error(`No se pudo obtener el Meal con id ${id}:`, error);
     return null;
   }
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const meal = await getMealById(params.id);
+  if (!meal) {
+    return {
+      title: "Receta no encontrada",
+      description: "La receta solicitada no existe.",
+    };
+  }
+
+  const title = meal.name;
+  const description = meal.description || `Descubre la receta de ${meal.name} en Humami.`;
+  const url = `/meals/${meal.id}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url,
+      images: meal.image ? [{ url: meal.image, alt: meal.name }] : undefined,
+    },
+    twitter: {
+      card: meal.image ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: meal.image ? [meal.image] : undefined,
+    },
+  };
 }
 
 export default async function MealPage({ params }: { params: { id: string } }) {
