@@ -85,6 +85,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const description = meal.description || `Descubre la receta de ${meal.name} en Humami.`;
   const url = `/meals/${meal.id}`;
 
+  const fallbackImage = "/og-default.jpg";
+  const metaImage = meal.image || fallbackImage;
+
   return {
     title,
     description,
@@ -93,13 +96,13 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       title,
       description,
       url,
-      images: meal.image ? [{ url: meal.image, alt: meal.name }] : undefined,
+      images: [{ url: metaImage, alt: meal.name }],
     },
     twitter: {
-      card: meal.image ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      images: meal.image ? [meal.image] : undefined,
+      images: [metaImage],
     },
   };
 }
