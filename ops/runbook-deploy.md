@@ -8,7 +8,7 @@ Production deploy on `ubuntu@humami.es` for repository `/home/ubuntu/apps/humami
 - SSH access available
 - No active incident blocking deploy
 
-## Standard deploy
+## Standard deploy (current)
 1. Connect and update code:
    - `cd /home/ubuntu/apps/humami`
    - `git fetch origin`
@@ -20,6 +20,16 @@ Production deploy on `ubuntu@humami.es` for repository `/home/ubuntu/apps/humami
    - `docker compose --profile prod restart nginx`
 4. Run smoke checks:
    - `./scripts/smoke-prod.sh https://humami.es`
+
+## Optimized deploy (GHCR images, recommended)
+Use prebuilt images instead of building full source on the server.
+
+1. Build and push images from local/builder machine:
+   - `./scripts/release-build-push.sh`
+2. On server, deploy from image tags:
+   - `./scripts/deploy-images.sh`
+
+Reference: `docs/ghcr-deploy.md`
 
 ## Success criteria
 - `/` => 200
