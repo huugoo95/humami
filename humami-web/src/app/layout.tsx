@@ -13,6 +13,9 @@ export const metadata: Metadata = {
     template: "%s | Humami",
   },
   description: "Recetas y cocina con sabor auténtico.",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
     locale: "es_ES",
