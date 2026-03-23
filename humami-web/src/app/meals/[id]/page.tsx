@@ -91,6 +91,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   return {
     title,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       type: "article",
       title,
