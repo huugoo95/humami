@@ -15,6 +15,8 @@ public interface MealService {
 
     PagedResponse<MealResponse> getPaged(String query, int page, int limit);
 
+    PagedResponse<MealResponse> getPaged(String query, int page, int limit, double minQualityScore);
+
     MealResponse getById(String id) throws ChangeSetPersister.NotFoundException, IOException;
 
     MealResponse create(MealRequest mealRequest);

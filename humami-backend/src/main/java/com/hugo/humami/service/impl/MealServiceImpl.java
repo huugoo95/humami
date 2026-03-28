@@ -13,6 +13,7 @@ import com.hugo.humami.dto.response.RecipeIngredientsGroupResponse;
 import com.hugo.humami.mapper.MealMapper;
 import com.hugo.humami.repository.MealRepository;
 import com.hugo.humami.service.EmbeddingService;
+import com.hugo.humami.service.MealQualityScoringService;
 import com.hugo.humami.service.MealService;
 import com.hugo.humami.service.S3Service;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -40,12 +41,14 @@ public class MealServiceImpl implements MealService {
     private final MealMapper mealMapper;
     private final EmbeddingService embeddingService;
     private final S3Service s3Service;
+    private final MealQualityScoringService mealQualityScoringService;
 
-    public MealServiceImpl(MealRepository mealRepository, MealMapper mealMapper, EmbeddingService embeddingService, S3Service s3Service) {
+    public MealServiceImpl(MealRepository mealRepository, MealMapper mealMapper, EmbeddingService embeddingService, S3Service s3Service, MealQualityScoringService mealQualityScoringService) {
         this.mealRepository = mealRepository;
         this.mealMapper = mealMapper;
         this.embeddingService = embeddingService;
         this.s3Service = s3Service;
+        this.mealQualityScoringService = mealQualityScoringService;
     }
 
     @Override
@@ -57,13 +60,20 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public PagedResponse<MealResponse> getPaged(String query, int page, int limit) {
+        return getPaged(query, page, limit, 0.5);
+    }
+
+    public PagedResponse<MealResponse> getPaged(String query, int page, int limit, double minQualityScore) {
         int normalizedPage = Math.max(page, 1);
         int normalizedLimit = Math.min(Math.max(limit, 1), 48);
 
         if (query == null || query.isBlank()) {
             Pageable pageable = PageRequest.of(normalizedPage - 1, normalizedLimit);
             Page<MealEntity> pageResult = mealRepository.findAll(pageable);
-            List<MealResponse> items = pageResult.getContent().stream()
+            List<MealEntity> filteredMeals = pageResult.getContent().stream()
+                    .filter(meal -> qualityScoreOf(meal) >= minQualityScore)
+                    .toList();
+            List<MealResponse> items = filteredMeals.stream()
                     .map(this::toResponseWithImageIfAvailable)
                     .toList();
 
@@ -71,13 +81,14 @@ public class MealServiceImpl implements MealService {
                     items,
                     normalizedPage,
                     normalizedLimit,
-                    pageResult.getTotalElements(),
-                    pageResult.getTotalPages()
+                    items.size(),
+                    Math.max(pageResult.getTotalPages(), 1)
             );
         }
 
         String normalizedQuery = normalizeText(query);
         List<ScoredMeal> scored = mealRepository.findAll().stream()
+                .filter(meal -> qualityScoreOf(meal) >= minQualityScore)
                 .map(meal -> new ScoredMeal(meal, fuzzyScore(meal, normalizedQuery)))
                 .filter(scoredMeal -> scoredMeal.score() > 0)
                 .sorted(Comparator.comparingInt(ScoredMeal::score).reversed())
@@ -119,6 +130,7 @@ public class MealServiceImpl implements MealService {
 
         String textForEmbedding = getStringForEmbedding(existing);
         existing.setEmbedding(embeddingService.getEmbedding(textForEmbedding));
+        existing.setQuality(mealQualityScoringService.score(existing));
 
         MealEntity saved = mealRepository.save(existing);
         return mealMapper.toResponse(saved);
@@ -131,6 +143,7 @@ public class MealServiceImpl implements MealService {
         if (image != null && !image.isEmpty()) {
             String imageKey = s3Service.uploadImage(image, existing.getName());
             existing.setImage(imageKey);
+            existing.setQuality(mealQualityScoringService.score(existing));
             mealRepository.save(existing);
         }
     }
@@ -149,6 +162,7 @@ public class MealServiceImpl implements MealService {
 
         String embeddingText = getStringForEmbedding(mealEntity);
         mealEntity.setEmbedding(embeddingService.getEmbedding(embeddingText));
+        mealEntity.setQuality(mealQualityScoringService.score(mealEntity));
 
         MealEntity saved = mealRepository.save(mealEntity);
         return mealMapper.toResponse(saved);
@@ -192,6 +206,7 @@ public class MealServiceImpl implements MealService {
         }
 
         return meals.stream()
+                .filter(meal -> qualityScoreOf(meal) >= 0.5)
                 .map(this::toResponseWithImageIfAvailable)
                 .collect(Collectors.toList());
     }
@@ -225,6 +240,13 @@ public class MealServiceImpl implements MealService {
             }
         }
         return response;
+    }
+
+    private double qualityScoreOf(MealEntity mealEntity) {
+        if (mealEntity == null || mealEntity.getQuality() == null || mealEntity.getQuality().getScore() == null) {
+            return 0.0;
+        }
+        return mealEntity.getQuality().getScore();
     }
 
     private List<RecipeIngredientsGroupResponse> buildIngredientsByRecipe(MealEntity mealEntity) {

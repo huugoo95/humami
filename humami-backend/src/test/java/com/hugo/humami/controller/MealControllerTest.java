@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -51,7 +52,7 @@ class MealControllerTest {
     @Test
     void shouldGetPagedMealsWithDefaultParams() throws Exception {
         PagedResponse<MealResponse> paged = new PagedResponse<>(List.of(new MealResponse()), 1, 12, 1, 1);
-        when(mealService.getPaged("", 1, 12)).thenReturn(paged);
+        when(mealService.getPaged("", 1, 12, 0.5)).thenReturn(paged);
 
         mockMvc.perform(get("/api/meals"))
                 .andExpect(status().isOk())
@@ -59,20 +60,20 @@ class MealControllerTest {
                 .andExpect(jsonPath("$.limit").value(12))
                 .andExpect(jsonPath("$.totalItems").value(1));
 
-        verify(mealService).getPaged("", 1, 12);
+        verify(mealService).getPaged("", 1, 12, 0.5);
     }
 
     @Test
     void shouldGetPagedMealsWithCustomParams() throws Exception {
         PagedResponse<MealResponse> paged = new PagedResponse<>(List.of(), 2, 5, 0, 0);
-        when(mealService.getPaged("pasta", 2, 5)).thenReturn(paged);
+        when(mealService.getPaged("pasta", 2, 5, 0.8)).thenReturn(paged);
 
-        mockMvc.perform(get("/api/meals").param("query", "pasta").param("page", "2").param("limit", "5"))
+        mockMvc.perform(get("/api/meals").param("query", "pasta").param("page", "2").param("limit", "5").param("minQualityScore", "0.8"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.page").value(2))
                 .andExpect(jsonPath("$.limit").value(5));
 
-        verify(mealService).getPaged("pasta", 2, 5);
+        verify(mealService).getPaged("pasta", 2, 5, 0.8);
     }
 
     @Test
