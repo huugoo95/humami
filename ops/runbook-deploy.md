@@ -70,6 +70,13 @@ Reference: `docs/ghcr-deploy.md`
 - TLS private keys/certificates must not be versioned in repo
 - renewal/reload workflow must be documented and repeatable on a fresh server
 - avoid server-only "magic" changes that are not captured in repo docs/scripts
+- `/.well-known/acme-challenge/` must be served by nginx from `certbot/www` on the live site; this was validated during SSL automation setup
+- preferred renewal mode is `webroot`, so frontend/nginx do not need to be stopped during renewal
+
+### Renewal automation
+- script: `scripts/renew-certs.sh`
+- recommended cadence: daily (or every 12h if you want extra margin)
+- current recommendation for Humami: daily cron on the host
 
 ## Notes
 - First deploy after image/cache changes can take longer.
