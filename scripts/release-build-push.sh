@@ -21,11 +21,16 @@ fi
 BACKEND_IMAGE="ghcr.io/${GHCR_OWNER}/humami-backend"
 FRONTEND_IMAGE="ghcr.io/${GHCR_OWNER}/humami-frontend"
 
+DOCKER_BIN="docker"
+if ! docker info >/dev/null 2>&1; then
+  DOCKER_BIN="sudo docker"
+fi
+
 publish_tag() {
   local image="$1"
   local tag="$2"
   echo "[release] Pushing ${image}:${tag}"
-  docker push "${image}:${tag}"
+  ${DOCKER_BIN} push "${image}:${tag}"
 }
 
 build_backend() {
@@ -40,27 +45,27 @@ build_backend() {
   cp "$ROOT_DIR/humami-backend/Dockerfile" "$backend_ctx/Dockerfile"
 
   echo "[release] Building backend -> ${BACKEND_IMAGE}:${IMAGE_TAG}"
-  docker build \
+  ${DOCKER_BIN} build \
     -t "${BACKEND_IMAGE}:${IMAGE_TAG}" \
     "$backend_ctx"
 
   if [[ "$PUBLISH_LATEST" == "true" ]]; then
-    docker tag "${BACKEND_IMAGE}:${IMAGE_TAG}" "${BACKEND_IMAGE}:latest"
+    ${DOCKER_BIN} tag "${BACKEND_IMAGE}:${IMAGE_TAG}" "${BACKEND_IMAGE}:latest"
   fi
 }
 
 build_frontend() {
   echo "[release] Building frontend -> ${FRONTEND_IMAGE}:${IMAGE_TAG}"
-  docker build \
+  ${DOCKER_BIN} build \
     -t "${FRONTEND_IMAGE}:${IMAGE_TAG}" \
     "$ROOT_DIR/humami-web"
 
   if [[ "$PUBLISH_LATEST" == "true" ]]; then
-    docker tag "${FRONTEND_IMAGE}:${IMAGE_TAG}" "${FRONTEND_IMAGE}:latest"
+    ${DOCKER_BIN} tag "${FRONTEND_IMAGE}:${IMAGE_TAG}" "${FRONTEND_IMAGE}:latest"
   fi
 }
 
-echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+echo "$GHCR_TOKEN" | ${DOCKER_BIN} login ghcr.io -u "$GHCR_USERNAME" --password-stdin
 
 build_backend
 build_frontend
