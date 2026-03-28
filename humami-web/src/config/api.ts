@@ -1,9 +1,11 @@
 import axios from 'axios';
 
+const isBrowser = typeof window !== 'undefined';
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  '';
+  (isBrowser ? '/api' : '');
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL || undefined,
