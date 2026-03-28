@@ -69,6 +69,12 @@ Recommended operational model:
 - keep certbot data mounted from server storage
 - automate renewal + nginx reload outside git-tracked secrets
 - document bootstrap/renewal so moving to a new server does not depend on memory
+- use `webroot` renewal so the live site does not need to be stopped
+- keep `/.well-known/acme-challenge/` mapped to `certbot/www` in nginx
+
+Automation helper:
+- `scripts/renew-certs.sh`
+- suitable schedule: daily or every 12h
 
 ## Notes
 - For a 20GB server, image-based deploy reduces disk pressure significantly versus full source builds.
