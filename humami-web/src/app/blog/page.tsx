@@ -1,11 +1,22 @@
 import Link from "next/link";
-import apiClient from "@/config/api";
+import { API_BASE_URL } from "@/config/api";
 import { BlogPost } from "@/types/blog";
 
 async function getPublishedPosts(): Promise<BlogPost[]> {
+  if (!API_BASE_URL) {
+    return [];
+  }
+
   try {
-    const response = await apiClient.get("/blog");
-    return response.data;
+    const response = await fetch(`${API_BASE_URL}/blog`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    return (await response.json()) as BlogPost[];
   } catch (error) {
     console.error("Error loading blog posts", error);
     return [];
