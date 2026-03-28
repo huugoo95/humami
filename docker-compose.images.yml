@@ -1,15 +1,6 @@
 version: '3.9'
 
 services:
-  mongo:
-    image: mongo:6.0
-    container_name: humami-mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    profiles: ["prod"]
-
   backend:
     image: ghcr.io/${GHCR_OWNER}/humami-backend:${IMAGE_TAG}
     container_name: humami-backend
@@ -17,8 +8,6 @@ services:
       - "8080"
     ports:
       - "8080:8080"
-    depends_on:
-      - mongo
     env_file:
       - .env
     environment:
@@ -66,6 +55,3 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     profiles: ["prod"]
-
-volumes:
-  mongo-data:
