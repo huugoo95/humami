@@ -27,6 +27,7 @@ public class MealEntity {
     private DifficultyEnum difficulty;
     private Integer servings;
     private List<Faq> faqs;
+    private MealQuality quality;
     private Instant createdAt;
     private Instant updatedAt;
 

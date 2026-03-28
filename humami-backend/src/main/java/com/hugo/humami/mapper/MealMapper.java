@@ -27,6 +27,11 @@ public interface MealMapper {
     MealEntity toEntity(MealRequest mealRequest);
 
     void updateMealFromRequest(@MappingTarget MealEntity target, MealRequest source);
+
+    @Mapping(target = "qualityScore", expression = "java(mealEntity.getQuality() != null ? mealEntity.getQuality().getScore() : null)")
+    @Mapping(target = "qualityVersion", expression = "java(mealEntity.getQuality() != null ? mealEntity.getQuality().getVersion() : null)")
+    @Mapping(target = "qualityBreakdown", expression = "java(mealEntity.getQuality() != null ? mealEntity.getQuality().getBreakdown() : null)")
+    @Mapping(target = "qualityFlags", expression = "java(mealEntity.getQuality() != null ? mealEntity.getQuality().getFlags() : null)")
     MealResponse toResponse(MealEntity mealEntity);
 
     MealResponse toTinyResponse(MealEntity mealEntity);
