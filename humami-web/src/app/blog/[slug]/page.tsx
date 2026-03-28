@@ -1,12 +1,23 @@
-import apiClient from "@/config/api";
+import { API_BASE_URL } from "@/config/api";
 import { BlogPost } from "@/types/blog";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 
 async function getPost(slug: string): Promise<BlogPost | null> {
+  if (!API_BASE_URL) {
+    return null;
+  }
+
   try {
-    const response = await apiClient.get(`/blog/${slug}`);
-    return response.data;
+    const response = await fetch(`${API_BASE_URL}/blog/${slug}`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as BlogPost;
   } catch {
     return null;
   }
