@@ -35,6 +35,14 @@ This path may remain useful for debugging, but production should prefer image-ba
 ## Optimized deploy (GHCR images, recommended)
 Use prebuilt images instead of building full source on the server.
 
+### Validated rollout notes (2026-03-28)
+- deployed successfully on `humami.es` using:
+  - `GHCR_OWNER=huugoo95`
+  - `IMAGE_TAG=50c4169`
+- smoke checks passed after the image-based rollout
+- nginx restart may create a short readiness gap, so deploy script now retries smoke checks
+- an old `humami-mongo` container may still be present from previous deployments; production runtime no longer depends on it when Atlas is configured
+
 1. Build and push images from local/builder machine:
    - `./scripts/release-build-push.sh`
 2. On server, deploy from image tags:
@@ -51,7 +59,7 @@ Reference: `docs/ghcr-deploy.md`
 1. Identify last known good image tag
 2. Set `IMAGE_TAG=<good-tag>`
 3. `docker compose -f docker-compose.images.yml --profile prod pull`
-4. `docker compose -f docker-compose.images.yml --profile prod up -d`
+4. `docker compose -f docker-compose.images.yml --profile prod up -d --remove-orphans`
 5. `docker compose -f docker-compose.images.yml --profile prod restart nginx`
 6. Re-run smoke checks
 

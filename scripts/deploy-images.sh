@@ -18,12 +18,21 @@ export GHCR_OWNER IMAGE_TAG
 
 docker compose -f docker-compose.images.yml --profile prod pull
 
-docker compose -f docker-compose.images.yml --profile prod up -d
+docker compose -f docker-compose.images.yml --profile prod up -d --remove-orphans
 
 docker compose -f docker-compose.images.yml --profile prod restart nginx
 
 if [[ -x "./scripts/smoke-prod.sh" ]]; then
-  ./scripts/smoke-prod.sh https://humami.es
+  tries=0
+  until ./scripts/smoke-prod.sh https://humami.es; do
+    tries=$((tries + 1))
+    if [[ "$tries" -ge 5 ]]; then
+      echo "[deploy][ERROR] Smoke checks failed after ${tries} attempts" >&2
+      exit 1
+    fi
+    echo "[deploy] Smoke checks not ready yet, retrying (${tries}/5)..."
+    sleep 5
+  done
 fi
 
 echo "[deploy] Running with GHCR_OWNER=${GHCR_OWNER} IMAGE_TAG=${IMAGE_TAG}"

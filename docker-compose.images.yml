@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   backend:
     image: ghcr.io/${GHCR_OWNER}/humami-backend:${IMAGE_TAG}
