@@ -75,3 +75,5 @@ Recommended operational model:
 - Keep image retention policy (remove old tags periodically).
 - Keep `docker system prune -af` as maintenance when needed.
 - Atlas credentials must come from external env/secret injection, never committed to git.
+- Frontend lesson learned: browser-side API access must not rely only on `NEXT_PUBLIC_*` runtime expectations, because those values are embedded at image build time. Behind nginx, a relative `/api` fallback is the safe default.
+- Production deploy was validated on 2026-03-28 with image tag `f21ec3d` after fixing frontend runtime API resolution.

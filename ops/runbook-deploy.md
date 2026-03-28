@@ -36,11 +36,13 @@ This path may remain useful for debugging, but production should prefer image-ba
 Use prebuilt images instead of building full source on the server.
 
 ### Validated rollout notes (2026-03-28)
-- deployed successfully on `humami.es` using:
-  - `GHCR_OWNER=huugoo95`
-  - `IMAGE_TAG=50c4169`
+- deployed successfully on `humami.es` using image-based deploy
+- validated tags during rollout included:
+  - `50c4169`
+  - `f21ec3d` (frontend runtime API resolution fix)
 - smoke checks passed after the image-based rollout
 - nginx restart may create a short readiness gap, so deploy script now retries smoke checks
+- browser-side frontend API calls must keep a relative `/api` fallback; relying only on `NEXT_PUBLIC_*` values baked into the image caused the meals page to show no recipes even though backend/API were healthy
 - an old `humami-mongo` container may still be present from previous deployments; production runtime no longer depends on it when Atlas is configured
 
 1. Build and push images from local/builder machine:
