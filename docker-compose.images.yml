@@ -2,6 +2,7 @@ services:
   backend:
     image: ghcr.io/${GHCR_OWNER}/humami-backend:${IMAGE_TAG}
     container_name: humami-backend
+    restart: unless-stopped
     expose:
       - "8080"
     ports:
@@ -20,6 +21,7 @@ services:
   frontend:
     image: ghcr.io/${GHCR_OWNER}/humami-frontend:${IMAGE_TAG}
     container_name: humami-frontend
+    restart: unless-stopped
     expose:
       - "3000"
     ports:
@@ -36,6 +38,7 @@ services:
   nginx:
     image: nginx:alpine
     container_name: humami-nginx
+    restart: unless-stopped
     depends_on:
       - frontend
       - backend
