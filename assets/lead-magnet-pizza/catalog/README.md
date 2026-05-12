@@ -122,3 +122,139 @@ This folder catalogs candidate images for the lead magnet "Tu primera pizza napo
 - Best use: mostrar la masa ya recogida y tapada, lista para varias horas de fermentación
 - Quality: muy buena
 - Notes: refuerza muy bien que debe quedar tapada; no hace falta que esté perfectamente redonda, sino lisa y recogida
+
+### fermentacion-bloque-4h.jpg
+- Source: inbound Telegram image
+- Category: `resting`
+- Best page fit: Page 4, fermentación en bloque
+- Best use: mostrar una masa que ya ha crecido claramente tras varias horas de fermentación
+- Quality: buena
+- Notes: útil como referencia intermedia, aunque no sea el punto más hinchado de la fermentación
+
+### fermentacion-bloque-mejor-crecida.jpg
+- Source: inbound Telegram image
+- Category: `resting`
+- Best page fit: Page 4, fermentación en bloque
+- Best use: mostrar la masa mejor fermentada, más inflada y más claramente lista para dividir
+- Quality: muy buena
+- Notes: mejor candidata que la anterior para representar el final de la fermentación en bloque
+
+### masa-estirada-largo-antes-corte.jpg
+- Source: inbound Telegram image
+- Category: `balling`
+- Best page fit: Page 5, división
+- Best use: mostrar cómo se puede estirar un poco la masa a lo largo para facilitar el corte
+- Quality: muy buena
+- Notes: probablemente la mejor foto principal para explicar este punto del paso de división
+
+### corte-masa-dos-porciones.jpg
+- Source: inbound Telegram image
+- Category: `balling`
+- Best page fit: Page 5, división
+- Best use: mostrar el momento real del corte en dos porciones
+- Quality: buena
+- Notes: muy útil como apoyo didáctico o segunda imagen de la secuencia
+
+### detalle-interior-masa-aireada-division.jpg
+- Source: inbound Telegram image
+- Category: `balling`
+- Best page fit: Page 5, división o documento maestro
+- Best use: mostrar aire, estructura interior y buena fermentación en el momento de dividir
+- Quality: muy buena
+- Notes: gran foto de detalle; mejor como apoyo editorial que como imagen principal del paso
+
+### bola-reposo-final-tapada.jpg
+- Source: inbound Telegram image
+- Category: `resting`
+- Best page fit: Page 5, reposo final de las bolas
+- Best use: mostrar una bola ya boleada, separada y tapada para el reposo final
+- Quality: buena
+- Notes: útil para reforzar que deben reposar por separado y tapadas
+
+### bola-reposo-final-crecida.jpg
+- Source: inbound Telegram image
+- Category: `resting`
+- Best page fit: Page 5, reposo final de las bolas
+- Best use: mostrar la bola ya más relajada y crecida, lista para abrirse
+- Quality: muy buena
+- Notes: buena candidata principal para representar el final del reposo de las bolas
+
+### monticulo-semolina-bola-antes-abrir.jpg
+- Source: inbound Telegram image
+- Category: `shaping`
+- Best page fit: Page 6, preparar la masa para abrirla
+- Best use: mostrar el montículo de sémola y la bola antes de moverla para abrirla
+- Quality: muy buena
+- Notes: probablemente la mejor foto de este paso; explica la acción casi por sí sola
+
+### masa-fuera-bol-sobre-semolina.jpg
+- Source: inbound Telegram image
+- Category: `shaping`
+- Best page fit: Page 6, transición a apertura
+- Best use: mostrar la masa ya fuera del bol, viva y aireada, justo antes de empezar a abrirla
+- Quality: buena
+- Notes: muy real y didáctica, mejor como apoyo de secuencia que como foto principal
+
+### apertura-presion-inicial-yemas.jpg
+- Source: inbound Telegram image
+- Category: `shaping`
+- Best page fit: Page 6, empezar a abrir la masa
+- Best use: mostrar la presión inicial hacia abajo con las yemas de los dedos
+- Quality: muy buena
+- Notes: de las mejores fotos de apertura; explica muy bien el gesto sin necesidad de mucho texto
+
+### apertura-presion-mano-disco-inicial.jpg
+- Source: inbound Telegram image
+- Category: `shaping`
+- Best page fit: Page 6, apertura progresiva
+- Best use: mostrar cómo la masa empieza a pasar de bola a disco
+- Quality: muy buena
+- Notes: buena candidata para reforzar la idea de apertura gradual y respeto del borde
+
+### apertura-levantando-borde-transicion.jpg
+- Source: inbound Telegram image
+- Category: `shaping`
+- Best page fit: Page 6, transición dentro de la apertura
+- Best use: mostrar el momento de levantar la masa con cuidado antes del siguiente gesto
+- Quality: buena
+- Notes: más útil como foto de apoyo que como imagen principal
+
+### apertura-masa-colgando-estirado.jpg
+- Source: inbound Telegram image
+- Category: `shaping`
+- Best page fit: Page 6, estirado final / volante
+- Best use: mostrar la masa empezando a colgar para estirarse con su propio peso
+- Quality: buena
+- Notes: muy útil para explicar el paso previo al volante o estirado final
+
+### apertura-disco-mas-abierto-mano.jpg
+- Source: inbound Telegram image
+- Category: `shaping`
+- Best page fit: Page 6, disco ya más abierto
+- Best use: mostrar cómo va quedando el disco tras varias presiones y apertura gradual
+- Quality: muy buena
+- Notes: probablemente la mejor para enseñar el resultado intermedio de la apertura
+
+### pizza-entrando-horno-bandeja-reves.jpg
+- Source: inbound Telegram image
+- Category: `baking`
+- Best page fit: Page 7, horneado
+- Best use: mostrar la pizza recién metida al horno sobre la bandeja del revés
+- Quality: muy buena
+- Notes: muy útil para reforzar que no hace falta piedra si la bandeja está bien precalentada
+
+### pizza-horno-2-minutos-borde-creciendo.jpg
+- Source: inbound Telegram image
+- Category: `baking`
+- Best page fit: Page 7, horneado
+- Best use: mostrar cómo empieza a reaccionar la pizza tras unos minutos de horno
+- Quality: muy buena
+- Notes: explica muy bien que la base empieza a fijarse y el borde a desarrollarse
+
+### pizza-final-lista-albahaca.jpg
+- Source: inbound Telegram image
+- Category: `final-pizza`
+- Best page fit: Page 8, cierre o resultado final
+- Best use: mostrar el resultado terminado del proceso
+- Quality: muy buena
+- Notes: candidata fuerte para cierre y posible portada alternativa, aunque con look más casero que editorial
