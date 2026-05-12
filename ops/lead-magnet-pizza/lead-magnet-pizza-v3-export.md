@@ -67,6 +67,8 @@ La receta está ajustada para hacer **2 pizzas** de tamaño medio, con una masa 
 - **1 g de levadura seca de panadería**  
   o **3 g de levadura fresca**
 
+Para una primera pizza, suele ser mejor pasarse ligeramente con la levadura que quedarse corto.
+
 Con estas cantidades obtendrás una masa con una **hidratación aproximada del 65 %**.
 
 Dicho de forma simple, eso significa que la cantidad de agua equivale al 65 % del peso de la harina.
@@ -93,13 +95,15 @@ Pon la harina en un bol grande.
 
 Aparte, echa el agua en un vaso o una jarra, añade la levadura y remueve bien hasta disolverla.
 Si usas levadura fresca, asegúrate de que quede bien deshecha antes de incorporarla.
+El agua no debe estar fría de nevera. Puede ser agua del grifo o embotellada.
 
-Ve echando esa mezcla de agua y levadura **poco a poco** sobre la harina, mientras mezclas con la mano.
+Ve echando esa mezcla de agua y levadura **poco a poco** sobre la harina, mientras mezclas con la mano o con una cuchara.
 Sigue hasta que toda la harina se haya hidratado y no queden partes secas.
 
 Cuando la masa ya esté unida, añade la sal y mezcla un poco más hasta integrarla bien.
 
 En este punto no hace falta amasar.
+La mezcla se puede hacer perfectamente con una cuchara si te resulta más cómodo o más limpio.
 Solo buscamos una masa homogénea, sin restos de harina seca, aunque todavía tenga un aspecto algo basto o poco liso.
 
 ### Primer reposo

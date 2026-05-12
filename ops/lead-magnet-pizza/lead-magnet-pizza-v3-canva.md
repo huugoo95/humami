@@ -60,6 +60,9 @@ Puedes hacer la pizza sobre papel de horno y hornearla sobre una bandeja muy cal
 - 8 g de sal
 - 1 g de levadura seca de panadería o 3 g de levadura fresca
 
+**Apunte útil**
+Para una primera pizza, suele ser mejor pasarse ligeramente con la levadura que quedarse corto.
+
 **Nota sobre la hidratación**
 Con estas cantidades obtendrás una masa con una hidratación aproximada del 65 %.
 Es una proporción muy buena para empezar: suficientemente ligera, pero todavía manejable.
@@ -72,11 +75,13 @@ Si no la encuentras, puedes usar mitad harina floja y mitad harina de fuerza.
 **Mezcla inicial**
 Pon la harina en un bol grande.
 Aparte, echa el agua en un vaso o una jarra, añade la levadura y remueve bien hasta disolverla.
-Ve echando esa mezcla poco a poco sobre la harina mientras mezclas con la mano.
+El agua no debe estar fría de nevera. Puede ser agua del grifo o embotellada.
+Ve echando esa mezcla poco a poco sobre la harina mientras mezclas con la mano o con una cuchara.
 Cuando la masa ya esté unida, añade la sal y mezcla un poco más hasta integrarla.
 
 [FOTO INGREDIENTES PESADOS]
-[FOTO LEVADURA]
+[FOTO HARINA, AGUA Y LEVADURA PREPARADAS]
+[FOTO LEVADURA EN CUCHARA, COMO REFERENCIA VISUAL]
 [FOTO MEZCLA INICIAL]
 
 ---

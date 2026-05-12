@@ -77,6 +77,8 @@ La receta está ajustada para hacer **2 pizzas** de tamaño medio, con una masa 
 - **1 g de levadura seca de panadería**  
   o **3 g de levadura fresca**
 
+Para una primera pizza, suele ser mejor pasarse ligeramente con la levadura que quedarse corto.
+
 Con estas cantidades obtendrás una masa con una **hidratación aproximada del 65 %**.
 
 Dicho de forma simple, eso significa que la cantidad de agua equivale al 65 % del peso de la harina.
@@ -98,7 +100,8 @@ Si no la encuentras, puedes usar una mezcla sencilla de:
 No será exactamente lo mismo, pero es una forma perfectamente válida de empezar y hacer una buena pizza en casa.
 
 [FOTO: ingredientes pesados]
-[FOTO: 1 g de levadura seca en cuchara, o referencia visual equivalente]
+[FOTO: harina, agua y levadura preparadas antes de mezclar]
+[FOTO: pequeña cantidad de levadura seca en cuchara, como referencia visual aproximada]
 
 ### 3.2 Mezcla inicial
 
@@ -106,13 +109,15 @@ Pon la harina en un bol grande.
 
 Aparte, echa el agua en un vaso o una jarra, añade la levadura y remueve bien hasta disolverla.
 Si usas levadura fresca, asegúrate de que quede bien deshecha antes de incorporarla.
+El agua no debe estar fría de nevera. Puede ser agua del grifo o embotellada.
 
-Ve echando esa mezcla de agua y levadura **poco a poco** sobre la harina, mientras mezclas con la mano.
+Ve echando esa mezcla de agua y levadura **poco a poco** sobre la harina, mientras mezclas con la mano o con una cuchara.
 Sigue hasta que toda la harina se haya hidratado y no queden partes secas.
 
 Cuando la masa ya esté unida, añade la sal y mezcla un poco más hasta integrarla bien.
 
 En este punto no hace falta amasar.
+La mezcla se puede hacer perfectamente con una cuchara si te resulta más cómodo o más limpio.
 Solo buscamos una masa homogénea, sin restos de harina seca, aunque todavía tenga un aspecto algo basto o poco liso.
 
 [FOTO: harina en el bol]
@@ -156,6 +161,7 @@ Cuando termines, la masa debería quedar algo más recogida y tensa que antes, p
 
 Si se te pega un poco, no pasa nada.
 Trabaja con calma y con la mano ligeramente humedecida, sin añadir harina en este punto.
+También puedes tirar ligeramente hacia abajo y luego recoger la masa hacia arriba para ayudar a tensarla y redondearla.
 
 [FOTO: mano entrando en la masa]
 [FOTO: masa levantándose desde un lado]
@@ -189,6 +195,7 @@ No hace falta insistir demasiado ni trabajarla de más.
 Si haces los pliegues con suavidad, será suficiente para seguir dándole estructura sin volverla tensa.
 
 Al terminar, la masa debería quedar más recogida, más lisa y con una sensación más clara de unidad.
+No hace falta que quede perfectamente redonda. Lo importante es que esté recogida, lisa y con mejor estructura que antes.
 
 Si en este punto la masa ya se ve bastante bien, no hace falta hacer más pliegues.
 
