@@ -1,0 +1,28 @@
+<svg width="1400" height="420" viewBox="0 0 1400 420" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1400" height="420" fill="#F7F3EA"/>
+
+  <!-- Centollo más reconocible -->
+  <g transform="translate(70,90)" fill="none" stroke="#0E2A47" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M120 115 C125 75, 195 50, 260 58 C315 66, 362 95, 360 132 C358 172, 320 197, 258 202 C191 208, 120 183, 115 145 Z"/>
+    <path d="M125 118 L78 99"/>
+    <path d="M123 140 L71 144"/>
+    <path d="M128 162 L82 184"/>
+    <path d="M352 118 L398 99"/>
+    <path d="M354 140 L406 144"/>
+    <path d="M349 162 L395 184"/>
+    <path d="M165 82 L145 54"/>
+    <path d="M300 86 L320 58"/>
+    <path d="M172 198 L152 228"/>
+    <path d="M296 201 L316 231"/>
+    <circle cx="210" cy="120" r="4" fill="#0E2A47"/>
+    <circle cx="260" cy="120" r="4" fill="#0E2A47"/>
+    <path d="M214 146 C228 156, 242 156, 256 146"/>
+  </g>
+
+  <!-- Wordmark: H separada de UMAMI -->
+  <text x="520" y="242" font-family="Playfair Display, Georgia, serif" font-size="150" fill="#0E2A47" letter-spacing="2">H</text>
+  <line x1="615" y1="120" x2="615" y2="272" stroke="#B87333" stroke-width="5"/>
+  <text x="655" y="242" font-family="Playfair Display, Georgia, serif" font-size="126" fill="#0E2A47" letter-spacing="2.5">UMAMI</text>
+
+  <text x="525" y="292" font-family="Inter, Arial, sans-serif" font-size="24" fill="#0E2A47" opacity="0.82" letter-spacing="2.8">HUGO + UMAMI · COCINA DE RAÍZ GALLEGA</text>
+</svg>
