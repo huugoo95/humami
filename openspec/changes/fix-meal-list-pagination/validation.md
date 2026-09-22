@@ -30,3 +30,6 @@ PR https://github.com/huugoo95/humami/pull/59 is open against develop. Candidate
 User requested correcting the validation blockers. The About auth regression now sends PUT to the real endpoint and still verifies the service is not called. The full-context test supplies fictitious S3 keys scoped only to that test. No production configuration changed.
 
 Full `mvn verify` with Java 21, local MongoDB URI and the integration-test property now passes: 42 tests, 0 failures/errors/skips, package successful. A backend GitHub Actions workflow runs this full verification with MongoDB 8.0.15 for PRs to develop/master and pushes to those branches. Remote execution is pending. Independent review of these additions found no actionable issues.
+
+## Remote validation resolved
+Backend CI run https://github.com/huugoo95/humami/actions/runs/35779661411 passed on code/workflow candidate 731bd0466d8632a8c8b94223c218dc3ea9c4b21a (pull_request). All local tests pass and the independent reviewer confirmed both df5bb3d and the final trigger extension in 731bd04 without findings. The workflow also runs on feat/fix pushes. The earlier blockers above are historical and resolved. Final documentation-only changes must receive green remote checks before merging PR #59. OpenSpec archive remains pending acceptance.
