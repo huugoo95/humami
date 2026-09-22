@@ -3,7 +3,7 @@
 _Last updated: 2026-09-22_
 
 ## In progress
-- Spec 017: recipe eligibility is filtered before pagination, totals corrected and stable ID ordering implemented; delivery in progress. See openspec/changes/fix-meal-list-pagination/validation.md.
+- Spec 017: recipe eligibility is filtered before pagination, totals corrected and stable ID ordering implemented; PR #59 open against develop, not merged. See openspec/changes/fix-meal-list-pagination/validation.md.
 - Spec 016: PR #58 merged into develop as dd6169c; OpenSpec archive pending.
 - Spec 013: add `PUT /api/about/image` multipart upload flow (S3-backed) and keep `GET /api/about` photo URL usable.
 
