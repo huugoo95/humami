@@ -21,3 +21,6 @@ None: no current OpenSpec baseline exists. Historical spec 015 supplies quality-
 
 ## Impact and constraints
 Backend repository/service and regression tests; frontend verification only unless a compatibility defect is found. No new dependency, schema migration, quality backfill, live publication, release or deployment. Deliverable is this definition only; implementation requires a separate request. Deadline: not provided.
+
+## Approved delivery-blocker follow-up
+On 2026-09-22 the user requested correction of the reported blockers. Scope now includes correcting the About upload authentication test to use the actual PUT route, supplying fictitious S3 configuration only to the context test, and adding a backend CI workflow with isolated MongoDB. Production behavior and credentials remain unchanged. Acceptance: the full suite and package pass locally and on the PR with MongoDB integration tests enabled. No branch protection changes are included.

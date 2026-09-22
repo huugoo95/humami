@@ -8,7 +8,7 @@ _Last updated: 2026-09-22_
 - Spec 013: add `PUT /api/about/image` multipart upload flow (S3-backed) and keep `GET /api/about` photo URL usable.
 
 ## Blocked
-- Spec 017 integration: 27 affected tests and packaging pass; full suite has two failures reproduced on develop (About endpoint and blank S3 configuration). Remote checks must also be verified before merge.
+- Spec 017 integration: previous validation blockers corrected; all 42 backend tests and packaging pass. New backend CI must pass on PR #59 before integration.
 
 ## Done
 - Spec 012 merged: persist About content in MongoDB + protected `PATCH /api/about` update path.

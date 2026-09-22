@@ -100,7 +100,11 @@ class AboutControllerTest {
     void shouldRejectImageUploadWithoutSecret() throws Exception {
         MockMultipartFile image = new MockMultipartFile("image", "photo.jpg", "image/jpeg", "abc".getBytes());
 
-        mockMvc.perform(multipart("/api/about/image").file(image))
+        mockMvc.perform(multipart("/api/about/image").file(image)
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        }))
                 .andExpect(status().isUnauthorized());
 
         verify(aboutService, never()).updateAboutImage(any());

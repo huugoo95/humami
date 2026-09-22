@@ -9,3 +9,9 @@
 - [x] 2.2 Obtain independent review of the implementation and record evidence against acceptance scenarios.
 - [ ] 2.3 Deliver through a PR to develop under the delivery gates; no production deploy.
 - [ ] 2.4 Archive only after implementation is accepted.
+
+## 3. Approved validation blockers
+- [x] 3.1 Correct the About authentication test method and isolate S3 context-test configuration.
+- [x] 3.2 Run the full backend suite with MongoDB and package successfully.
+- [ ] 3.3 Add and verify backend CI on the PR, including MongoDB integration tests.
+- [x] 3.4 Independently review the blocker fixes before integration.

@@ -25,3 +25,8 @@ OpenSpec strict validation and git diff --check passed. No data migration, live 
 
 ## Delivery
 PR https://github.com/huugoo95/humami/pull/59 is open against develop. Candidate 7cafc409ff50bb12a3eb1c396feb38cd7dd16226 was independently matched to the reviewed code/tests. GitHub reports CLEAN but zero remote checks; the inspected branch protection requires no approval or status checks. The delivery skill still blocks integration without checks, and full-suite baseline failures remain documented. No merge was attempted. The isolated MongoDB test process was terminated after verification. No worktree was created.
+
+## Approved blocker correction
+User requested correcting the validation blockers. The About auth regression now sends PUT to the real endpoint and still verifies the service is not called. The full-context test supplies fictitious S3 keys scoped only to that test. No production configuration changed.
+
+Full `mvn verify` with Java 21, local MongoDB URI and the integration-test property now passes: 42 tests, 0 failures/errors/skips, package successful. A backend GitHub Actions workflow runs this full verification with MongoDB 8.0.15 for PRs to develop/master and pushes to those branches. Remote execution is pending. Independent review of these additions found no actionable issues.
