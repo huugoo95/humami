@@ -7,7 +7,7 @@ _Last updated: 2026-09-22_
 - Spec 013: add `PUT /api/about/image` multipart upload flow (S3-backed) and keep `GET /api/about` photo URL usable.
 
 ## Blocked
-- None.
+- Spec 016 delivery: GitHub CLI is unauthenticated; cancelled unresponsive push and confirmed the feature branch is absent remotely. Local implementation commit: 700f9b7. Required-check enforcement remains a separate merge prerequisite.
 
 ## Done
 - Spec 012 merged: persist About content in MongoDB + protected `PATCH /api/about` update path.
