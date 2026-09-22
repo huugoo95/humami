@@ -20,6 +20,8 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -68,12 +70,11 @@ public class MealServiceImpl implements MealService {
         int normalizedLimit = Math.min(Math.max(limit, 1), 48);
 
         if (query == null || query.isBlank()) {
-            Pageable pageable = PageRequest.of(normalizedPage - 1, normalizedLimit);
-            Page<MealEntity> pageResult = mealRepository.findAll(pageable);
-            List<MealEntity> filteredMeals = pageResult.getContent().stream()
-                    .filter(meal -> qualityScoreOf(meal) >= minQualityScore)
-                    .toList();
-            List<MealResponse> items = filteredMeals.stream()
+            Pageable pageable = PageRequest.of(normalizedPage - 1, normalizedLimit, Sort.by("id").ascending());
+            Page<MealEntity> pageResult = minQualityScore <= 0
+                    ? mealRepository.findEligibleIncludingUnscored(minQualityScore, pageable)
+                    : mealRepository.findEligible(minQualityScore, pageable);
+            List<MealResponse> items = pageResult.getContent().stream()
                     .map(this::toResponseWithImageIfAvailable)
                     .toList();
 
@@ -81,7 +82,7 @@ public class MealServiceImpl implements MealService {
                     items,
                     normalizedPage,
                     normalizedLimit,
-                    items.size(),
+                    pageResult.getTotalElements(),
                     Math.max(pageResult.getTotalPages(), 1)
             );
         }
@@ -91,12 +92,13 @@ public class MealServiceImpl implements MealService {
                 .filter(meal -> qualityScoreOf(meal) >= minQualityScore)
                 .map(meal -> new ScoredMeal(meal, fuzzyScore(meal, normalizedQuery)))
                 .filter(scoredMeal -> scoredMeal.score() > 0)
-                .sorted(Comparator.comparingInt(ScoredMeal::score).reversed())
+                .sorted(Comparator.comparingInt(ScoredMeal::score).reversed()
+                        .thenComparing(scoredMeal -> scoredMeal.meal().getId(), MealServiceImpl::comparePersistedIds))
                 .toList();
 
         int totalItems = scored.size();
         int totalPages = Math.max((int) Math.ceil((double) totalItems / normalizedLimit), 1);
-        int from = Math.min((normalizedPage - 1) * normalizedLimit, totalItems);
+        int from = (int) Math.min((long) (normalizedPage - 1) * normalizedLimit, totalItems);
         int to = Math.min(from + normalizedLimit, totalItems);
 
         List<MealResponse> items = scored.subList(from, to).stream()
@@ -240,6 +242,18 @@ public class MealServiceImpl implements MealService {
             }
         }
         return response;
+    }
+
+    private static int comparePersistedIds(String left, String right) {
+        // MongoDB sorts BSON strings before ObjectIds. Spring maps hex IDs to ObjectIds.
+        boolean leftObjectId = ObjectId.isValid(left);
+        boolean rightObjectId = ObjectId.isValid(right);
+        if (leftObjectId != rightObjectId) {
+            return leftObjectId ? 1 : -1;
+        }
+        return leftObjectId
+                ? new ObjectId(left).compareTo(new ObjectId(right))
+                : left.compareTo(right);
     }
 
     private double qualityScoreOf(MealEntity mealEntity) {
