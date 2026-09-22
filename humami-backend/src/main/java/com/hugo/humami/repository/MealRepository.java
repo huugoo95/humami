@@ -5,12 +5,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
 public interface MealRepository extends MongoRepository<MealEntity, String> {
+
+    @Query("{ 'quality.score': { '$gte': ?0 } }")
+    Page<MealEntity> findEligible(double minQualityScore, Pageable pageable);
+
+    // Null matching also includes absent quality/score: their effective score is zero.
+    @Query("{ '$or': [ { 'quality.score': { '$gte': ?0 } }, { 'quality.score': null } ] }")
+    Page<MealEntity> findEligibleIncludingUnscored(double minQualityScore, Pageable pageable);
 
     @Aggregation(pipeline = {
             "{ '$search': { " +
