@@ -4,10 +4,12 @@ This file is the engineering source of truth for Humami. If there is a conflict,
 
 ## 1) Delivery model
 
-- Every product/code change starts from a written feature spec in `specs/`.
+- Every product/code change starts from a written OpenSpec change in `openspec/changes/`; retain numeric compatibility indexes in `specs/` and preserve historical specs.
 - Every non-docs PR must reference one spec ID.
 - Docs-only PRs do not require a spec unless they define/alter product behavior, API contract, or release policy.
 - No direct commits to long-lived branches (`develop`, `master`).
+
+Execution: [development](.agents/skills/humami-development/SKILL.md), [review](.agents/skills/humami-code-review/SKILL.md), [delivery](.agents/skills/humami-code-delivery/SKILL.md).
 
 ## 2) TDD (required)
 

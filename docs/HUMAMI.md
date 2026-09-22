@@ -36,11 +36,11 @@ Campos mínimos:
 - Reglas de ingeniería: `ENGINEERING_RULES.md`
 - Arquitectura: `docs/architecture.md`
 - Definición estratégica: `docs/project-definition.md`
-- Flujo de trabajo: `docs/workflow.md`
+- Flujo de trabajo: [skill de desarrollo](../.agents/skills/humami-development/SKILL.md)
 
 ## 5. Áreas de trabajo y guía
 - Marca y logo: `docs/BRAND.md`
-- Desarrollo backend/frontend: `docs/DEV.md`
+- Desarrollo backend/frontend: [skill de desarrollo](../.agents/skills/humami-development/SKILL.md)
 - Recetas y uso de API: `docs/RECIPES.md`
 - Contenido (artículos/libros): `docs/CONTENT.md`
 

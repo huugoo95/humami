@@ -1,56 +1,10 @@
-# Ops Handbook (Humami)
+# Operating knowledge
 
-This directory is the **operational memory** of the project.
+- docs/ retains shared product, brand, domain and architectural knowledge.
+- .agents/skills/ owns repeatable procedures, with selective reference loading.
+- ops/ retains delegation profiles, decisions, incidents, publication records and follow-up dependencies.
+- scripts/ owns executable mechanics. Never store credentials here.
 
-## Boundary with `docs/`
-To avoid overlap:
-- `docs/` = product + engineering knowledge (**what/why**)
-- `ops/` = execution playbooks (**how to run/operate repeatedly**)
+Start from [task routing](../AGENTS.md). Consult [delegation](agents/README.md) only when splitting work, [decisions](decisions.md) for durable choices and [incidents](incidents.md) for actual incidents. Procedural runbooks were removed after migration into their owning skills; shared deployment topology remains in docs/ghcr-deploy.md.
 
-If content answers "what are we building and why?" -> put it in `docs/`.
-If content answers "how do we execute this safely every time?" -> put it in `ops/`.
-
-## Why this exists
-When work spans backend, frontend, deploy, recipes, and SEO, context gets fragmented.
-This folder keeps execution knowledge in one place so we don't rely on chat history or personal memory.
-
-## Tracks (work lanes)
-Every task should be assigned to exactly one primary track:
-
-1. **BE/API** – contracts, models, endpoints, backend logic
-2. **FE/UX** – UI, frontend behavior, API integration from web
-3. **Infra/Deploy** – server, docker, nginx, release/deploy/rollback
-4. **Data/Recipes** – recipe content operations and publishing flow
-5. **SEO/Growth** – indexing, metadata, structured data, content SEO
-
-If a task touches multiple tracks, pick one primary owner track and list dependencies.
-
-## Task line format (minimum)
-Use this one-liner before execution:
-
-`[TRACK] objective | done-criteria | deadline`
-
-Example:
-`[Infra/Deploy] Deploy typo-tolerant meal search to prod | smoke-prod all 200 | today 18:00 CET`
-
-## What goes in repo vs outside
-
-### In repo (safe, team-shared)
-- Runbooks
-- Checklists
-- Non-sensitive operational decisions
-- Incident writeups without secrets
-- Repeatable scripts without credentials
-
-### Outside repo (private/sensitive)
-- PEM keys, tokens, passwords
-- Real credentials and secret values
-- Sensitive internal host details not required for team work
-
-## Files
-- `work-mode.md` (intake, execution mode, closure checks, reporting)
-- `runbook-deploy.md`
-- `runbook-recipes.md`
-- `runbook-seo.md`
-- `decisions.md`
-- `incidents.md`
+[Workflow follow-ups](workflow-followups.md) track prerequisites that this instruction migration does not implement. Content records are created only for actual operations, with source, target and result but without secrets.

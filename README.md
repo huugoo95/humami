@@ -7,7 +7,10 @@ Humami is a web platform for structured recipes and complete meal compositions.
 - `humami-backend/` — API, business logic, persistence
 - `humami-web/` — frontend web app
 - `docs/` — product/engineering documentation
-- `specs/` — feature specs (spec-first workflow)
+- `openspec/changes/` — active change definitions
+- `specs/` — historical specs and numeric indexes
+- `.agents/skills/` — task procedures loaded on demand
+- `ops/` — decisions, incidents and specialist profiles
 
 ## Core docs
 
@@ -15,17 +18,12 @@ Start here:
 
 - `CONTRIBUTING.md`
 - `ENGINEERING_RULES.md`
-- `docs/workflow.md`
-- `docs/git-flow.md`
+- [Task routing](AGENTS.md)
 - `docs/HUMAMI.md`
 
-## Development workflow (short)
+## Development workflow
 
-1. Create/approve a spec in `specs/`.
-2. Branch from `develop` (`feat/*`, `fix/*`, `docs/*`, etc.).
-3. Implement with tests (TDD for non-trivial changes).
-4. Open PR to `develop` with required template/checks.
-5. Release via gitflow strategy (`release/*` / `hotfix/*`).
+The [development skill](.agents/skills/humami-development/SKILL.md) owns implementation; [code delivery](.agents/skills/humami-code-delivery/SKILL.md) owns Git Flow and PR integration. Their steps are maintained in one place. [OpenSpec](.agents/skills/humami-feature-spec/SKILL.md) owns new change definitions; [release](.agents/skills/humami-release/SKILL.md) owns master-only production releases.
 
 ## Current priorities
 
@@ -37,4 +35,3 @@ See `PROGRESS.md` and active specs:
 - Blog foundation
 - SEO indexing baseline
 - About page foundation
-
