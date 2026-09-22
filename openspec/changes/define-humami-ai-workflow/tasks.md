@@ -26,7 +26,7 @@
 
 - [x] 5.1 Update active workflow references for OpenSpec, independent AI review plus checks, and master-only production; preserve historical specs.
 - [x] 5.2 Remove references to unavailable private memory and missing files, replacing them with maintained repository knowledge.
-- [x] 5.3 Migrate procedures into their owning skills, retain shared knowledge as conditional references and remove duplicated procedural text or replace it with canonical pointers.
+- [x] 5.3 Migrate procedures into their owning skills, retain shared knowledge as conditional references and remove migrated procedural documents after updating active callers, without link-only placeholders.
 - [x] 5.4 Record CI/protection enforcement, recipe-validator correction and publishing reliability as separate follow-up dependencies without implementing them here.
 
 ## 6. Validate and deliver
@@ -40,3 +40,10 @@
 ## Execution evidence
 
 See [validation](validation.md). Implementation and local validation are complete. PR #58 is open against develop; merge is blocked by effective review/check prerequisites. Archive remains pending.
+
+## 7. Documentation migration refinement
+
+- [x] 7.1 Preserve shared knowledge and migrate useful procedures into their owning skills/references.
+- [x] 7.2 Remove the nine migrated procedure documents and update active navigation.
+- [x] 7.3 Restore incidental brief/intake, engineering-precedence and CODEOWNERS changes.
+- [x] 7.4 Validate references and skill structure, review preservation independently, and update PR #58 without merging.

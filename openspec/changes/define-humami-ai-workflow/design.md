@@ -24,7 +24,7 @@ Store project skills in `.agents/skills/`. Skill descriptions expose their purpo
 
 The alternative of one comprehensive AGENTS.md was rejected because it loads unrelated instructions into every task. A custom orchestration framework is unnecessary for this repository.
 
-Migrate operational procedures (sequence, validation and stopping conditions) into the owning skill instead of merely linking to every old document. Keep shared knowledge such as architecture, brand and API contracts in maintained reference documents, and keep executable logic in scripts. Remove migrated duplicate instructions or replace them with a pointer to their canonical location. A skill links conditional references without requiring all of them to be read on every invocation.
+Migrate operational procedures (sequence, validation and stopping conditions) into the owning skill instead of merely linking to every old document. Keep shared knowledge such as architecture, brand and API contracts in maintained reference documents, and keep executable logic in scripts. Remove migrated procedural documents after updating active callers; do not retain empty compatibility documents whose only content is a skill link. A skill links conditional references without requiring all of them to be read on every invocation.
 
 ### 2. Temporary agents, not persistent services
 
@@ -84,3 +84,20 @@ Releases follow develop to release branch to master, then deploy a version origi
 ## Migration Plan
 
 After this definition is reviewed and implementation is requested, implement the instructions/skills, migrate the existing meal skill, update active references and validate representative scenarios. Do not configure remote systems or operate production as part of rollout. Rollback is a Git revert of the instruction changes through the normal PR flow. Archive this OpenSpec change only after implementation is complete and accepted; until then do not publish proposed requirements as current baseline specs.
+
+## Documentation migration refinement (approved 2026-09-22)
+
+Procedures have one canonical owner; shared knowledge and historical records remain documents. The user explicitly requested removal of duplicated procedural files rather than keeping link-only placeholders. Preserve the previous brief/intake and engineering precedence rules; changes to those rules were incidental and have been reverted. CODEOWNERS is unchanged from develop.
+
+| Removed document | Canonical destination |
+| --- | --- |
+| docs/DEV.md, docs/workflow.md | Development skill, with definition/delivery phases delegated to their owning skills |
+| docs/git-flow.md | Code-delivery skill |
+| docs/branching.md | Code-delivery references/git-conventions.md |
+| docs/review-checklist.md | Code-review skill |
+| docs/meal-authoring-playbook.md | Meal-authoring skill; writes in content-publish skill |
+| ops/runbook-recipes.md | Content-publish skill and meal contract reference |
+| ops/runbook-deploy.md | Release skill and recovery reference |
+| ops/work-mode.md | Development references/task-lifecycle.md and specialist coordination |
+
+Retain strategy, brand, architecture, library/engineering rules, meal semantics/contracts and deployment topology as shared knowledge. Historical specifications and progress entries may retain literal old path names as historical records; active navigation must resolve to current files. Scripts and application code remain unchanged.

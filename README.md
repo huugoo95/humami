@@ -1,10 +1,37 @@
 # Humami
 
-Humami combines structured meal recipes, a culinary blog and a gastronomic brand.
+Humami is a web platform for structured recipes and complete meal compositions.
 
-- humami-web/: Next.js UI; humami-backend/: Spring Boot API.
-- docs/: shared knowledge; ops/: decisions and records; scripts/: executable tools.
-- openspec/changes/: active definitions; specs/: historical definitions and numeric indexes.
-- .agents/skills/: selectively loaded task procedures.
+## Repository structure
 
-Start with [AGENTS.md](AGENTS.md) for task routing or [CONTRIBUTING.md](CONTRIBUTING.md) for contribution entry points. See [product priorities](docs/HUMAMI.md) and [progress](PROGRESS.md) for context; do not infer deployed features from a roadmap.
+- `humami-backend/` — API, business logic, persistence
+- `humami-web/` — frontend web app
+- `docs/` — product/engineering documentation
+- `openspec/changes/` — active change definitions
+- `specs/` — historical specs and numeric indexes
+- `.agents/skills/` — task procedures loaded on demand
+- `ops/` — decisions, incidents and specialist profiles
+
+## Core docs
+
+Start here:
+
+- `CONTRIBUTING.md`
+- `ENGINEERING_RULES.md`
+- [Task routing](AGENTS.md)
+- `docs/HUMAMI.md`
+
+## Development workflow
+
+The [development skill](.agents/skills/humami-development/SKILL.md) owns implementation; [code delivery](.agents/skills/humami-code-delivery/SKILL.md) owns Git Flow and PR integration. Their steps are maintained in one place. [OpenSpec](.agents/skills/humami-feature-spec/SKILL.md) owns new change definitions; [release](.agents/skills/humami-release/SKILL.md) owns master-only production releases.
+
+## Current priorities
+
+See `PROGRESS.md` and active specs:
+
+- API write hardening via secret headers
+- Tests + CI baseline
+- Simple CD safety flow
+- Blog foundation
+- SEO indexing baseline
+- About page foundation

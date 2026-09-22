@@ -1,6 +1,6 @@
 # ENGINEERING_RULES.md
 
-This file is the source of shared engineering constraints. Execution procedures live in `.agents/skills/`; update both deliberately when changing policy. Explicit user scope takes precedence.
+This file is the engineering source of truth for Humami. If there is a conflict, this file wins.
 
 ## 1) Delivery model
 

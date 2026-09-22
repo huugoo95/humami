@@ -2,7 +2,7 @@
 
 ## Implemented scope
 
-Eight project skills, a 31-line root AGENTS.md, six specialist profiles and a delegation index. Procedures moved from old workflow/runbook pages to skills; compatibility pages point to their canonical locations. Shared knowledge and executable scripts remain separate. No application source, runtime scripts, dependencies or remote protection configuration changed.
+Eight project skills, a 32-line root AGENTS.md, six specialist profiles and a delegation index. Procedures moved from old workflow/runbook pages to skills; the nine migrated procedural documents are removed after their useful content is transferred and active references updated. Shared knowledge and executable scripts remain separate. No application source, runtime scripts, dependencies or remote protection configuration changed.
 
 ## Checks executed
 
@@ -30,3 +30,11 @@ GitHub authentication completed as huugoo95. The branch is pushed and PR https:/
 Effective branch protection requires one approving review and approval of the last push, with stale reviews dismissed and protections enforced for administrators. GitHub reports REVIEW_REQUIRED and BLOCKED. Independent agent review does not fulfill that GitHub approval requirement. No status checks are attached to the inspected PR candidate; the repository advertises an active CI workflow, but origin/develop has no committed workflow files and that workflow listing alone proves neither execution nor required-check enforcement. CI/protection follow-up remains necessary before autonomous integration.
 
 Task 6.4 is delivered as an open PR with explicit integration blockers. Archive remains pending until acceptance and completion of the delivery gates.
+
+## Documentation migration refinement — 2026-09-22
+
+Following the user's explicit request, removed nine procedural documents rather than leaving link-only placeholders. The migration map is in design.md. Branch/commit naming and cross-domain task intake/closure live in conditional skill references; shared strategy, brand, architecture, contracts and deployment topology remain documentation. Restored the original brief/intake requirements, engineering precedence and CODEOWNERS content; docs/HUMAMI.md differs from develop only in its two updated procedure links.
+
+Independent review compared the original procedures with their destinations. It identified two gaps: required feature-definition fields and the production-hotfix documentation exception. Both were corrected and re-reviewed with no remaining actionable findings. All eight skills pass the official validator, all local Markdown links resolve, OpenSpec strict validation passes and git diff --check is clean. Runtime application files/scripts are unchanged. This review applies to the final instruction diff; subsequent edits record evidence only.
+
+The PR description now uses the migration map and clearly distinguishes shared knowledge, skills and deferred enforcement. No merge, protection change or production operation is included in this refinement.

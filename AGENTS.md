@@ -10,6 +10,7 @@
 ## Common rules
 - Before edits, inspect branch, local changes and active worktrees; preserve user work.
 - Select the relevant procedure below before executing; do not read every linked file.
+- For significant work, use [intake and closure](.agents/skills/humami-development/references/task-lifecycle.md).
 - A definition-only request stops at its artifacts; implementation needs a separate request.
 - Distinguish local changes, committed, pushed, merged and deployed states in reports.
 - Never infer the deployed version from a branch name or expose credentials.
