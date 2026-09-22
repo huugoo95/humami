@@ -3,11 +3,11 @@
 _Last updated: 2026-09-22_
 
 ## In progress
-- Spec 016 / OpenSpec define-humami-ai-workflow: instructions and skill migration implemented and locally validated; delivery and archive pending. See openspec/changes/define-humami-ai-workflow/validation.md.
+- Spec 016 / OpenSpec define-humami-ai-workflow: instructions and skill migration implemented and locally validated; PR #58 open against develop; merge and archive pending. See openspec/changes/define-humami-ai-workflow/validation.md.
 - Spec 013: add `PUT /api/about/image` multipart upload flow (S3-backed) and keep `GET /api/about` photo URL usable.
 
 ## Blocked
-- Spec 016 delivery: GitHub CLI is unauthenticated; cancelled unresponsive push and confirmed the feature branch is absent remotely. Local implementation commit: 700f9b7. Required-check enforcement remains a separate merge prerequisite.
+- Spec 016 integration: PR https://github.com/huugoo95/humami/pull/58 requires an external approval under actual branch protections; no checks are attached to the inspected candidate. Authentication and branch push are complete. Required-check enforcement remains a separate prerequisite.
 
 ## Done
 - Spec 012 merged: persist About content in MongoDB + protected `PATCH /api/about` update path.

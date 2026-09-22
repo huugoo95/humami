@@ -21,4 +21,12 @@ An independent reviewer inspected the tracked and new instruction files against 
 
 ## Limitations and delivery
 
-No production writes, deployments, builds, staging assumptions or remote protection changes. Missing required checks block autonomous integration. Implementation commit 700f9b734e2d79ac3fcdb4d4a3cdf01c5e0cd896 received a final independent review with no actionable findings. GitHub CLI reports no authenticated hosts. A push using the configured osxkeychain credential helper did not return and was cancelled (exit 130); a subsequent remote heads lookup confirmed the feature branch was not published. No PR or merge was performed. GitHub authentication is required to resume delivery; then inspect actual required checks/protections before integration. Archive remains pending until implementation acceptance and delivery requirements are satisfied.
+No production writes, deployments, builds, staging assumptions or remote protection changes. Missing required checks block autonomous integration. Implementation commit 700f9b734e2d79ac3fcdb4d4a3cdf01c5e0cd896 received a final independent review with no actionable findings. GitHub CLI reports no authenticated hosts. A push using the configured osxkeychain credential helper did not return and was cancelled (exit 130); a subsequent remote heads lookup confirmed the feature branch was not published. No PR or merge was performed. This initial access blocker was resolved in the delivery update below. Archive remains pending until implementation acceptance and delivery requirements are satisfied.
+
+## Delivery update — 2026-09-22
+
+GitHub authentication completed as huugoo95. The branch is pushed and PR https://github.com/huugoo95/humami/pull/58 is open against develop. The feature branch includes all current origin/develop commits. No merge or deployment was performed.
+
+Effective branch protection requires one approving review and approval of the last push, with stale reviews dismissed and protections enforced for administrators. GitHub reports REVIEW_REQUIRED and BLOCKED. Independent agent review does not fulfill that GitHub approval requirement. No status checks are attached to the inspected PR candidate; the repository advertises an active CI workflow, but origin/develop has no committed workflow files and that workflow listing alone proves neither execution nor required-check enforcement. CI/protection follow-up remains necessary before autonomous integration.
+
+Task 6.4 is delivered as an open PR with explicit integration blockers. Archive remains pending until acceptance and completion of the delivery gates.

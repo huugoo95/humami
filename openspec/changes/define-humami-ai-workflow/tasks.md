@@ -34,9 +34,9 @@
 - [x] 6.1 Validate skill metadata, relative references and discovery in the target Codex project environment.
 - [x] 6.2 Exercise the scenarios in all four capability specifications with isolated, non-production fixtures and independent review.
 - [x] 6.3 Confirm that editorial work does not load development/deploy procedures, definition-only requests do not trigger implementation, and blocked delivery is not reported as merged.
-- [ ] 6.4 Validate the OpenSpec change, report actual evidence and deliver through the permitted PR flow; leave merge pending if enforcement prerequisites are unavailable.
+- [x] 6.4 Validate the OpenSpec change, report actual evidence and deliver through the permitted PR flow; leave merge pending if enforcement prerequisites are unavailable.
 - [ ] 6.5 Archive the OpenSpec change only after the implementation is completed and accepted, not during definition drafting.
 
 ## Execution evidence
 
-See [validation](validation.md). Implementation and local validation are complete; delivery and archive remain pending until their stated gates are satisfied.
+See [validation](validation.md). Implementation and local validation are complete. PR #58 is open against develop; merge is blocked by effective review/check prerequisites. Archive remains pending.
