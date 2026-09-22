@@ -1,4 +1,6 @@
-# Default reviewers
+# Maintainer ownership; effective GitHub rules determine approval requirements.
+# Independent AI review policy does not bypass code-owner approval when enforced.
+# Default owners
 * @huugoo95
 
 # Optional split ownership

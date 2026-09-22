@@ -1,42 +1,7 @@
-# Work Mode (Daily Ops)
+# Task execution and reporting
 
-Single operational guide for day-to-day execution.
+The primary agent identifies the requested outcome and relevant skill through [AGENTS.md](../AGENTS.md). Track labels (BE/API, FE/UX, Infra/Deploy, Data/Recipes, SEO/Growth) may clarify ownership; do not invent deadlines or require a ceremonial intake line for a clear request.
 
-## 1) Intake (required)
-Start every significant task with:
+[Delegation](agents/README.md) owns specialist selection and parallelism. The selected skill owns execution and validation. Persist acceptance evidence in the active change or PR, durable decisions in decisions.md and actual incidents in incidents.md.
 
-`[TRACK] objective | done-criteria | deadline`
-
-Tracks:
-- BE/API
-- FE/UX
-- Infra/Deploy
-- Data/Recipes
-- SEO/Growth
-
-### What is a "significant task"?
-A task is significant if at least one is true:
-- creates/modifies/deletes project code or docs in repo
-- affects production/staging infrastructure
-- requires a PR
-- takes more than ~15 minutes
-- needs explicit validation evidence (tests/smoke/logs)
-
-## 2) Execution mode
-- Small/simple task -> execute directly.
-- Medium/complex or multi-domain task -> use split execution (implementer + reviewer).
-
-## 3) Validation before close
-- Acceptance criteria checked
-- Evidence captured (tests/logs/smoke/URLs/screenshots as applicable)
-- Workflow respected (branch + PR + spec reference)
-- If durable decision: update `ops/decisions.md`
-- If incident/anomaly: update `ops/incidents.md`
-
-## 4) Completion report format
-- Context
-- Action
-- Result
-- Next
-
-Keep it short and evidence-based.
+Close with the result, actual checks, delivery state and blockers. Distinguish local edits, commits, pushed branches, PRs, merges, published content and deployed versions. Include relevant active worktrees when reporting project state. Do not declare a task done just because one checkout is clean.

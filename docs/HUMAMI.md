@@ -1,6 +1,6 @@
 # HUMAMI.md — Operating System del proyecto
 
-> Fuente de verdad operativa para trabajar con tenacitas sin repetir contexto en cada mensaje.
+> Referencia de prioridades del producto. La entrada operativa es `AGENTS.md`; los procedimientos viven en skills.
 
 ## 1. Objetivo actual
 Convertir Humami en un producto monetizable centrado en **resolución semanal de cenas** (rápidas y anti-desperdicio), manteniendo la identidad gastronómica premium de marca.
@@ -23,7 +23,7 @@ Convertir Humami en un producto monetizable centrado en **resolución semanal de
 - Explorar líneas B2B y producto físico.
 
 ## 3. Cómo pedirme trabajo (brief mínimo)
-Usar siempre la plantilla: `docs/brief-template.md`.
+La plantilla `docs/brief-template.md` sirve de apoyo cuando falte contexto; no es obligatoria para una petición clara.
 
 Campos mínimos:
 1. Objetivo

@@ -1,40 +1,10 @@
 # Humami
 
-Humami is a web platform for structured recipes and complete meal compositions.
+Humami combines structured meal recipes, a culinary blog and a gastronomic brand.
 
-## Repository structure
+- humami-web/: Next.js UI; humami-backend/: Spring Boot API.
+- docs/: shared knowledge; ops/: decisions and records; scripts/: executable tools.
+- openspec/changes/: active definitions; specs/: historical definitions and numeric indexes.
+- .agents/skills/: selectively loaded task procedures.
 
-- `humami-backend/` — API, business logic, persistence
-- `humami-web/` — frontend web app
-- `docs/` — product/engineering documentation
-- `specs/` — feature specs (spec-first workflow)
-
-## Core docs
-
-Start here:
-
-- `CONTRIBUTING.md`
-- `ENGINEERING_RULES.md`
-- `docs/workflow.md`
-- `docs/git-flow.md`
-- `docs/HUMAMI.md`
-
-## Development workflow (short)
-
-1. Create/approve a spec in `specs/`.
-2. Branch from `develop` (`feat/*`, `fix/*`, `docs/*`, etc.).
-3. Implement with tests (TDD for non-trivial changes).
-4. Open PR to `develop` with required template/checks.
-5. Release via gitflow strategy (`release/*` / `hotfix/*`).
-
-## Current priorities
-
-See `PROGRESS.md` and active specs:
-
-- API write hardening via secret headers
-- Tests + CI baseline
-- Simple CD safety flow
-- Blog foundation
-- SEO indexing baseline
-- About page foundation
-
+Start with [AGENTS.md](AGENTS.md) for task routing or [CONTRIBUTING.md](CONTRIBUTING.md) for contribution entry points. See [product priorities](docs/HUMAMI.md) and [progress](PROGRESS.md) for context; do not infer deployed features from a roadmap.

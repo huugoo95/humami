@@ -1,62 +1,13 @@
-# Contributing Guide
+# Contributing to Humami
 
-This project follows a spec-first workflow with explicit engineering rules.
+Start with [AGENTS.md](AGENTS.md) for task routing. Procedures are maintained in project skills; shared engineering constraints remain in [ENGINEERING_RULES.md](ENGINEERING_RULES.md).
 
-## Core references (read first)
+- New product/code definitions use [OpenSpec feature definition](.agents/skills/humami-feature-spec/SKILL.md). Historical specs remain available; numeric index files link to canonical OpenSpec changes.
+- Implement with [development](.agents/skills/humami-development/SKILL.md).
+- Review with [independent review](.agents/skills/humami-code-review/SKILL.md).
+- Branch, commit, PR and integrate with [code delivery](.agents/skills/humami-code-delivery/SKILL.md).
+- Prepare a production release with [release](.agents/skills/humami-release/SKILL.md).
 
-- `ENGINEERING_RULES.md`
-- `docs/workflow.md`
-- `docs/git-flow.md`
-- `docs/branching.md`
-- `docs/architecture.md`
-- `docs/approved-libraries.md`
+Definition-only requests do not start implementation. Pure docs maintenance is exempt from a spec unless it changes product behavior, contracts or release policy. All repository changes land through PRs, not direct commits to develop/master.
 
-## Branching model
-
-- `master`: always stable
-- `develop`: integration branch for upcoming release
-- Branches:
-  - `feat/<spec-id>-<short-name>`
-  - `fix/<short-name>`
-  - `release/<version>`
-  - `hotfix/<short-name>`
-  - `chore/<short-name>`
-  - `docs/<short-name>`
-
-## Feature planning (required)
-
-Before coding, create a spec from `specs/000-template.md`.
-
-Required sections:
-- Problem
-- Goal and metric
-- Scope in/out
-- Acceptance criteria (Given/When/Then)
-- Risks/dependencies
-
-## Pull requests
-
-Every PR must:
-1. Reference spec ID (except docs-only PRs)
-2. Fill `.github/pull_request_template.md`
-3. Include test evidence (as applicable)
-4. Include risks and rollback notes (as applicable)
-
-Docs-only PRs do not require a spec unless they alter product behavior, API contract, or release policy.
-
-Direct commits to `develop` and `master` are not allowed.
-
-## Quality gates (before merge)
-
-- Lint passes
-- Tests pass
-- Build passes
-- PR compliance checklist completed
-
-## Progress tracking
-
-Update `PROGRESS.md` while working:
-- In progress
-- Blocked
-- Done
-- Next steps
+Required-check enforcement is a separate prerequisite; see [enforcement status](docs/enforcement-matrix.md). Missing gates must be reported, not silently waived. Track actual progress in the active OpenSpec tasks and keep PROGRESS.md as a concise project summary.

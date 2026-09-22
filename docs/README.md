@@ -1,22 +1,9 @@
-# Docs Map (Humami)
+# Shared knowledge map
 
-This folder contains product and engineering documentation.
+Read only the references needed for the current task.
 
-## What belongs in `docs/`
-- Product strategy and definition
-- Architecture and engineering conventions
-- Workflow, branching, review expectations
-- Data model and API behavior explanations
-
-## What does NOT belong here
-Repeatable day-to-day operational execution playbooks.
-Those belong in `ops/`.
-
-## Quick navigation
-- Strategy: `project-definition.md`, `HUMAMI.md`
-- Engineering: `architecture.md`, `approved-libraries.md`, `workflow.md`, `git-flow.md`, `branching.md`, `enforcement-matrix.md`, `ghcr-deploy.md`
-- Domain/content: `meal-recipe-model.md`, `RECIPES.md`, `recipe-ingestion-pipeline.md`, `meal-authoring-playbook.md`, `CONTENT.md`, `BRAND.md`
-- Execution templates: `brief-template.md`, `review-checklist.md`
-
-## Ops reference
-For deploy/recipes/SEO runbooks and incidents/decisions logs, see `../ops/README.md`.
+- Strategy: [priorities](HUMAMI.md), [product](project-definition.md).
+- Engineering: [architecture](architecture.md), [libraries](approved-libraries.md), [naming](branching.md), [enforcement](enforcement-matrix.md), [deployment topology](ghcr-deploy.md).
+- Domain/editorial: [meal model](meal-recipe-model.md), [meal contract](RECIPES.md), [content](CONTENT.md), [brand](BRAND.md).
+- Procedures: [project skill routing](../AGENTS.md). Old workflow/runbook links redirect to canonical skills.
+- Operational records: [ops](../ops/README.md).

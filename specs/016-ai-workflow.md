@@ -1,6 +1,6 @@
 # Spec 016: Humami AI workflow
 
-- **Status:** Draft — definition only; implementation has not been authorized.
+- **Status:** In Progress — definition reviewed and implementation explicitly requested on 2026-09-22.
 - **Owner:** Hugo
 - **Created:** 2026-09-22
 - **OpenSpec change:** `define-humami-ai-workflow`

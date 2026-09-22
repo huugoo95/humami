@@ -2,7 +2,7 @@
 
 Humami needs a consistent AI workflow across product definition, development, code delivery, editorial work and production operations. Existing instructions are scattered, some references are missing, and the documented release policy conflicts with the operational runbook. Loading all procedures into every conversation would add irrelevant context.
 
-This change defines a small entry point, selectively loaded skills and temporary specialist agents. This proposal is a draft for Hugo's review; writing these artifacts does not authorize implementation.
+This change defines a small entry point, selectively loaded skills and temporary specialist agents. Hugo reviewed the definition and explicitly requested implementation on 2026-09-22. Future definition-only requests still do not authorize implementation.
 
 ## What Changes
 

@@ -20,7 +20,7 @@ Record decisions that should persist beyond chat history.
 - Revisit trigger: If process overhead becomes too high or tracks need splitting.
 
 ## 2026-03-19
-- Decision: Default reviewer is `huugoo95` (Hugo) across all tracks.
+- Decision (historical; superseded by 2026-09-22): Default reviewer is `huugoo95` (Hugo) across all tracks.
 - Scope/Track: Cross-track
 - Rationale: Single accountable human reviewer simplifies quality gate and decision latency.
 - Impact: PR flow has one explicit reviewer by default.
@@ -34,8 +34,15 @@ Record decisions that should persist beyond chat history.
 - Revisit trigger: Repeated docs PRs cause behavior drift without specs.
 
 ## Pending decisions
-- Release gate: should deploy to production require `master` only, or is `develop` deployment acceptable by policy?
 - Incident severity: define P1/P2/P3 levels and mandatory response checklist.
 
 ## Pending action
-- Apply GitHub branch protection on `develop` and `master` in `huugoo95/humami` (PR required, 1 approval, no force push). Attempt from `tenacitas-dev` token returned 404 (likely missing admin rights on upstream repo).
+- Deliver CI/protection configuration in a separate change; inspect actual GitHub rules before enabling autonomous integration. A historical protection update returned 404; this is not evidence of current permissions. See [follow-ups](workflow-followups.md).
+
+## 2026-09-22 — AI workflow (spec 016)
+- Decision: Use a minimal AGENTS.md, selectively loaded skills and temporary specialists coordinated within the current task. Migrate procedures; retain shared knowledge and executable scripts in their existing roles.
+- Decision: Definitions use OpenSpec; historical specs stay available through compatibility indexes.
+- Decision: Implementation normally targets develop through PR, independent AI review and required green checks. This supersedes the historical universal Hugo-review policy, not effective GitHub protections; missing prerequisites block integration.
+- Decision: Production releases originate exclusively from master with a concrete version and explicit deployment request. Develop is integration only.
+- Scope: Instructions/procedures; no CI or remote protections configured by this change, no LinkedIn or permanent orchestration service.
+- Revisit trigger: Repeated routing failures, new channels or team/release requirements.

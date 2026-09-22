@@ -12,7 +12,7 @@ Goals: establish discoverable, selectively loaded operating procedures and unamb
 
 Non-goals: implement product functionality, start background agents, publish real content, deploy, create a custom MCP server, install external connectors, implement CI, change GitHub protections, or repair application/tooling defects as part of this change. LinkedIn is excluded.
 
-Current authorization is limited to authoring and validating this definition. All implementation tasks remain unchecked until implementation is separately requested.
+Hugo explicitly requested implementation on 2026-09-22 after reviewing this definition. Track completed work and validation in tasks.md; archive remains conditional on completion and acceptance.
 
 ## Decisions
 
