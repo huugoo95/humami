@@ -3,6 +3,7 @@
 _Last updated: 2026-09-22_
 
 ## In progress
+- Spec 017: reliable meal listing pagination defined in openspec/changes/fix-meal-list-pagination; implementation not started.
 - Spec 016 / OpenSpec define-humami-ai-workflow: instructions and skill migration implemented and locally validated; PR #58 open against develop; merge and archive pending. See openspec/changes/define-humami-ai-workflow/validation.md.
 - Spec 013: add `PUT /api/about/image` multipart upload flow (S3-backed) and keep `GET /api/about` photo URL usable.
 
