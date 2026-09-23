@@ -9,6 +9,6 @@
 
 ## 3. Validation and delivery
 - [x] 3.1 Verify post-change dependency graph/audits, tests, lint and builds; record residual risks.
-- [ ] 3.2 Obtain independent candidate review and resolve findings.
+- [x] 3.2 Obtain independent candidate review and resolve findings.
 - [ ] 3.3 Push a PR to develop and integrate only after remote checks pass.
 - [ ] 3.4 Archive only after acceptance.

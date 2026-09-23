@@ -3,7 +3,7 @@
 _Last updated: 2026-09-23_
 
 ## In progress
-- Spec 018: critical dependency updates implemented and locally validated; remote checks/review in progress. See openspec/changes/update-critical-dependencies/validation.md.
+- Spec 018: critical dependency updates implemented and locally validated; PR #60 open, reviewed; final remote container regression check pending. See openspec/changes/update-critical-dependencies/validation.md.
 - Spec 017: recipe eligibility is filtered before pagination, totals corrected and stable ID ordering implemented; PR #59 merged into develop as 170341d. See openspec/changes/fix-meal-list-pagination/validation.md.
 - Spec 016: PR #58 merged into develop as dd6169c; OpenSpec archive pending.
 - Spec 013: add `PUT /api/about/image` multipart upload flow (S3-backed) and keep `GET /api/about` photo URL usable.
