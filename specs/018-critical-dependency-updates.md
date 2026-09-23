@@ -1,5 +1,5 @@
 # Spec 018: critical-dependency-updates
 
-Status: Definition and audit in progress; implementation authorized.
+Status: Implemented and locally validated; delivery pending.
 
 [Canonical OpenSpec](../openspec/changes/update-critical-dependencies/proposal.md).

@@ -1,14 +1,15 @@
 # Project Progress
 
-_Last updated: 2026-09-22_
+_Last updated: 2026-09-23_
 
 ## In progress
-- Spec 017: recipe eligibility is filtered before pagination, totals corrected and stable ID ordering implemented; PR #59 open against develop, not merged. See openspec/changes/fix-meal-list-pagination/validation.md.
+- Spec 018: critical dependency updates implemented and locally validated; remote checks/review in progress. See openspec/changes/update-critical-dependencies/validation.md.
+- Spec 017: recipe eligibility is filtered before pagination, totals corrected and stable ID ordering implemented; PR #59 merged into develop as 170341d. See openspec/changes/fix-meal-list-pagination/validation.md.
 - Spec 016: PR #58 merged into develop as dd6169c; OpenSpec archive pending.
 - Spec 013: add `PUT /api/about/image` multipart upload flow (S3-backed) and keep `GET /api/about` photo URL usable.
 
 ## Blocked
-- Spec 017 integration: previous blockers resolved: 42 tests and packaging pass locally and Backend CI passes on PR #59. Final candidate checks gate integration.
+- No spec 017 blocker remains; spec 018 awaits its candidate remote checks.
 
 ## Done
 - Spec 012 merged: persist About content in MongoDB + protected `PATCH /api/about` update path.
