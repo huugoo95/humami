@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -11,9 +12,17 @@ export default function AppHeader() {
       <div className="container mx-auto flex items-center justify-between px-4 py-2">
         <Link
           href="/"
-          className="text-2xl font-semibold tracking-wide hover:text-humami-bg-light transition-colors"
+          className="block py-1 transition-opacity hover:opacity-85"
         >
-          Humami
+          <Image
+            src="/brand/humami-wordmark-reverse.svg"
+            alt="Humami"
+            width={754}
+            height={204}
+            priority
+            unoptimized
+            className="h-8 w-auto md:h-9"
+          />
         </Link>
 
         <button
