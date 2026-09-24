@@ -25,7 +25,7 @@ class MealPaginationTest {
 
     @Test
     void returnsFullEligibleCountRatherThanPageSize() {
-        var pageable = PageRequest.of(1, 12, Sort.by("id").ascending());
+        var pageable = qualityOrderedPage(1, 12);
         MealEntity meal = new MealEntity();
         when(repository.findEligible(0.5, pageable)).thenReturn(new PageImpl<>(List.of(meal), pageable, 25));
         when(mapper.toResponse(meal)).thenReturn(new MealResponse());
@@ -38,13 +38,34 @@ class MealPaginationTest {
 
     @Test
     void zeroThresholdUsesLegacyAwareQueryAndNormalizesPage() {
-        var pageable = PageRequest.of(0, 48, Sort.by("id").ascending());
+        var pageable = qualityOrderedPage(0, 48);
         when(repository.findEligibleIncludingUnscored(0, pageable)).thenReturn(new PageImpl<>(List.of(), pageable, 0));
         var result = service.getPaged(null, -1, 100, 0);
         assertEquals(1, result.getPage());
         assertEquals(48, result.getLimit());
         assertEquals(0, result.getTotalItems());
         assertEquals(1, result.getTotalPages());
+    }
+
+    @Test
+    void blankCatalogueOrdersByQualityDescendingThenIdAscending() {
+        var pageable = PageRequest.of(0, 12,
+                Sort.by("quality.score").descending().and(Sort.by("id").ascending()));
+        MealEntity carbonara = meal("z", "Carbonara");
+        carbonara.getQuality().setScore(0.97);
+        MealEntity lowerQuality = meal("a", "Arroz");
+        lowerQuality.getQuality().setScore(0.80);
+        when(repository.findEligible(0.5, pageable))
+                .thenReturn(new PageImpl<>(List.of(carbonara, lowerQuality), pageable, 2));
+        when(mapper.toResponse(any(MealEntity.class))).thenAnswer(invocation -> {
+            MealResponse response = new MealResponse();
+            response.setId(((MealEntity) invocation.getArgument(0)).getId());
+            return response;
+        });
+
+        var result = service.getPaged(" ", 1, 12);
+
+        assertEquals(List.of("z", "a"), result.getItems().stream().map(MealResponse::getId).toList());
     }
 
     @Test
@@ -72,5 +93,10 @@ class MealPaginationTest {
         quality.setScore(0.8);
         meal.setQuality(quality);
         return meal;
+    }
+
+    private PageRequest qualityOrderedPage(int page, int limit) {
+        return PageRequest.of(page, limit,
+                Sort.by("quality.score").descending().and(Sort.by("id").ascending()));
     }
 }

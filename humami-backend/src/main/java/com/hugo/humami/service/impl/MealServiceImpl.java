@@ -70,7 +70,8 @@ public class MealServiceImpl implements MealService {
         int normalizedLimit = Math.min(Math.max(limit, 1), 48);
 
         if (query == null || query.isBlank()) {
-            Pageable pageable = PageRequest.of(normalizedPage - 1, normalizedLimit, Sort.by("id").ascending());
+            Pageable pageable = PageRequest.of(normalizedPage - 1, normalizedLimit,
+                    Sort.by("quality.score").descending().and(Sort.by("id").ascending()));
             Page<MealEntity> pageResult = minQualityScore <= 0
                     ? mealRepository.findEligibleIncludingUnscored(minQualityScore, pageable)
                     : mealRepository.findEligible(minQualityScore, pageable);
