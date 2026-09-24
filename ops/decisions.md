@@ -46,3 +46,10 @@ Record decisions that should persist beyond chat history.
 - Decision: Production releases originate exclusively from master with a concrete version and explicit deployment request. Develop is integration only.
 - Scope: Instructions/procedures; no CI or remote protections configured by this change, no LinkedIn or permanent orchestration service.
 - Revisit trigger: Repeated routing failures, new channels or team/release requirements.
+
+## 2026-09-24 — Isolated development hosting (spec 019)
+- Decision: Run dev.humami.es on the existing ARM64 host, with its own Mongo volume, database credentials and write secret; do not copy production data.
+- Decision: Build dev images off-host from develop, tag by commit and pin deployed digests. Publication is automatic; deployment remains explicit. Production remains master-only.
+- Decision: Until independent object storage exists, dev uses no real S3 credentials and the proxy returns503 for image uploads.
+- Scope: Resource-capped dev containers and additive TLS/proxy routing. Existing production application containers and rollback images are retained.
+- Evidence and runtime details: openspec/changes/provision-isolated-dev-environment/validation.md.
