@@ -1,15 +1,16 @@
 # Project Progress
 
-_Last updated: 2026-09-23_
+_Last updated: 2026-09-24_
 
 ## In progress
-- Spec 018: critical dependency updates implemented and locally validated; PR #60 open, reviewed; final remote container regression check pending. See openspec/changes/update-critical-dependencies/validation.md.
+- Spec 019: dev.humami.es deployed and verified from develop07554b2; production application containers unchanged. Readiness adjustment and evidence in PR #64; archive pending acceptance. See openspec/changes/provision-isolated-dev-environment/validation.md.
+- Spec 018: critical dependency updates merged into develop through PR #60 as47078a3; production application deployment remains pending. See openspec/changes/update-critical-dependencies/validation.md.
 - Spec 017: recipe eligibility is filtered before pagination, totals corrected and stable ID ordering implemented; PR #59 merged into develop as 170341d. See openspec/changes/fix-meal-list-pagination/validation.md.
 - Spec 016: PR #58 merged into develop as dd6169c; OpenSpec archive pending.
 - Spec 013: add `PUT /api/about/image` multipart upload flow (S3-backed) and keep `GET /api/about` photo URL usable.
 
 ## Blocked
-- No spec 017 blocker remains; spec 018 awaits its candidate remote checks.
+- Dev image storage remains disabled until independent object storage is configured (spec019).
 
 ## Done
 - Spec 012 merged: persist About content in MongoDB + protected `PATCH /api/about` update path.
@@ -26,7 +27,7 @@ _Last updated: 2026-09-23_
   - `specs/007-about-page-foundation.md`
 
 ## Next steps
-- Complete spec 017 delivery once integration gates pass; CI/protection enforcement remains a separate follow-up in ops/workflow-followups.md.
+- OpenSpec archive remains pending acceptance. CI/protection enforcement remains a separate follow-up in ops/workflow-followups.md.
 
 Historical planning notes (2026-03-19; verify against current code before acting):
 1. Review and approve specs 002–007.
