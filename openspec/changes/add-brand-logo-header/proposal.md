@@ -9,7 +9,7 @@ Success metric: the approved reverse wordmark renders in the header on mobile an
 
 ## What Changes
 - Add the approved brand assets to `humami-web/public/brand/` (wordmark variants, symbol, favicon sources) as outlined SVG plus PNG/ICO exports.
-- Replace the text link in `AppHeader` with the reverse wordmark (ivory "umami", soft-gold italic "h" and drop) on the existing `humami-accent-dark` header.
+- Replace the text link in `AppHeader` with the reverse wordmark (ivory "umami", soft-gold italic "h" and flame with ivory core) on the existing `humami-accent-dark` header.
 - Record the logo concept and usage rules in `docs/BRAND.md`.
 
 ## Non-goals
