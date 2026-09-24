@@ -7,26 +7,6 @@ x-logging: &dev-logging
     max-file: '2'
 
 services:
-  dev-mongo:
-    image: mongo:8.0.15
-    restart: unless-stopped
-    mem_limit: 384m
-    cpus: 0.40
-    command: [mongod, --wiredTigerCacheSizeGB, '0.25']
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: dev_admin
-      MONGO_INITDB_ROOT_PASSWORD: ${DEV_MONGO_PASSWORD:?Set independent dev Mongo password}
-    volumes:
-      - mongo-data:/data/db
-    networks: [data]
-    healthcheck:
-      test: [CMD, mongosh, --quiet, --eval, 'quit(db.adminCommand({ping:1}).ok ? 0 : 1)']
-      interval: 30s
-      timeout: 30s
-      start_period: 60s
-      retries: 6
-    logging: *dev-logging
-
   dev-backend:
     image: ghcr.io/${GHCR_OWNER:?Set registry owner}/humami-backend:${DEV_IMAGE_TAG:?Set exact dev-SHA tag}
     container_name: humami-dev-backend
@@ -35,16 +15,13 @@ services:
     cpus: 0.50
     environment:
       JAVA_TOOL_OPTIONS: -Xms64m -Xmx192m -XX:MaxMetaspaceSize=128m -XX:ActiveProcessorCount=1
-      SPRING_DATA_MONGODB_URI: mongodb://dev_admin:${DEV_MONGO_PASSWORD}@dev-mongo:27017/humami_dev?authSource=admin
+      SPRING_DATA_MONGODB_URI: ${DEV_ATLAS_MONGODB_URI:?Set dedicated Atlas URI for dev}
       SPRING_DATA_MONGODB_DATABASE: humami_dev
       HUMAMI_WRITE_SECRET: ${DEV_WRITE_SECRET:?Set independent dev write secret}
       AWS_S3_ACCESS_KEY: dev-storage-disabled
       AWS_S3_SECRET_KEY: dev-storage-disabled
       AWS_S3_REGION: eu-west-3
-    depends_on:
-      dev-mongo:
-        condition: service_healthy
-    networks: [data, ingress]
+    networks: [ingress]
     logging: *dev-logging
 
   dev-frontend:
@@ -58,11 +35,6 @@ services:
     networks: [ingress]
     logging: *dev-logging
 
-volumes:
-  mongo-data:
-
 networks:
-  data:
-    internal: true
   ingress:
     name: humami-dev-ingress

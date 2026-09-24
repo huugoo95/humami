@@ -45,6 +45,6 @@ jobs:
         env:
           GHCR_OWNER: validation
           DEV_IMAGE_TAG: dev-validation
-          DEV_MONGO_PASSWORD: validation-only
+          DEV_ATLAS_MONGODB_URI: mongodb+srv://validation:validation@example.mongodb.net/humami_dev
           DEV_WRITE_SECRET: validation-only
         run: docker compose -f docker-compose.dev.yml config -q
