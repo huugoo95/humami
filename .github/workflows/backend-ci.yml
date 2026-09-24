@@ -41,3 +41,10 @@ jobs:
           -f humami-backend/pom.xml
           -Dhumami.test.mongoUri=mongodb://127.0.0.1:27017
           verify
+      - name: Validate isolated dev Compose configuration
+        env:
+          GHCR_OWNER: validation
+          DEV_IMAGE_TAG: dev-validation
+          DEV_MONGO_PASSWORD: validation-only
+          DEV_WRITE_SECRET: validation-only
+        run: docker compose -f docker-compose.dev.yml config -q
