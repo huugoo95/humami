@@ -6,6 +6,7 @@
 - `openspec/changes/`: active definitions; `specs/`: historical specs and numeric indexes.
 - `.agents/skills/`: procedures loaded on demand; `ops/`: decisions and operating records.
 - `scripts/`: executable tools; do not duplicate their logic in instructions.
+- `content/downloads/`: final downloadable PDFs (lead magnets, mini-books), one folder per piece.
 
 ## Common rules
 - Before edits, inspect branch, local changes and active worktrees; preserve user work.
