@@ -93,6 +93,26 @@ class MealPaginationIntegrationTest {
         assertEquals(List.of("boundary"), service.getPaged("", 1, 12).getItems().stream().map(MealResponse::getId).toList());
         assertEquals(6, service.getPaged("", 1, 12, 0).getTotalItems());
         assertEquals(6, service.getPaged("", 1, 12, -0.1).getTotalItems());
+        assertEquals(List.of("boundary", "low", "absent", "missing-score", "null-quality", "null-score"),
+                service.getPaged("", 1, 12, 0).getItems().stream().map(MealResponse::getId).toList());
+    }
+
+    @Test
+    void ordersBlankCatalogueByQualityBeforePagingAndUsesIdForTies() {
+        repository.save(meal("z-high", 0.97));
+        repository.save(meal("b-high", 0.97));
+        repository.save(meal("a-medium", 0.80));
+        repository.save(meal("late-low", 0.50));
+
+        List<String> firstPage = service.getPaged(" ", 1, 2).getItems().stream()
+                .map(MealResponse::getId)
+                .toList();
+        List<String> secondPage = service.getPaged("", 2, 2).getItems().stream()
+                .map(MealResponse::getId)
+                .toList();
+
+        assertEquals(List.of("b-high", "z-high"), firstPage);
+        assertEquals(List.of("a-medium", "late-low"), secondPage);
     }
 
     @Test
