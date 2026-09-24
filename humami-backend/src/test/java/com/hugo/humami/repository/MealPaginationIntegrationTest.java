@@ -93,6 +93,8 @@ class MealPaginationIntegrationTest {
         assertEquals(List.of("boundary"), service.getPaged("", 1, 12).getItems().stream().map(MealResponse::getId).toList());
         assertEquals(6, service.getPaged("", 1, 12, 0).getTotalItems());
         assertEquals(6, service.getPaged("", 1, 12, -0.1).getTotalItems());
+        assertEquals(List.of("boundary", "low", "absent", "missing-score", "null-quality", "null-score"),
+                service.getPaged("", 1, 12, 0).getItems().stream().map(MealResponse::getId).toList());
     }
 
     @Test
