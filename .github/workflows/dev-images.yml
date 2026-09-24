@@ -1,6 +1,14 @@
 name: Development images
 
 on:
+  pull_request:
+    branches: [develop]
+    paths:
+      - '.github/workflows/dev-images.yml'
+      - 'humami-backend/Dockerfile'
+      - 'humami-web/Dockerfile'
+      - '.mvn/**'
+      - 'mvnw'
   push:
     branches: [develop]
     paths:
@@ -16,7 +24,7 @@ permissions:
 
 jobs:
   images:
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/develop' || github.event_name == 'pull_request'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     strategy:
@@ -35,12 +43,17 @@ jobs:
           SOURCE_SHA: ${{ github.sha }}
           SOURCE_URL: https://github.com/${{ github.repository }}
         run: |
+          if [ "$MODULE" = humami-backend ]; then
+            cp -R .mvn "$MODULE/.mvn"
+            cp mvnw "$MODULE/mvnw"
+          fi
           docker build --platform linux/arm64 \
             --label "org.opencontainers.image.revision=$SOURCE_SHA" \
             --label "org.opencontainers.image.source=$SOURCE_URL" \
             --build-arg NEXT_PUBLIC_API_BASE_URL=https://dev.humami.es/api \
             --tag "$IMAGE" "$MODULE"
       - name: Publish immutable dev tag
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/develop'
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
