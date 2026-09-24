@@ -3,6 +3,9 @@
 _Last updated: 2026-09-24_
 
 ## In progress
+- Spec 021: dev database migrated to a dedicated Atlas `humami_dev` runtime;
+  data and public endpoints verified, while the stopped local MongoDB volume
+  remains available for rollback. See openspec/changes/migrate-dev-database-to-atlas/validation.md.
 - Spec 019: dev.humami.es deployed and verified from develop07554b2; production application containers unchanged. Readiness adjustment and evidence in PR #64; archive pending acceptance. See openspec/changes/provision-isolated-dev-environment/validation.md.
 - Spec 018: critical dependency updates merged into develop through PR #60 as47078a3; production application deployment remains pending. See openspec/changes/update-critical-dependencies/validation.md.
 - Spec 017: recipe eligibility is filtered before pagination, totals corrected and stable ID ordering implemented; PR #59 merged into develop as 170341d. See openspec/changes/fix-meal-list-pagination/validation.md.
