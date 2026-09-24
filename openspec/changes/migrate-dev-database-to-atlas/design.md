@@ -8,11 +8,11 @@ The existing Atlas network policy already allows the shared host because product
 
 ## Migration sequence
 
-1. Capture a fresh dump of the local `humami_dev` data and inventory collection counts/index definitions.
-2. Create the dedicated Atlas user and restore the dump into Atlas `humami_dev` through that new user.
-3. Compare the Atlas collection inventory with the local source. Production `humami` is read-only throughout; no collection is dropped or restored there.
-4. Update the dev Compose configuration so `dev-backend` requires `DEV_ATLAS_MONGODB_URI`, has no `depends_on` local MongoDB, and is attached only to the existing ingress network.
-5. Restart only dev backend, verify dev/public endpoints and production container identities. Then stop the local MongoDB container while retaining its volume and server-side backup.
+1. Seed Atlas from a local `humami_dev` dump and compare collection counts/index definitions without changing the running dev backend.
+2. At cutover, stop only `dev-backend` to freeze dev writes. Capture a new final local dump and inventory, then restore that final dump into Atlas `humami_dev` through the dedicated user.
+3. Compare the final Atlas inventory with the frozen local source. Production `humami` is read-only throughout; no collection is dropped or restored there.
+4. Back up the current server Compose/runtime configuration, update the dev Compose configuration so `dev-backend` requires `DEV_ATLAS_MONGODB_URI`, has no `depends_on` local MongoDB, and is attached only to the existing ingress network.
+5. Start only `dev-backend`, verify dev/public endpoints and production container identities. Then explicitly stop the local MongoDB container while retaining its volume and server-side backup. Do not use `down -v` or `--remove-orphans`.
 
 ## Recovery
 
