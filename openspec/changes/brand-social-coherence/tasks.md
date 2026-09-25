@@ -25,5 +25,5 @@
 - [x] 3.3 Perform desktop and 375 px visual review for home, catalogue, recipe
   detail, blog list and blog article.
 - [x] 3.4 Obtain independent review and resolve blocking findings.
-- [ ] 3.5 Deliver through a PR to develop; do not deploy production.
+- [x] 3.5 Deliver through PR #72 to develop; do not deploy production.
 - [ ] 3.6 Archive after acceptance.

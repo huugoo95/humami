@@ -4,7 +4,7 @@ _Last updated: 2026-09-25_
 
 ## In progress
 - Spec 023: brand-social coherence is implemented and independently reviewed
-  on e22f95a; PR delivery to develop is pending. See
+  on e22f95a; PR #72 is open to develop. See
   openspec/changes/brand-social-coherence/validation.md.
 - Spec 021: dev database migrated to a dedicated Atlas `humami_dev` runtime;
   data and public endpoints verified, while the stopped local MongoDB volume
