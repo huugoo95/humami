@@ -9,5 +9,7 @@ public interface S3Service {
 
     String uploadImage(MultipartFile image, String mealName) throws IOException;
 
+    String uploadGuideDocument(MultipartFile document, String guideName) throws IOException;
+
     void deleteImage(String key);
 }

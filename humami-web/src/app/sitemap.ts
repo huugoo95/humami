@@ -6,6 +6,11 @@ type MealsPageResponse = {
   totalPages: number;
 };
 
+type GuideResponse = {
+  slug: string;
+  publishedAt?: string;
+};
+
 const BASE_URL = "https://humami.es";
 
 async function fetchMealUrls(): Promise<MetadataRoute.Sitemap> {
@@ -52,6 +57,22 @@ async function fetchMealUrls(): Promise<MetadataRoute.Sitemap> {
   return urls;
 }
 
+async function fetchGuideUrls(): Promise<MetadataRoute.Sitemap> {
+  try {
+    const response = await fetch(`${BASE_URL}/api/guides`, { next: { revalidate: 3600 } });
+    if (!response.ok) return [];
+    const guides = (await response.json()) as GuideResponse[];
+    return guides.filter((guide) => guide?.slug).map((guide) => ({
+      url: `${BASE_URL}/guias/${guide.slug}`,
+      lastModified: guide.publishedAt ? new Date(guide.publishedAt) : new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
@@ -80,9 +101,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.6,
     },
+    {
+      url: `${BASE_URL}/guias`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
   ];
 
-  const mealUrls = await fetchMealUrls();
+  const [mealUrls, guideUrls] = await Promise.all([fetchMealUrls(), fetchGuideUrls()]);
 
-  return [...staticUrls, ...mealUrls];
+  return [...staticUrls, ...mealUrls, ...guideUrls];
 }
