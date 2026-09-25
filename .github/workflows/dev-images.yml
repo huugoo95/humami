@@ -5,6 +5,7 @@ on:
     branches: [develop]
     paths:
       - '.github/workflows/dev-images.yml'
+      - 'scripts/deploy-dev.sh'
       - 'humami-backend/Dockerfile'
       - 'humami-web/Dockerfile'
       - '.mvn/**'
@@ -18,7 +19,13 @@ on:
       - '.mvn/**'
       - 'mvnw'
       - '.github/workflows/dev-images.yml'
+      - 'scripts/deploy-dev.sh'
   workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Existing develop commit SHA to deploy or roll back to
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -26,7 +33,7 @@ permissions:
 
 jobs:
   images:
-    if: github.ref == 'refs/heads/develop' || github.event_name == 'pull_request'
+    if: github.ref == 'refs/heads/develop' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     strategy:
@@ -64,3 +71,51 @@ jobs:
           printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GHCR_USER" --password-stdin
           docker push "$IMAGE"
           docker logout ghcr.io
+
+  deploy-dev:
+    name: Deploy DEV
+    needs: images
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/develop') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
+      - name: Configure deploy SSH key
+        env:
+          DEV_DEPLOY_SSH_KEY: ${{ secrets.DEV_DEPLOY_SSH_KEY }}
+          DEV_DEPLOY_KNOWN_HOSTS: ${{ secrets.DEV_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          test -n "$DEV_DEPLOY_SSH_KEY"
+          test -n "$DEV_DEPLOY_KNOWN_HOSTS"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEV_DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DEV_DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Upload DEV Compose definition
+        env:
+          DEV_DEPLOY_HOST: ${{ secrets.DEV_DEPLOY_HOST }}
+          DEV_DEPLOY_USER: ${{ secrets.DEV_DEPLOY_USER }}
+        run: |
+          test -n "$DEV_DEPLOY_HOST"
+          test -n "$DEV_DEPLOY_USER"
+          scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes docker-compose.dev.yml "$DEV_DEPLOY_USER@$DEV_DEPLOY_HOST:/home/ubuntu/apps/humami-dev/docker-compose.dev.yml.next"
+      - name: Activate immutable DEV images
+        env:
+          DEV_DEPLOY_HOST: ${{ secrets.DEV_DEPLOY_HOST }}
+          DEV_DEPLOY_USER: ${{ secrets.DEV_DEPLOY_USER }}
+          DEV_GHCR_READ_TOKEN: ${{ secrets.DEV_GHCR_READ_TOKEN }}
+          SOURCE_SHA: ${{ inputs.source_sha || github.sha }}
+        run: |
+          test -n "$DEV_GHCR_READ_TOKEN"
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "source SHA must be a full lowercase hexadecimal commit SHA" >&2
+            exit 2
+          fi
+          {
+            printf '%s\n' "$DEV_GHCR_READ_TOKEN"
+            cat scripts/deploy-dev.sh
+          } | ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes "$DEV_DEPLOY_USER@$DEV_DEPLOY_HOST" "IFS= read -r DEV_GHCR_READ_TOKEN; export DEV_GHCR_READ_TOKEN; exec bash -s -- '$SOURCE_SHA'"
