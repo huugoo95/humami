@@ -127,7 +127,7 @@ export default function MealsPage() {
           text-humami-text-base
         `}
       >
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-humami-accent mb-4 sm:mb-6">
+        <h1 className="mb-4 font-heading text-4xl text-humami-accent-dark sm:mb-6 sm:text-5xl">
           Buscar Recetas
         </h1>
 
@@ -204,7 +204,7 @@ export default function MealsPage() {
                       sessionStorage.setItem(ANCHOR_KEY, m.id);
                     }}
                   >
-                    <h2 className="text-xl sm:text-2xl font-semibold text-humami-accent hover:underline">
+                    <h2 className="font-heading text-2xl text-humami-accent-dark hover:underline sm:text-3xl">
                       {m.name}
                     </h2>
                   </Link>
