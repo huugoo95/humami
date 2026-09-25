@@ -9,7 +9,8 @@ import lombok.Setter;
 @Data
 public class IngredientResponse {
     private String name;
-    private Integer quantity;
+    private java.math.BigDecimal quantity;
     private String unit;
+    private Boolean isOptional;
 
 }

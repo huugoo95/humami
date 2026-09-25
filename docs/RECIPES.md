@@ -1,22 +1,12 @@
-# RECIPES.md — Operativa de recetas y API
+# Meal content and API contract
 
-## Objetivo
-Estandarizar cómo crear recetas/menús desde Humami sin errores de contrato.
+A Meal represents a final composition; recipes are its separate preparations. Shared semantics live in [the meal model](meal-recipe-model.md).
 
-## Contrato base (actual)
-- Crear menú/receta: `POST /api/meals` con JSON (`MealRequest`).
-- Subir imagen: `PUT /api/meals/{id}/image` con `multipart/form-data`, campo `image`.
+- [MealRequest](../humami-backend/src/main/java/com/hugo/humami/dto/request/MealRequest.java) and related request DTOs define payload fields; [controller](../humami-backend/src/main/java/com/hugo/humami/controller/MealController.java) defines operations.
+- Creation is `POST /api/meals` with JSON. Image upload is `PUT /api/meals/{id}/image` with multipart field `image`.
+- Writes require X-HUMAMI-SECRET through the existing interceptor. No draft state or idempotency key is currently provided for meal creation.
+- Culinary fields are Spanish. Technical documentation/contracts are English.
+- [Template](../ops/mealrequest-template.json) and [example](../ops/mealrequest-example-valid.json) provide payload shapes, not permission to publish.
+- [Validator](../scripts/validate-mealrequest.py) checks shape/enums and some content constraints. It currently does not enforce the documented minimum of two steps per preparation.
 
-> Referencia de memoria operativa: `memory/humami-contracts.md` (workspace de tenacitas).
-
-## Flujo operativo recomendado
-1. Preparar payload validado.
-2. Ejecutar creación (`POST /api/meals`).
-3. Si aplica, subir imagen (`PUT /api/meals/{id}/image`).
-4. Verificar respuesta y registrar resultado.
-
-## Regla de seguridad operativa
-Antes de ejecutar escrituras reales en API desde chat, pedir validación explícita de Hugo.
-
-## Pendiente
-- Documentar ejemplos de payload reales y respuestas esperadas.
+Procedures: [prepare meals](../.agents/skills/humami-meal-authoring/SKILL.md) and [publish content](../.agents/skills/humami-content-publish/SKILL.md). No private workspace memory is required.

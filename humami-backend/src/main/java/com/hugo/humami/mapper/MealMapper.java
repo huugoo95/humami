@@ -1,10 +1,12 @@
 package com.hugo.humami.mapper;
 
 import com.hugo.humami.domain.*;
+import com.hugo.humami.domain.enums.DifficultyEnum;
 import com.hugo.humami.domain.enums.MealTypeEnum;
 import com.hugo.humami.dto.MealTypeEnumDTO;
 import com.hugo.humami.dto.request.*;
 import com.hugo.humami.dto.response.IngredientResponse;
+import com.hugo.humami.dto.response.InstructionStepResponse;
 import com.hugo.humami.dto.response.MealResponse;
 import com.hugo.humami.dto.response.RecipeResponse;
 import org.mapstruct.Mapper;
@@ -25,15 +27,22 @@ public interface MealMapper {
     MealEntity toEntity(MealRequest mealRequest);
 
     void updateMealFromRequest(@MappingTarget MealEntity target, MealRequest source);
+
+    @Mapping(target = "qualityScore", expression = "java(mealEntity.getQuality() != null ? mealEntity.getQuality().getScore() : null)")
+    @Mapping(target = "qualityVersion", expression = "java(mealEntity.getQuality() != null ? mealEntity.getQuality().getVersion() : null)")
+    @Mapping(target = "qualityBreakdown", expression = "java(mealEntity.getQuality() != null ? mealEntity.getQuality().getBreakdown() : null)")
+    @Mapping(target = "qualityFlags", expression = "java(mealEntity.getQuality() != null ? mealEntity.getQuality().getFlags() : null)")
     MealResponse toResponse(MealEntity mealEntity);
 
     MealResponse toTinyResponse(MealEntity mealEntity);
     Recipe toEntity(RecipeRequest request);
     Ingredient toEntity(IngredientRequest request);
+    InstructionStep toEntity(InstructionStepRequest request);
     Faq toEntity(FaqRequest request);
     Timing toEntity(TimingsRequest request);
 
     RecipeResponse toResponse(Recipe recipe);
+    InstructionStepResponse toResponse(InstructionStep step);
 
     @Mapping(target = "unit",
             expression = "java(ingredient.getUnit() != null ? ingredient.getUnit().getLabel() : null)")
@@ -44,5 +53,13 @@ public interface MealMapper {
     }
     default MealTypeEnumDTO map(MealTypeEnum entity) {
         return entity == null ? null : MealTypeEnumDTO.valueOf(entity.name());
+    }
+
+    default DifficultyEnum map(DifficultyEnumRequest request) {
+        return request == null ? null : DifficultyEnum.valueOf(request.name());
+    }
+
+    default String map(DifficultyEnum difficulty) {
+        return difficulty == null ? null : difficulty.name();
     }
 }

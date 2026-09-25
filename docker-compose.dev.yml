@@ -1,0 +1,40 @@
+name: humami-dev
+
+x-logging: &dev-logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: '2'
+
+services:
+  dev-backend:
+    image: ghcr.io/${GHCR_OWNER:?Set registry owner}/humami-backend:${DEV_IMAGE_TAG:?Set exact dev-SHA tag}
+    container_name: humami-dev-backend
+    restart: unless-stopped
+    mem_limit: 384m
+    cpus: 0.50
+    environment:
+      JAVA_TOOL_OPTIONS: -Xms64m -Xmx192m -XX:MaxMetaspaceSize=128m -XX:ActiveProcessorCount=1
+      SPRING_DATA_MONGODB_URI: ${DEV_ATLAS_MONGODB_URI:?Set dedicated Atlas URI for dev}
+      SPRING_DATA_MONGODB_DATABASE: humami_dev
+      HUMAMI_WRITE_SECRET: ${DEV_WRITE_SECRET:?Set independent dev write secret}
+      AWS_S3_ACCESS_KEY: dev-storage-disabled
+      AWS_S3_SECRET_KEY: dev-storage-disabled
+      AWS_S3_REGION: eu-west-3
+    networks: [ingress]
+    logging: *dev-logging
+
+  dev-frontend:
+    image: ghcr.io/${GHCR_OWNER:?Set registry owner}/humami-frontend:${DEV_IMAGE_TAG:?Set exact dev-SHA tag}
+    container_name: humami-dev-frontend
+    restart: unless-stopped
+    mem_limit: 192m
+    cpus: 0.35
+    environment:
+      NODE_OPTIONS: --max-old-space-size=128
+    networks: [ingress]
+    logging: *dev-logging
+
+networks:
+  ingress:
+    name: humami-dev-ingress

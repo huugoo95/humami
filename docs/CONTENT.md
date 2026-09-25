@@ -1,27 +1,31 @@
-# CONTENT.md — Sistema editorial (artículos y mini-libros)
+# CONTENT.md — Editorial System (Articles and Mini-Books)
 
-## Objetivo
-Publicar contenido que atraiga audiencia y empuje conversión a producto.
+## Objective
+Publish content that attracts audience and drives product conversion.
 
-## Pilares de contenido
-1. Cenas rápidas (ejecución real)
-2. Cocina anti-desperdicio
-3. Técnica práctica sin postureo
-4. Producto artesanal de marca (cuando toque)
+## Content pillars
+1. Quick dinners (real execution)
+2. Anti-waste cooking
+3. Practical technique without fluff
+4. Artisanal brand product (when relevant)
 
-## Formatos
-- Artículo corto (700–1200 palabras)
-- Artículo largo/guía (1500–2500)
-- Mini-libro práctico (20–40 páginas)
+## Formats
+- Short article (700–1200 words)
+- Long article/guide (1500–2500 words)
+- Practical mini-book (20–40 pages)
 
-## Estructura base de pieza
-1. Problema real
-2. Solución paso a paso
-3. Errores comunes + corrección
-4. Checklist final
-5. CTA claro
+## Base structure
+1. Real problem
+2. Step-by-step solution
+3. Common mistakes + fixes
+4. Final checklist
+5. Clear CTA
 
-## Voz
-- Directa, clara, útil.
-- Cero relleno.
-- Enfoque práctico (resultado > teoría).
+## Voice
+- Direct, clear, useful.
+- Zero filler.
+- Practical focus (results > theory).
+
+## Language convention
+- Editorial process docs and SEO/strategy guidelines: **English**.
+- User-facing recipe content and culinary copy: **Spanish** (at least for the current market).

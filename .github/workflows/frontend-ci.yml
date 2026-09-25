@@ -1,0 +1,45 @@
+name: Frontend CI
+
+on:
+  pull_request:
+    branches: [develop, master]
+  push:
+    branches: [develop, master, 'feat/**', 'fix/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend security and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: humami-web
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: humami-web/.nvmrc
+          cache: npm
+          cache-dependency-path: humami-web/package-lock.json
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+      - name: Build frontend runtime image
+        run: docker build --tag humami-frontend:ci .
+      - name: Smoke test frontend runtime image
+        run: |
+          docker run --detach --name humami-frontend-ci --publish 127.0.0.1:3000:3000 humami-frontend:ci
+          trap 'docker logs humami-frontend-ci; docker rm --force humami-frontend-ci' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/ > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1

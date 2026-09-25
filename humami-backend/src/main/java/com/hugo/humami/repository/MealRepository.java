@@ -1,14 +1,24 @@
 package com.hugo.humami.repository;
 
 import com.hugo.humami.domain.MealEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
 public interface MealRepository extends MongoRepository<MealEntity, String> {
+
+    @Query("{ 'quality.score': { '$gte': ?0 } }")
+    Page<MealEntity> findEligible(double minQualityScore, Pageable pageable);
+
+    // Null matching also includes absent quality/score: their effective score is zero.
+    @Query("{ '$or': [ { 'quality.score': { '$gte': ?0 } }, { 'quality.score': null } ] }")
+    Page<MealEntity> findEligibleIncludingUnscored(double minQualityScore, Pageable pageable);
 
     @Aggregation(pipeline = {
             "{ '$search': { " +
@@ -17,8 +27,8 @@ public interface MealRepository extends MongoRepository<MealEntity, String> {
                     "     'should': [ " +
                     "       { 'text': { 'query': ?0, 'path': 'name', 'score': { 'boost': { 'value': 5 } }, 'fuzzy': { 'maxEdits': 2 } } }, " +
                     "       { 'text': { 'query': ?0, 'path': 'description', 'score': { 'boost': { 'value': 3 } }, 'fuzzy': { 'maxEdits': 2 } } }, " +
-                    "       { 'embeddedDocuments': { 'path': 'recipes', 'operator': { 'text': { 'query': ?0, 'path': 'recipes.title', 'score': { 'boost': { 'value': 2 } }, 'fuzzy': { 'maxEdits': 2 } } } } }, " +
-                    "       { 'embeddedDocuments': { 'path': 'recipes', 'operator': { 'text': { 'query': ?0, 'path': 'recipes.ingredients', 'fuzzy': { 'maxEdits': 2 } } } } } " +
+                    "       { 'embeddedDocuments': { 'path': 'recipes', 'operator': { 'text': { 'query': ?0, 'path': 'recipes.name', 'score': { 'boost': { 'value': 2 } }, 'fuzzy': { 'maxEdits': 2 } } } } }, " +
+                    "       { 'embeddedDocuments': { 'path': 'recipes.ingredients', 'operator': { 'text': { 'query': ?0, 'path': 'recipes.ingredients.name', 'fuzzy': { 'maxEdits': 2 } } } } } " +
                     "     ], " +
                     "     'minimumShouldMatch': 1 " +
                     "   } " +
@@ -52,4 +62,6 @@ public interface MealRepository extends MongoRepository<MealEntity, String> {
     List<MealEntity> autocompleteRecipeNames(String query);
 
     List<MealEntity> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String query1, String query2);
+
+    Page<MealEntity> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String query1, String query2, Pageable pageable);
 }

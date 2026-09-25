@@ -1,0 +1,50 @@
+name: Backend CI
+
+on:
+  pull_request:
+    branches: [develop, master]
+  push:
+    branches: [develop, master, 'feat/**', 'fix/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend tests and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mongodb:
+        image: mongo:8.0.15
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ping:1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      SPRING_DATA_MONGODB_URI: mongodb://127.0.0.1:27017/humami_ci
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: humami-backend/pom.xml
+      - name: Verify backend with MongoDB integration tests
+        run: >-
+          mvn --batch-mode --no-transfer-progress
+          -f humami-backend/pom.xml
+          -Dhumami.test.mongoUri=mongodb://127.0.0.1:27017
+          verify
+      - name: Validate isolated dev Compose configuration
+        env:
+          GHCR_OWNER: validation
+          DEV_IMAGE_TAG: dev-validation
+          DEV_ATLAS_MONGODB_URI: mongodb+srv://validation:validation@example.mongodb.net/humami_dev
+          DEV_WRITE_SECRET: validation-only
+        run: docker compose -f docker-compose.dev.yml config -q

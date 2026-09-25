@@ -3,6 +3,7 @@ package com.hugo.humami.controller;
 import com.hugo.humami.dto.request.MealRequest;
 import com.hugo.humami.dto.response.AutocompleteResponse;
 import com.hugo.humami.dto.response.MealResponse;
+import com.hugo.humami.dto.response.PagedResponse;
 import com.hugo.humami.service.MealService;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
@@ -26,8 +27,13 @@ public class MealController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<MealResponse>> getAll() {
-        List<MealResponse> meals = mealService.getAll();
+    public ResponseEntity<PagedResponse<MealResponse>> getAll(
+            @RequestParam(value = "query", defaultValue = "") String query,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "limit", defaultValue = "12") int limit,
+            @RequestParam(value = "minQualityScore", defaultValue = "0.5") double minQualityScore
+    ) {
+        PagedResponse<MealResponse> meals = mealService.getPaged(query, page, limit, minQualityScore);
         return new ResponseEntity<>(meals, HttpStatus.OK);
     }
 
@@ -40,7 +46,7 @@ public class MealController {
     @GetMapping("{id}")
     public ResponseEntity<MealResponse> get(@PathVariable String id) throws ChangeSetPersister.NotFoundException, IOException {
         MealResponse meal = mealService.getById(id);
-        return new ResponseEntity(meal, HttpStatus.OK);
+        return new ResponseEntity<>(meal, HttpStatus.OK);
     }
 
     @PostMapping(value = "")
@@ -69,9 +75,14 @@ public class MealController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        mealService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/autocomplete")
     public AutocompleteResponse autocomplete(@RequestParam String query) {
         return mealService.autocomplete(query);
     }
-
 }
