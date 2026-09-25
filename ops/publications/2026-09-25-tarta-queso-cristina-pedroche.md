@@ -12,6 +12,10 @@
 
 ## Imagen
 
+- Decisión revisada: se sustituye la imagen ausente por una fotografía aportada por el usuario para esta tarea. Se editó para retirar personas, copas y el entorno; se conservó la tarta como sujeto principal.
+- Autorización de publicación: el usuario aprobó explícitamente la imagen editada antes de la subida.
+- Procedencia: archivo proporcionado por el usuario (`Imagen pegada 1.jpg`); no se infiere ni declara titularidad más allá de esa autorización de uso para esta ficha.
+
 - Fecha UTC: 2026-09-25T10:19:47Z
 - Operación: `PUT /api/meals/69bda770ec55042465339428/image`
 - Archivo publicado: [2026-09-25-tarta-queso-cristina-pedroche.jpg](2026-09-25-tarta-queso-cristina-pedroche.jpg)
