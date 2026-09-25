@@ -6,9 +6,9 @@ description: Publish or update reviewed Humami meals, blog articles or About con
 # Publish site content
 
 1. Identify artifact, operation, exact target environment and intended visibility. Present the concrete summary/payload for Hugo's review before real writes; apply existing explicit authorization if it already covers this reviewed artifact and destination. Otherwise obtain it at the write boundary. Skill discovery is not authorization.
-2. Read only the selected contract: [meals](references/meals.md), [blog](references/blog.md) or [about](references/about.md). Revalidate the selected payload and image. Do not invent endpoints or assume a staging environment.
+2. Read only the selected contract: [meals](references/meals.md), [blog](references/blog.md) or [about](references/about.md). Revalidate the selected payload and, for meals, the reviewed image decision. Do not invent endpoints or assume a staging environment.
 3. Use existing API tools with environment-provided credentials. Write endpoints require `X-HUMAMI-SECRET`; do not put its value in logs, tracked files, command text or reports. If tools/credentials are unavailable, retain the local artifact and report the blocker. No new client or connector is installed implicitly.
-4. Record source, local payload reference, destination, operation, timestamp, returned ID/slug and result in the task's publication record (redacted; use `ops/publications/` only for actual records). Persist an ID as soon as creation returns, before image upload.
+4. Record source, local payload reference, destination, operation, timestamp, returned ID/slug and result in the task's publication record (redacted; use `ops/publications/` only for actual records). For meal images also record the delivered file, format, dimensions and checksum. Persist an ID as soon as creation returns, before image upload.
 5. Verify the public read and relevant frontend URL for published content. A successful write is not proof the page rendered. Report partial results, including an absent image or unavailable verification.
 
 ## Failure handling
