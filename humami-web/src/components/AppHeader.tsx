@@ -65,6 +65,9 @@ export default function AppHeader() {
           <Link href="/meals" className="hover:text-humami-bg-light transition-colors">
             Comidas
           </Link>
+          <Link href="/guias" className="hover:text-humami-bg-light transition-colors">
+            Guías
+          </Link>
         </nav>
       </div>
 
@@ -75,6 +78,7 @@ export default function AppHeader() {
               { href: "/", label: "Inicio" },
               { href: "/our-story", label: "Sobre Nosotros" },
               { href: "/meals", label: "Comidas" },
+              { href: "/guias", label: "Guías" },
             ].map(({ href, label }) => (
               <li key={href}>
                 <Link
