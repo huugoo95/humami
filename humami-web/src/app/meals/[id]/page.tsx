@@ -3,6 +3,7 @@ import apiClient from "@/config/api";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { mealMetadata } from "@/lib/brandMetadata";
 
 const difficultyLabels: Record<string, string> = {
   EASY: "fácil",
@@ -81,33 +82,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     };
   }
 
-  const title = meal.name;
-  const description = meal.description || `Descubre la receta de ${meal.name} en Humami.`;
-  const url = `/meals/${meal.id}`;
-
-  const fallbackImage = "/og-default.jpg";
-  const metaImage = meal.image || fallbackImage;
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      type: "article",
-      title,
-      description,
-      url,
-      images: [{ url: metaImage, alt: meal.name }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [metaImage],
-    },
-  };
+  return mealMetadata(meal);
 }
 
 export default async function MealPage({ params }: { params: { id: string } }) {
@@ -115,32 +90,32 @@ export default async function MealPage({ params }: { params: { id: string } }) {
   if (!meal) return notFound();
 
   return (
-    <div className="max-w-6xl mx-auto px-3 py-4 sm:px-4 sm:py-6 md:px-6 bg-gray-50 shadow-sm md:shadow-lg rounded-none md:rounded-lg text-gray-900">
-      <h1 className="text-3xl sm:text-4xl font-extrabold text-burgundy-800 mb-3">
+    <article className="mx-auto max-w-5xl rounded-2xl border border-humami-text-base/10 bg-white/70 p-5 shadow-sm sm:p-8">
+      <h1 className="mb-3 font-heading text-4xl text-humami-text-heading sm:text-5xl">
         {meal.name}
       </h1>
-      <p className="text-gray-700 text-base sm:text-lg mb-4">{meal.description}</p>
+      <p className="mb-5 text-base leading-relaxed text-humami-text-base sm:text-lg">{meal.description}</p>
 
       {/* METADATOS DEL MENÚ */}
-      <div className="flex flex-wrap gap-2 text-xs sm:text-sm text-gray-600 mb-5">
-        <span className="bg-burgundy-100 text-burgundy-800 px-3 py-1 rounded-full font-medium">
+      <div className="mb-6 flex flex-wrap gap-2 text-xs text-humami-accent-dark sm:text-sm">
+        <span className="rounded-full border border-humami-accent/20 bg-humami-bg-light px-3 py-1 font-medium">
           Dificultad: {formatDifficulty(meal.difficulty)}
         </span>
-        <span className="bg-burgundy-100 text-burgundy-800 px-3 py-1 rounded-full font-medium">
+        <span className="rounded-full border border-humami-accent/20 bg-humami-bg-light px-3 py-1 font-medium">
           Tipo: {formatType(meal.type)}
         </span>
-        <span className="bg-burgundy-100 text-burgundy-800 px-3 py-1 rounded-full font-medium">
+        <span className="rounded-full border border-humami-accent/20 bg-humami-bg-light px-3 py-1 font-medium">
           Raciones: {meal.servings}
         </span>
       </div>
 
       {/* IMAGEN */}
       {meal.image && (
-        <div className="mb-5 sm:mb-6">
+        <div className="mb-8">
           <Image
             src={meal.image}
             alt={meal.name}
-            className="w-full h-auto rounded-lg shadow"
+            className="h-auto w-full rounded-xl border border-humami-text-base/10 shadow-sm"
             width={1200}
             height={800}
           />
@@ -149,8 +124,8 @@ export default async function MealPage({ params }: { params: { id: string } }) {
 
       {/* INGREDIENTES AGRUPADOS POR ELABORACIÓN */}
       {meal.ingredientsByRecipe && meal.ingredientsByRecipe.length > 0 && (
-        <div className="mb-8 sm:mb-10">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-burgundy-800 mb-3 sm:mb-4">
+        <section className="mb-9 sm:mb-10">
+          <h2 className="mb-4 font-heading text-3xl text-humami-accent-dark sm:text-4xl">
             Ingredientes
           </h2>
 
@@ -158,16 +133,16 @@ export default async function MealPage({ params }: { params: { id: string } }) {
             {meal.ingredientsByRecipe.map((group, gIndex) => (
               <div
                 key={gIndex}
-                className="p-3 sm:p-4 bg-white border-l-4 border-burgundy-500 rounded shadow-sm"
+                className="rounded-xl border border-humami-text-base/10 border-l-4 border-l-humami-gold bg-white p-4 shadow-sm"
               >
-                <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">
+                <h3 className="mb-2 text-lg font-semibold text-humami-text-heading sm:text-xl">
                   {group.recipeName}
                 </h3>
 
-                <ul className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-1.5 text-gray-700">
+                <ul className="grid grid-cols-1 gap-x-6 gap-y-1.5 text-humami-text-base lg:grid-cols-2">
                   {group.ingredients.map((ingredient, iIndex) => (
                     <li key={iIndex} className="grid grid-cols-[96px_1fr] gap-2 items-start">
-                      <span className="font-semibold text-gray-800 whitespace-nowrap tabular-nums text-sm sm:text-base">
+                      <span className="whitespace-nowrap text-sm font-semibold tabular-nums text-humami-text-heading sm:text-base">
                         {ingredient.quantity} {formatIngredientUnit(ingredient.quantity, ingredient.unit)}
                       </span>
                       <span className="pl-1 leading-tight text-sm sm:text-base">de {ingredient.name}{ingredient.isOptional ? ' (opcional)' : ''}</span>
@@ -177,13 +152,13 @@ export default async function MealPage({ params }: { params: { id: string } }) {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* INSTRUCCIONES */}
       {meal.recipes && meal.recipes.length > 0 && (
-        <div className="mb-8 sm:mb-10">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-burgundy-800 mb-3 sm:mb-4">
+        <section className="mb-9 sm:mb-10">
+          <h2 className="mb-4 font-heading text-3xl text-humami-accent-dark sm:text-4xl">
             Instrucciones
           </h2>
 
@@ -191,13 +166,13 @@ export default async function MealPage({ params }: { params: { id: string } }) {
             {meal.recipes.map((recipe, idx) => (
               <div
                 key={idx}
-                className="p-3 sm:p-4 bg-white rounded-lg shadow-sm border-l-4 border-burgundy-700"
+                className="rounded-xl border border-humami-text-base/10 border-l-4 border-l-humami-accent bg-white p-4 shadow-sm"
               >
-                <h3 className="text-lg sm:text-xl font-semibold text-burgundy-700 mb-2">
+                <h3 className="mb-2 text-lg font-semibold text-humami-accent-dark sm:text-xl">
                   {recipe.name}
                 </h3>
 
-                <ol className="list-decimal pl-5 space-y-2 text-gray-700">
+                <ol className="list-decimal space-y-2 pl-5 text-humami-text-base">
                   {(recipe.instructionSteps && recipe.instructionSteps.length > 0
                     ? [...recipe.instructionSteps].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map((step) => step.text)
                     : (recipe.instructions || [])
@@ -208,25 +183,25 @@ export default async function MealPage({ params }: { params: { id: string } }) {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {/* PREGUNTAS FRECUENTES */}
       {meal.faqs && meal.faqs.length > 0 && (
-        <div className="mt-8 sm:mt-10">
-          <h2 className="text-xl sm:text-2xl font-semibold text-burgundy-800 mb-3 sm:mb-4">
+        <section className="mt-8 sm:mt-10">
+          <h2 className="mb-4 font-heading text-3xl text-humami-accent-dark">
             Preguntas frecuentes
           </h2>
           <div className="space-y-3 sm:space-y-4">
             {meal.faqs.map((faq, index) => (
-              <div key={index} className="bg-white p-3 sm:p-4 rounded shadow-sm">
-                <h3 className="font-semibold text-burgundy-700 mb-1">{faq.question}</h3>
-                <p className="text-gray-700 text-sm sm:text-base">{faq.answer}</p>
+              <div key={index} className="rounded-xl border border-humami-text-base/10 bg-white p-4 shadow-sm">
+                <h3 className="mb-1 font-semibold text-humami-accent-dark">{faq.question}</h3>
+                <p className="text-sm text-humami-text-base sm:text-base">{faq.answer}</p>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
-    </div>
+    </article>
   );
 }

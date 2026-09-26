@@ -1,0 +1,153 @@
+{
+  "name": "Tarta de queso de Cristina Pedroche",
+  "description": "Una tarta de queso al horno intensa y cremosa, con queso crema, queso fresco y parmesano. La base de galleta se ajusta a ojo: debe quedar húmeda y compacta, sin exceso de mantequilla. El horneado corto deja el centro suave y ligeramente fluido.",
+  "recipes": [
+    {
+      "name": "Base de galletas",
+      "description": "Las cantidades son orientativas para un molde de unos 23 cm. Ajusta la mantequilla poco a poco hasta obtener una arena húmeda que se compacte al presionarla.",
+      "instructionSteps": [
+        {
+          "order": 1,
+          "text": "Forra la base y las paredes de un molde de unos 23 cm con papel de horno."
+        },
+        {
+          "order": 2,
+          "text": "Tritura las galletas hasta obtener una miga fina."
+        },
+        {
+          "order": 3,
+          "text": "Añade la mantequilla fundida poco a poco y mezcla. Debe quedar una arena húmeda que se compacte al apretarla; ajusta con algo más de mantequilla o galleta si hiciera falta."
+        },
+        {
+          "order": 4,
+          "text": "Reparte la mezcla en la base del molde, presiona con el dorso de una cuchara y reserva en el frigorífico mientras preparas el relleno."
+        }
+      ],
+      "ingredients": [
+        {
+          "name": "Galletas Digestive",
+          "quantity": 200,
+          "unit": "GRAM",
+          "link": "",
+          "isOptional": false
+        },
+        {
+          "name": "Mantequilla fundida",
+          "quantity": 70,
+          "unit": "GRAM",
+          "link": "",
+          "isOptional": false
+        }
+      ]
+    },
+    {
+      "name": "Relleno y horneado",
+      "description": "Una tarta cremosa con el punto característico de esta receta: cuajada en los bordes y suave en el centro.",
+      "instructionSteps": [
+        {
+          "order": 1,
+          "text": "Precalienta el horno a 190 °C con calor y ventilador."
+        },
+        {
+          "order": 2,
+          "text": "Tritura o ralla finamente el parmesano. Mézclalo con el queso crema, el queso fresco, la nata, los huevos, el azúcar y la sal hasta que la mezcla quede homogénea."
+        },
+        {
+          "order": 3,
+          "text": "Incorpora la harina y mezcla solo hasta integrarla, sin batir de más."
+        },
+        {
+          "order": 4,
+          "text": "Vierte el relleno sobre la base y hornea a 190 °C. Empieza a vigilar desde los 25 minutos: los 30 minutos son orientativos y el tiempo real depende del horno y del molde."
+        },
+        {
+          "order": 5,
+          "text": "Sácala cuando los bordes estén cuajados y el centro, al mover suavemente el molde, tiemble como una gelatina firme en un círculo pequeño. Si la superficie se dora demasiado pronto, cúbrela sin apretar con papel de aluminio. Cambia a grill a máxima potencia solo 3 o 4 minutos si necesita más color, vigilando sin apartarte."
+        },
+        {
+          "order": 6,
+          "text": "Deja templar y refrigera al menos 3 horas antes de desmoldar. Tras el reposo debe quedar cuajada en el exterior y cremosa, ligeramente fluida, en el centro."
+        }
+      ],
+      "ingredients": [
+        {
+          "name": "Queso crema",
+          "quantity": 500,
+          "unit": "GRAM",
+          "link": "",
+          "isOptional": false
+        },
+        {
+          "name": "Nata para montar (35 % M.G.)",
+          "quantity": 250,
+          "unit": "GRAM",
+          "link": "",
+          "isOptional": false
+        },
+        {
+          "name": "Huevos tamaño L",
+          "quantity": 5,
+          "unit": "UNIT",
+          "link": "",
+          "isOptional": false
+        },
+        {
+          "name": "Queso fresco",
+          "quantity": 100,
+          "unit": "GRAM",
+          "link": "",
+          "isOptional": false
+        },
+        {
+          "name": "Queso parmesano",
+          "quantity": 80,
+          "unit": "GRAM",
+          "link": "",
+          "isOptional": false
+        },
+        {
+          "name": "Azúcar",
+          "quantity": 200,
+          "unit": "GRAM",
+          "link": "",
+          "isOptional": false
+        },
+        {
+          "name": "Harina de trigo",
+          "quantity": 10,
+          "unit": "GRAM",
+          "link": "",
+          "isOptional": false
+        },
+        {
+          "name": "Sal",
+          "quantity": 1,
+          "unit": "PINCH",
+          "link": "",
+          "isOptional": false
+        }
+      ]
+    }
+  ],
+  "timings": {
+    "prepTimeInHours": 0.5,
+    "totalTimeInHours": 4.1
+  },
+  "difficulty": "EASY",
+  "type": "DESSERT",
+  "servings": 8,
+  "faqs": [
+    {
+      "question": "¿Cómo debe quedar el centro de la tarta?",
+      "answer": "Al salir del horno debe estar cuajada en los bordes y aún suave en el centro. Terminará de asentarse durante el reposo en frío."
+    },
+    {
+      "question": "¿La base necesita cantidades exactas?",
+      "answer": "No necesariamente. Usa las cantidades como referencia y añade la mantequilla poco a poco hasta que la galleta se compacte al presionarla, sin quedar grasienta."
+    },
+    {
+      "question": "¿Qué quesos puedo usar si no encuentro queso fresco o parmesano?",
+      "answer": "Mantén siempre el queso crema como base. El queso fresco puede sustituirse por ricotta bien escurrida o mató; el parmesano por Grana Padano o Pecorino Romano, teniendo en cuenta que este último es más salado. No sustituyas ambos por más queso crema: perdería el matiz de sabor característico."
+    }
+  ]
+}

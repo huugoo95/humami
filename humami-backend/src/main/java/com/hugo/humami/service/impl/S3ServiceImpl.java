@@ -27,6 +27,8 @@ import java.time.Duration;
 import java.util.Iterator;
 import java.util.UUID;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 @Service
 public class S3ServiceImpl implements S3Service {
 
@@ -72,6 +74,22 @@ public class S3ServiceImpl implements S3Service {
                         .contentType(MediaType.IMAGE_JPEG_VALUE)
                         .build(),
                 RequestBody.fromInputStream(new ByteArrayInputStream(normalizedImage), normalizedImage.length)
+        );
+        return key;
+    }
+
+    @Override
+    public String uploadGuideDocument(MultipartFile document, String guideName) throws IOException {
+        if (document == null || document.isEmpty() || !"application/pdf".equalsIgnoreCase(document.getContentType())) {
+            throw new org.springframework.web.server.ResponseStatusException(BAD_REQUEST, "A PDF document is required");
+        }
+        if (document.getSize() > 15L * 1024 * 1024) {
+            throw new org.springframework.web.server.ResponseStatusException(BAD_REQUEST, "PDF must be 15 MB or smaller");
+        }
+        String key = "private/guides/" + guideName.replace(" ", "_") + "_" + UUID.randomUUID() + ".pdf";
+        s3Client.putObject(
+                PutObjectRequest.builder().bucket(bucketName).key(key).contentType(MediaType.APPLICATION_PDF_VALUE).build(),
+                RequestBody.fromInputStream(document.getInputStream(), document.getSize())
         );
         return key;
     }
