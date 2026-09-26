@@ -18,7 +18,7 @@ export GHCR_OWNER IMAGE_TAG
 
 docker compose -f docker-compose.images.yml --profile prod pull
 
-docker compose -f docker-compose.images.yml --profile prod up -d --remove-orphans
+docker compose -f docker-compose.images.yml --profile prod up -d --force-recreate --remove-orphans
 
 docker compose -f docker-compose.images.yml --profile prod restart nginx
 
