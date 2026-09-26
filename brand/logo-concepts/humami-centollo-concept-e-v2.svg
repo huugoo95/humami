@@ -1,0 +1,29 @@
+<svg width="1400" height="420" viewBox="0 0 1400 420" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1400" height="420" fill="#0E2A47"/>
+
+  <!-- Isotipo circular con centollo claro -->
+  <g transform="translate(80,60)">
+    <circle cx="150" cy="150" r="132" fill="none" stroke="#F5F1E8" stroke-width="8"/>
+    <g fill="none" stroke="#F5F1E8" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M95 150 C100 118, 132 95, 166 95 C204 95, 234 119, 236 150 C238 182, 208 208, 165 210 C124 212, 94 187, 95 150 Z"/>
+      <path d="M99 146 L72 131"/>
+      <path d="M100 163 L69 167"/>
+      <path d="M104 179 L76 196"/>
+      <path d="M233 146 L260 131"/>
+      <path d="M232 163 L263 167"/>
+      <path d="M228 179 L256 196"/>
+      <path d="M123 113 L110 93"/>
+      <path d="M205 113 L218 93"/>
+      <circle cx="145" cy="145" r="2.8" fill="#F5F1E8"/>
+      <circle cx="181" cy="145" r="2.8" fill="#F5F1E8"/>
+      <path d="M146 164 C155 170, 170 170, 179 164"/>
+    </g>
+  </g>
+
+  <!-- Wordmark con separación marcada -->
+  <text x="440" y="240" font-family="Cormorant Garamond, Georgia, serif" font-size="158" fill="#F5F1E8" letter-spacing="2">H</text>
+  <text x="560" y="240" font-family="Cormorant Garamond, Georgia, serif" font-size="126" fill="#F5F1E8" letter-spacing="4">UMAMI</text>
+  <line x1="546" y1="120" x2="546" y2="272" stroke="#F5F1E8" stroke-width="3.5" opacity="0.85"/>
+
+  <text x="442" y="292" font-family="Inter, Arial, sans-serif" font-size="23" fill="#F5F1E8" opacity="0.9" letter-spacing="2.6">MAR · FUEGO · SABOR</text>
+</svg>
