@@ -29,3 +29,6 @@ Publish content that attracts audience and drives product conversion.
 ## Language convention
 - Editorial process docs and SEO/strategy guidelines: **English**.
 - User-facing recipe content and culinary copy: **Spanish** (at least for the current market).
+
+## Downloadables
+Final PDFs (guides, mini-books) live in `content/downloads/<slug>/`, one folder per piece with its metadata and version history. Conventions: [content/downloads/README.md](../content/downloads/README.md).
