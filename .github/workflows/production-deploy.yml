@@ -1,0 +1,117 @@
+name: Production deployment
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - '.github/workflows/production-deploy.yml'
+      - 'humami-backend/Dockerfile'
+      - 'humami-backend/**'
+      - 'humami-web/Dockerfile'
+      - 'humami-web/**'
+      - '.mvn/**'
+      - 'mvnw'
+      - 'docker-compose.images.yml'
+      - 'scripts/deploy-images.sh'
+      - 'scripts/smoke-prod.sh'
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/production-deploy.yml'
+      - 'humami-backend/Dockerfile'
+      - 'humami-backend/**'
+      - 'humami-web/Dockerfile'
+      - 'humami-web/**'
+      - '.mvn/**'
+      - 'mvnw'
+      - 'docker-compose.images.yml'
+      - 'scripts/deploy-images.sh'
+      - 'scripts/smoke-prod.sh'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: humami-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  images:
+    permissions:
+      contents: read
+      packages: write
+    if: github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        include:
+          - module: humami-backend
+            image: humami-backend
+          - module: humami-web
+            image: humami-frontend
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build ARM64 production image
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ github.sha }}
+          MODULE: ${{ matrix.module }}
+          SOURCE_SHA: ${{ github.sha }}
+          SOURCE_URL: https://github.com/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [ "$MODULE" = humami-backend ]; then
+            cp -R .mvn "$MODULE/.mvn"
+            cp mvnw "$MODULE/mvnw"
+          fi
+          docker build --platform linux/arm64 \
+            --label "org.opencontainers.image.revision=$SOURCE_SHA" \
+            --label "org.opencontainers.image.source=$SOURCE_URL" \
+            --build-arg NEXT_PUBLIC_API_BASE_URL=https://humami.es/api \
+            --tag "$IMAGE" "$MODULE"
+      - name: Publish immutable production tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+          IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ github.sha }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GHCR_USER" --password-stdin
+          docker push "$IMAGE"
+          docker logout ghcr.io
+
+  deploy:
+    needs: images
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: Deploy exact production images and verify
+        env:
+          PROD_GHCR_READ_TOKEN: ${{ secrets.PROD_GHCR_READ_TOKEN }}
+          PROD_DEPLOY_HOST: ${{ secrets.PROD_DEPLOY_HOST }}
+          PROD_DEPLOY_USER: ${{ secrets.PROD_DEPLOY_USER }}
+          PROD_DEPLOY_SSH_KEY: ${{ secrets.PROD_DEPLOY_SSH_KEY }}
+          PROD_DEPLOY_KNOWN_HOSTS: ${{ secrets.PROD_DEPLOY_KNOWN_HOSTS }}
+          SOURCE_SHA: ${{ github.sha }}
+          GHCR_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          ssh_dir=$(mktemp -d)
+          trap 'rm -rf "$ssh_dir"' EXIT
+          printf '%s\n' "$PROD_DEPLOY_SSH_KEY" > "$ssh_dir/id_ed25519"
+          printf '%s\n' "$PROD_DEPLOY_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
+          chmod 600 "$ssh_dir/id_ed25519" "$ssh_dir/known_hosts"
+          ssh_options=(-i "$ssh_dir/id_ed25519" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ssh_dir/known_hosts")
+          remote="$PROD_DEPLOY_USER@$PROD_DEPLOY_HOST"
+          printf 'Deploying source SHA %s as ghcr.io/%s/humami-{backend,frontend}:%s\n' "$SOURCE_SHA" "$GHCR_OWNER" "$SOURCE_SHA"
+          scp "${ssh_options[@]}" scripts/deploy-images.sh scripts/smoke-prod.sh docker-compose.images.yml nginx.conf "$remote:/home/ubuntu/apps/humami/"
+          printf '%s' "$PROD_GHCR_READ_TOKEN" | ssh "${ssh_options[@]}" "$remote" \
+            "set -euo pipefail; trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT; \
+             docker login ghcr.io --username '$GHCR_OWNER' --password-stdin >/dev/null; \
+             cd /home/ubuntu/apps/humami; chmod +x ./scripts/deploy-images.sh ./scripts/smoke-prod.sh; \
+             IMAGE_TAG='$SOURCE_SHA' GHCR_OWNER='$GHCR_OWNER' ./scripts/deploy-images.sh"

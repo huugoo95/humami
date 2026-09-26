@@ -6,6 +6,8 @@ Images: `ghcr.io/<owner>/humami-backend:<tag>` and `ghcr.io/<owner>/humami-front
 
 Production releases originate exclusively from master. Integration into develop is not deployment. The canonical [release procedure](../.agents/skills/humami-release/SKILL.md) owns build/push/deploy/verification; its recovery reference owns rollback steps.
 
+The automated [production workflow](../.github/workflows/production-deploy.yml) validates ARM64 builds for pull requests to `master`, then publishes and deploys the full master SHA only after merge. It uses `GITHUB_TOKEN` for package publication, synchronizes the versioned Compose and smoke/deployment scripts to the runtime, and uses no `latest` tag. The deploy step requires repository secrets `PROD_DEPLOY_HOST`, `PROD_DEPLOY_USER`, `PROD_DEPLOY_SSH_KEY`, `PROD_DEPLOY_KNOWN_HOSTS` and a classic `PROD_GHCR_READ_TOKEN` limited to `read:packages`; it streams that read token to the server for the deployment only and logs out afterwards. Production runs are serialized. Recovery remains an explicit versioned release operation rather than an arbitrary workflow dispatch.
+
 ## Existing tooling and limitations
 - release-build-push.sh builds both images and pushes tags; it also publishes latest by default. The release skill must supply an explicit version and disable latest publication.
 - deploy-images.sh defaults to latest and hardcodes humami.es smoke verification. These are script behaviors, not permission to use latest or another target in production.
