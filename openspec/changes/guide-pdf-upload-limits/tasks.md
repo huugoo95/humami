@@ -1,0 +1,4 @@
+- [x] Define the production upload-limit failure and acceptance criteria.
+- [x] Configure a 10 MB file limit with 11 MB multipart/proxy allowance in Nginx and Spring Boot.
+- [ ] Validate configuration and deliver through reviewed PR.
+- [ ] Publish the pending pizza guide document after deployment.
