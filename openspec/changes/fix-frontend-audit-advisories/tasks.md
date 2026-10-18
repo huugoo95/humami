@@ -1,0 +1,6 @@
+- [x] Define the audit failure, the unfixable braces advisory and acceptance criteria.
+- [x] Apply non-breaking lockfile fixes and upgrade to Jest 30.
+- [x] Add the allowlisted audit gate and production-only audit to Frontend CI.
+- [x] Validate locally: allowlisted gate passes (empty or expired allowlist fails), production audit 0 vulnerabilities, Jest 30 3/6 tests, lint, build, Docker image smoke OK.
+- [ ] Deliver through reviewed PR with Frontend CI green.
+- [ ] Before 2027-01-18: re-check braces/micromatch upstream and remove or renew the allowlist entry.
