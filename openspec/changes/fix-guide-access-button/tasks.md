@@ -2,4 +2,4 @@
 - [x] Add a failing guard for Tailwind content coverage of `src/features` (RED: `scans src/features` failed).
 - [x] Include `src/features/**` in the Tailwind content globs (GREEN: 9/9 Jest tests).
 - [x] Validate lint, build (`bg-humami-gold` present in generated CSS) and the rendered button locally (background rgb(212, 175, 127)).
-- [ ] Deliver through reviewed PR.
+- [x] Delivered: PR #80 merged to develop (37e34f2), released in 0.5.2 (master 57248d6); production button verified gold on 2026-10-18.
