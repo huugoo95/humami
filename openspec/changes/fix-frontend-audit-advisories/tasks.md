@@ -2,5 +2,5 @@
 - [x] Apply non-breaking lockfile fixes and upgrade to Jest 30.
 - [x] Add the allowlisted audit gate and production-only audit to Frontend CI.
 - [x] Validate locally: allowlisted gate passes (empty, expired or malformed allowlist fails), production audit 0 vulnerabilities, Jest 30 3 suites / 6 tests passing, lint, build, Docker image smoke OK.
-- [ ] Deliver through reviewed PR with Frontend CI green.
+- [x] Delivered: PR #81 merged to develop (712e34a) with Frontend CI green, released in 0.5.2 (master 57248d6).
 - [ ] Before 2027-01-18: re-check braces/micromatch upstream and remove or renew the allowlist entry.
