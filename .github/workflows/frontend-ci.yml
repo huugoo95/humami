@@ -26,7 +26,10 @@ jobs:
           cache: npm
           cache-dependency-path: humami-web/package-lock.json
       - run: npm ci
-      - run: npm audit --audit-level=high
+      - name: Audit dependencies (high/critical, allowlisted exceptions only)
+        run: node ../scripts/npm-audit-gate.mjs audit-allowlist.json
+      - name: Audit production dependencies (no exceptions)
+        run: npm audit --omit=dev --audit-level=high
       - run: npm test
       - run: npm run lint
       - run: npm run build

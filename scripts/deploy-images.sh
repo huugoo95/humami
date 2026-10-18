@@ -23,16 +23,7 @@ docker compose -f docker-compose.images.yml --profile prod up -d --force-recreat
 docker compose -f docker-compose.images.yml --profile prod restart nginx
 
 if [[ -x "./scripts/smoke-prod.sh" ]]; then
-  tries=0
-  until ./scripts/smoke-prod.sh https://humami.es; do
-    tries=$((tries + 1))
-    if [[ "$tries" -ge 5 ]]; then
-      echo "[deploy][ERROR] Smoke checks failed after ${tries} attempts" >&2
-      exit 1
-    fi
-    echo "[deploy] Smoke checks not ready yet, retrying (${tries}/5)..."
-    sleep 5
-  done
+  ./scripts/smoke-prod.sh https://humami.es
 fi
 
 echo "[deploy] Running with GHCR_OWNER=${GHCR_OWNER} IMAGE_TAG=${IMAGE_TAG}"
