@@ -1,0 +1,4 @@
+- [x] Define the stale-script failure and acceptance criteria.
+- [ ] Copy scripts to the executed path and verify remote checksums before deploying.
+- [ ] Validate the workflow locally and deliver through reviewed PR.
+- [ ] Confirm on the next production deployment that the 480 s readiness window applies.
