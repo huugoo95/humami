@@ -1,4 +1,5 @@
 - [x] Define the stale-script failure and acceptance criteria.
-- [ ] Copy scripts to the executed path and verify remote checksums before deploying.
-- [ ] Validate the workflow locally and deliver through reviewed PR.
+- [x] Copy scripts to the executed path and verify remote checksums before deploying.
+- [x] Validate locally: workflow YAML parses; a simulated deploy step (fake ssh/scp against a temp host dir) copies the scripts to `scripts/`, passes `sha256sum --check` and runs the deploy, while a tampered remote script fails the check before deploy.
+- [ ] Deliver through reviewed PR.
 - [ ] Confirm on the next production deployment that the 480 s readiness window applies.
