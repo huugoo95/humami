@@ -5,6 +5,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
 const GATED_SEVERITIES = new Set(["high", "critical"]);
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function runAudit() {
   try {
@@ -37,10 +38,16 @@ if (!allowlistPath) {
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const allowlist = new Map(JSON.parse(readFileSync(allowlistPath, "utf8")).map((entry) => [entry.id, entry]));
+const entries = JSON.parse(readFileSync(allowlistPath, "utf8"));
+const invalid = entries.filter((entry) => !entry.id || !entry.reason?.trim() || !ISO_DATE.test(entry.expires ?? ""));
+if (invalid.length > 0) {
+  console.error(`Invalid allowlist entries (id, reason and expires YYYY-MM-DD are required): ${JSON.stringify(invalid)}`);
+  process.exit(2);
+}
+const allowlist = new Map(entries.map((entry) => [entry.id, entry]));
 const report = JSON.parse(runAudit());
-if (report.error) {
-  console.error(`npm audit failed: ${report.error.summary ?? JSON.stringify(report.error)}`);
+if (report.error || !report.metadata?.vulnerabilities) {
+  console.error(`npm audit failed: ${report.error?.summary || report.message || "unexpected report format"}`);
   process.exit(2);
 }
 
@@ -57,6 +64,11 @@ for (const advisory of gatedAdvisories(report)) {
   } else {
     console.log(`ALLOWED until ${entry.expires} ${label}: ${entry.reason}`);
   }
+}
+
+const reported = new Set(gatedAdvisories(report).map((advisory) => advisory.id));
+for (const id of allowlist.keys()) {
+  if (!reported.has(id)) console.log(`STALE allowlist entry ${id} no longer matches any advisory; remove it.`);
 }
 
 if (failed) process.exit(1);
