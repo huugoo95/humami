@@ -84,7 +84,7 @@ jobs:
         run: |
           set -euo pipefail
           running() { [[ -f running.env ]] && sed -n "s/^$1=//p" running.env || true; }
-          # Sources shared by both images: changing the build itself rebuilds everything.
+          # Sources shared by both images: changing the build itself (this file) rebuilds everything.
           shared=(.github/workflows/production-deploy.yml)
           backend_paths=(humami-backend .mvn mvnw "${shared[@]}")
           frontend_paths=(humami-web "${shared[@]}")

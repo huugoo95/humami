@@ -61,9 +61,9 @@ FRONTEND_TAG="${FRONTEND_TAG:-${IMAGE_TAG:-}}"
 : "${MIN_FREE_MB:=3072}"
 # Two JVMs run side by side while the backend switches. Below this much available memory the
 # old backend is stopped first instead (a short outage, as before slots existed).
-: "${MIN_PARALLEL_MEM_MB:=700}"
+: "${MIN_PARALLEL_MEM_MB:=450}"
 # Extra headroom required when a new frontend starts at the same time.
-: "${FRONTEND_MEM_MB:=150}"
+: "${FRONTEND_MEM_MB:=100}"
 : "${MEMINFO_FILE:=/proc/meminfo}"
 : "${READY_TIMEOUT_SECONDS:=600}"
 : "${READY_INTERVAL_SECONDS:=5}"
