@@ -109,9 +109,15 @@ jobs:
           ssh_options=(-i "$ssh_dir/id_ed25519" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ssh_dir/known_hosts")
           remote="$PROD_DEPLOY_USER@$PROD_DEPLOY_HOST"
           printf 'Deploying source SHA %s as ghcr.io/%s/humami-{backend,frontend}:%s\n' "$SOURCE_SHA" "$GHCR_OWNER" "$SOURCE_SHA"
-          scp "${ssh_options[@]}" scripts/deploy-images.sh scripts/smoke-prod.sh docker-compose.images.yml nginx.conf "$remote:/home/ubuntu/apps/humami/"
+          # deploy-images.sh resolves the app root as its parent directory, so scripts must live in scripts/.
+          ssh "${ssh_options[@]}" "$remote" "mkdir -p /home/ubuntu/apps/humami/scripts"
+          scp "${ssh_options[@]}" docker-compose.images.yml nginx.conf "$remote:/home/ubuntu/apps/humami/"
+          scp "${ssh_options[@]}" scripts/deploy-images.sh scripts/smoke-prod.sh "$remote:/home/ubuntu/apps/humami/scripts/"
+          expected_sums=$(sha256sum scripts/deploy-images.sh scripts/smoke-prod.sh)
           printf '%s' "$PROD_GHCR_READ_TOKEN" | ssh "${ssh_options[@]}" "$remote" \
             "set -euo pipefail; trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT; \
+             cd /home/ubuntu/apps/humami; \
+             printf '%s\n' '$expected_sums' | sha256sum --check --strict -; \
              docker login ghcr.io --username '$GHCR_OWNER' --password-stdin >/dev/null; \
-             cd /home/ubuntu/apps/humami; chmod +x ./scripts/deploy-images.sh ./scripts/smoke-prod.sh; \
+             chmod +x ./scripts/deploy-images.sh ./scripts/smoke-prod.sh; \
              IMAGE_TAG='$SOURCE_SHA' GHCR_OWNER='$GHCR_OWNER' ./scripts/deploy-images.sh"
