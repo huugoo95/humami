@@ -1,0 +1,5 @@
+- [x] Analyse image delivery and define phase 1 scope and acceptance criteria.
+- [ ] Add failing tests for image config, runtime ownership and sizes.
+- [ ] Implement runtime ownership, cache TTL, remotePatterns, sizes and priority.
+- [ ] Validate tests, lint, build and a HIT on a repeated optimizer request in the production image; deliver through reviewed PR.
+- [ ] Phase 2 (separate spec): stable public image URLs via CloudFront and a bucket in eu-west-3.
