@@ -1,0 +1,9 @@
+- [x] Diagnose DEV failures from Actions logs (runs 39167692027, 39167899404, 39238051639; last success 36258907466; first prod nginx recreate 36266408122).
+- [ ] Merge the `deploy/dev/nginx.conf` server blocks into `nginx.conf`. Delete the fragment and update its references.
+- [ ] `deploy-images.sh`: add a dev certificate preflight before pulling. After `up`, run a guarded and idempotent `docker network connect humami-dev-ingress humami-nginx` before the nginx restart.
+- [ ] `deploy-dev.sh`: add the `HUMAMI_DEV_READY_SECONDS` deadline (480), `--max-time 10`, and last-exit-code reporting. Raise the `deploy-dev` job timeout to 20 minutes and update `docs/dev-deployment.md`.
+- [ ] `deploy-dev.sh`: add a tag-scoped `dev-*` prune before pulling and after verification, plus a `MIN_FREE_MB` (2048) check.
+- [ ] `docker-compose.dev.yml`: add `-XX:TieredStopAtLevel=1`.
+- [ ] Simulated validation with stubbed `docker`, `curl` and `df` (TLS 60 timeout, healthy start, missing cert, missing network, prune keeps in-use and prod images). Run `bash -n` and `docker compose config -q`.
+- [ ] Independent review, then PR to develop.
+- [ ] Release through master. Confirm that the next production deploy re-attaches nginx and that the next `develop` push verifies DEV.
