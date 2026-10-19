@@ -63,6 +63,11 @@ create_container() { # name image hash
   echo "$mode" > "$containers/$name/needed"
   if [[ "$mode" == crash ]]; then echo exited > "$containers/$name/status"; else echo running > "$containers/$name/status"; fi
   log "CREATE $name $image"
+  # Simulates the OOM killer taking another container when this one starts.
+  if [[ -n "${SIM_KILL_ON_CREATE:-}" && "$name" != humami-nginx && -d "$containers/$SIM_KILL_ON_CREATE" ]]; then
+    echo exited > "$containers/$SIM_KILL_ON_CREATE/status"
+    log "KILLED $SIM_KILL_ON_CREATE"
+  fi
 }
 
 ready() { # container

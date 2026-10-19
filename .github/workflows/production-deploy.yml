@@ -32,6 +32,15 @@ on:
       - 'scripts/smoke-prod.sh'
       - 'scripts/tests/**'
 
+  # Manual run on master: redeploys master and, with rebuild, rebuilds both images
+  # (for example to pick up base image security updates).
+  workflow_dispatch:
+    inputs:
+      rebuild:
+        description: Rebuild both images even if their sources did not change
+        type: boolean
+        default: false
+
 permissions:
   contents: read
 
@@ -58,7 +67,7 @@ jobs:
           shellcheck -S warning scripts/deploy-images.sh scripts/tests/deploy-images.test.sh scripts/tests/fake-docker
           scripts/tests/deploy-images.test.sh
       - name: Read the release running in production
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         env:
           PROD_DEPLOY_HOST: ${{ secrets.PROD_DEPLOY_HOST }}
           PROD_DEPLOY_USER: ${{ secrets.PROD_DEPLOY_USER }}
@@ -79,6 +88,7 @@ jobs:
         id: plan
         env:
           EVENT_NAME: ${{ github.event_name }}
+          REBUILD: ${{ inputs.rebuild || false }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
@@ -100,6 +110,8 @@ jobs:
           }
           if [[ "$EVENT_NAME" == pull_request ]]; then
             backend_ref="$BASE_SHA"; frontend_ref="$BASE_SHA"
+          elif [[ "$REBUILD" == true ]]; then
+            backend_ref=""; frontend_ref=""
           else
             backend_ref="$(running backend)"; frontend_ref="$(running frontend)"
           fi
@@ -147,7 +159,7 @@ jobs:
             --build-arg NEXT_PUBLIC_API_BASE_URL=https://humami.es/api \
             --tag "$IMAGE" "$MODULE"
       - name: Publish immutable production tag
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_USER: ${{ github.actor }}
@@ -162,7 +174,7 @@ jobs:
     needs: [plan, images]
     # Runs when the images were built or there was nothing to build.
     if: >-
-      always() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+      always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
       && needs.plan.result == 'success'
       && (needs.images.result == 'success' || needs.images.result == 'skipped')
     runs-on: ubuntu-24.04

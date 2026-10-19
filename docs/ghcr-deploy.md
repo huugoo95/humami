@@ -10,7 +10,8 @@ The automated [production workflow](../.github/workflows/production-deploy.yml) 
 
 ## Existing tooling and limitations
 - release-build-push.sh builds both images and pushes tags; it also publishes latest by default. The release skill must supply an explicit version and disable latest publication.
-- deploy-images.sh defaults to latest and hardcodes humami.es smoke verification. These are script behaviors, not permission to use latest or another target in production.
+- deploy-images.sh requires full commit SHAs (`BACKEND_TAG`, `FRONTEND_TAG`) and smoke-checks `SMOKE_URL` (default https://humami.es). Do not run `docker compose up` for the slot services by hand: without the `*_BLUE_TAG`/`*_GREEN_TAG` variables they resolve to the tag `none`.
+- Base images are only refreshed when a module is rebuilt; run the production workflow manually with `rebuild` to pick up base image updates.
 - PLATFORM is declared by the build script but not applied to docker build; do not assume cross-platform images.
 - Frontend browser API resolution uses a relative /api fallback because NEXT_PUBLIC variables may be embedded at build time.
 - scripts/renew-certs.sh supports webroot renewal. Host scheduling and certificate state must be verified on the actual server; the repository does not establish that a schedule is installed.

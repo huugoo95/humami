@@ -26,13 +26,13 @@ container_tag() {
   docker inspect --type container --format '{{.Config.Image}}' "$1" 2>/dev/null | sed 's/.*://' || true
 }
 
-# The slot (blue|green) recorded for a service, if its container is running; "legacy" for the
-# single-container layout used before slots; empty when nothing serves the service.
+# The slot (blue|green) nginx routes a service to, if its container is running; "legacy" for the
+# single-container layout used before slots; empty when nothing serves the service. Read from the
+# rendered nginx.conf rather than release.state, which lags it while a switch is being verified.
 active_slot() {
-  local service="$1" key slot=""
-  key="$(printf '%s_SLOT' "$service" | tr '[:lower:]' '[:upper:]')"
-  if [[ -f "$STATE_FILE" ]]; then
-    slot="$(awk -F= -v key="$key" '$1 == key && ($2 == "blue" || $2 == "green") {print $2}' "$STATE_FILE")"
+  local service="$1" slot=""
+  if [[ -f "$NGINX_CONF" ]]; then
+    slot="$(sed -En "s/^ *server ${service}-(blue|green):[0-9]+;\$/\1/p" "$NGINX_CONF" | head -n 1)"
   fi
   if [[ -n "$slot" && "$(container_status "humami-${service}-${slot}")" == running ]]; then
     echo "$slot"
@@ -61,7 +61,9 @@ FRONTEND_TAG="${FRONTEND_TAG:-${IMAGE_TAG:-}}"
 : "${MIN_FREE_MB:=3072}"
 # Two JVMs run side by side while the backend switches. Below this much available memory the
 # old backend is stopped first instead (a short outage, as before slots existed).
-: "${MIN_PARALLEL_MEM_MB:=600}"
+: "${MIN_PARALLEL_MEM_MB:=900}"
+# Extra headroom required when a new frontend starts at the same time.
+: "${FRONTEND_MEM_MB:=150}"
 : "${MEMINFO_FILE:=/proc/meminfo}"
 : "${READY_TIMEOUT_SECONDS:=600}"
 : "${READY_INTERVAL_SECONDS:=5}"
@@ -80,6 +82,15 @@ if [[ ! -f "$SITE_CONF" ]]; then
   echo "[deploy] Missing ${SITE_CONF}; the workflow copies the repository's nginx.conf there."
   exit 1
 fi
+
+# Keep going if the SSH session that started the deploy drops mid-switch: ignore hangups and,
+# where GNU tee is available, keep a log on the host that survives a broken output pipe.
+trap '' HUP
+if tee -p /dev/null </dev/null >/dev/null 2>&1; then
+  exec > >(tee -p -a "$ROOT_DIR/deploy.log") 2>&1
+fi
+echo "[deploy] $(date -u '+%Y-%m-%dT%H:%M:%SZ') backend ${BACKEND_TAG} frontend ${FRONTEND_TAG}"
+docker compose version || true
 
 if [[ -n "${GHCR_TOKEN:-}" ]]; then
   echo "$GHCR_TOKEN" | docker login ghcr.io -u "${GHCR_USERNAME:-$GHCR_OWNER}" --password-stdin
@@ -209,11 +220,17 @@ done
 
 # Old containers stopped (not removed) to make room; restarted if the release fails.
 stopped_old=()
+# Old containers serving the services being replaced.
+old_running=()
+[[ -n "$backend_target" && -n "$backend_active" ]] && old_running+=("$(container_name backend "$backend_active")")
+[[ -n "$frontend_target" && -n "$frontend_active" ]] && old_running+=("$(container_name frontend "$frontend_active")")
 
+# Restarts old containers that were stopped for memory or died meanwhile (for example OOM-killed).
 restore_stopped() {
   local name
-  for name in "${stopped_old[@]+"${stopped_old[@]}"}"; do
-    docker start "$name" >/dev/null && echo "[deploy] Restarted ${name}" || echo "[deploy] Could not restart ${name}"
+  for name in "${stopped_old[@]+"${stopped_old[@]}"}" "${old_running[@]+"${old_running[@]}"}"; do
+    [[ "$(container_status "$name")" == running ]] && continue
+    if docker start "$name" >/dev/null; then echo "[deploy] Restarted ${name}"; else echo "[deploy] Could not restart ${name}"; fi
   done
 }
 
@@ -230,13 +247,15 @@ if (( ${#target_services[@]} > 0 )); then
 
   if [[ -n "$backend_target" && ( "$backend_active" == blue || "$backend_active" == green || "$backend_active" == legacy ) ]]; then
     available_mb="$(awk '/^MemAvailable:/ {print int($2 / 1024)}' "$MEMINFO_FILE" 2>/dev/null || true)"
-    if [[ "$available_mb" =~ ^[0-9]+$ ]] && (( available_mb < MIN_PARALLEL_MEM_MB )); then
+    required_mb="$MIN_PARALLEL_MEM_MB"
+    [[ -n "$frontend_target" ]] && required_mb=$(( required_mb + FRONTEND_MEM_MB ))
+    if [[ "$available_mb" =~ ^[0-9]+$ ]] && (( available_mb < required_mb )); then
       old_backend="$(container_name backend "$backend_active")"
-      echo "[deploy] Only ${available_mb} MB available (< ${MIN_PARALLEL_MEM_MB} MB): stopping ${old_backend} before starting the new backend. /api is down until it is ready."
+      echo "[deploy] Only ${available_mb} MB available (< ${required_mb} MB): stopping ${old_backend} before starting the new backend. /api is down until it is ready."
       docker stop -t 30 "$old_backend" >/dev/null
       stopped_old+=("$old_backend")
     else
-      echo "[deploy] ${available_mb:-unknown} MB available; starting the new backend next to the running one."
+      echo "[deploy] ${available_mb:-unknown} MB available (>= ${required_mb} MB); starting the new backend next to the running one."
     fi
   fi
 
@@ -328,8 +347,19 @@ render_nginx "$(upstream_host backend "$new_backend_slot")" "$(upstream_host fro
 # Reload keeps serving: the master re-reads the config and old workers finish their requests.
 # nginx is only (re)created when it is not running or its own Compose definition changed.
 activate_nginx() {
-  if nginx_running && [[ "$(compose_hash nginx)" == "$(container_hash "$NGINX_CONTAINER")" ]]; then
-    docker exec "$NGINX_CONTAINER" nginx -t && docker exec "$NGINX_CONTAINER" nginx -s reload
+  local want have
+  if nginx_running; then
+    # The running nginx sees the new file through its mount, so test it there before anything else.
+    docker exec "$NGINX_CONTAINER" nginx -t || return 1
+    want="$(compose_hash nginx)"
+    have="$(container_hash "$NGINX_CONTAINER")"
+    # An unknown hash (older Compose) never forces a recreate: reloading is always safe.
+    if [[ -z "$want" || -z "$have" || "$want" == "$have" ]]; then
+      docker exec "$NGINX_CONTAINER" nginx -s reload
+      return
+    fi
+    echo "[deploy] nginx definition changed; recreating nginx"
+    compose up -d --no-deps --force-recreate nginx
   else
     echo "[deploy] (Re)creating nginx"
     compose up -d --no-deps --force-recreate nginx
@@ -374,13 +404,10 @@ fi
 printf 'BACKEND_SLOT=%s\nFRONTEND_SLOT=%s\n' "$new_backend_slot" "$new_frontend_slot" > "$STATE_FILE.next"
 mv "$STATE_FILE.next" "$STATE_FILE"
 
-old_containers=()
-[[ -n "$backend_target" && -n "$backend_active" ]] && old_containers+=("$(container_name backend "$backend_active")")
-[[ -n "$frontend_target" && -n "$frontend_active" ]] && old_containers+=("$(container_name frontend "$frontend_active")")
-if (( ${#old_containers[@]} > 0 )); then
+if (( ${#old_running[@]} > 0 )); then
   # Old nginx workers may still be finishing requests to the previous containers.
   sleep "$DRAIN_SECONDS"
-  for name in "${old_containers[@]}"; do
+  for name in "${old_running[@]}"; do
     if docker stop -t 30 "$name" >/dev/null && docker rm "$name" >/dev/null; then
       echo "[deploy] Removed ${name}"
     else

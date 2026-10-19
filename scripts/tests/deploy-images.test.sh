@@ -26,7 +26,7 @@ new_host() {
   cp "$REPO_DIR/docker-compose.images.yml" "$SIM_ROOT/"
   cp "$REPO_DIR/nginx.conf" "$SIM_ROOT/nginx/site.conf"
   echo "SECRET=1" > "$SIM_ROOT/.env"
-  echo "MemAvailable:    1048576 kB" > "$SIM_DIR/meminfo"
+  echo "MemAvailable:    1572864 kB" > "$SIM_DIR/meminfo"
   : > "$SIM_DIR/events.log"
   cat > "$SIM_ROOT/scripts/smoke-prod.sh" <<'SMOKE'
 #!/usr/bin/env bash
@@ -141,6 +141,25 @@ expect_status 0
 expect_live "backend-blue frontend-green"
 expect_absent humami-backend-green humami-frontend-blue
 expect_no_event DOWNTIME
+
+echo "nginx is the source of truth when release.state lags an interrupted switch"
+new_host interrupted; slot_host green "$B" blue "$A"
+seed humami-backend-blue backend-blue "$A"
+printf 'BACKEND_SLOT=blue\nFRONTEND_SLOT=blue\n' > "$SIM_ROOT/release.state"
+deploy "$C" "$A"
+expect_status 0
+expect_no_event DOWNTIME
+expect_live "backend-blue frontend-blue"
+expect_image humami-backend-blue "$C"
+
+echo "an old backend that dies during the wait is restarted when the release fails"
+new_host old-died; slot_host blue "$A" blue "$A"
+export SIM_PROBES_$B=never SIM_KILL_ON_CREATE=humami-backend-blue
+deploy "$B" "$A"
+expect_status 1
+expect_event "START humami-backend-blue"
+expect_running humami-backend-blue
+unset SIM_KILL_ON_CREATE
 
 echo "nothing changed: no container is touched"
 new_host noop; slot_host green "$A" blue "$A"
