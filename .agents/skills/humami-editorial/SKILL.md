@@ -12,4 +12,4 @@ Read [brand](../../../docs/BRAND.md) and [editorial knowledge](../../../docs/CON
 - For an API-ready draft, consult only [BlogPostRequest](../../../humami-backend/src/main/java/com/hugo/humami/dto/request/BlogPostRequest.java): title, slug, excerpt, content, author, tags and SEO fields as appropriate. Keep it local; writing a remote draft is still a write operation.
 - Save an actual requested draft under `content/articles/` with accompanying source/review notes; do not create empty scaffolding. Do not invent an author, publication date or public status.
 
-Return draft and review notes. No Git Flow/deployment procedure is needed just to compose text; if saving project files, retain a valid work branch using only the branch setup phase of code delivery. Use content publication only on a publishing request. LinkedIn is outside this skill.
+Return draft and review notes. No delivery procedure is needed just to compose text; if saving project files, use a short branch from `master` per code delivery. Use content publication only on a publishing request. LinkedIn is outside this skill.

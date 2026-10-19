@@ -1,11 +1,11 @@
 ---
 name: humami-code-review
-description: Independently review a Humami diff against its specification and executable evidence before integration. Produces findings; does not implement or merge.
+description: Independently review a high-risk Humami diff (infrastructure, deployment, security, data migrations, payments or personal data) before merge. Produces findings; does not implement or merge.
 ---
 
 # Review a candidate
 
-Receive the change/spec, base and candidate commit (or an explicit working-tree diff), affected scope and evidence. Read [engineering rules](../../../ENGINEERING_RULES.md) and only affected contracts and code. The reviewer must be separate from the implementing agent for code integration.
+Receive the change/spec, base and candidate commit (or an explicit working-tree diff), affected scope and evidence. Read [engineering rules](../../../ENGINEERING_RULES.md) and only affected contracts and code. The reviewer must be separate from the implementing agent. Ordinary changes do not need this review; tests and CI are their gate.
 
 - Verify acceptance criteria, boundary/error cases, regressions, auth/data impact and realistic rollback.
 - Check that claimed tests/checks actually ran for the candidate and cover behavior. Read scripts or run non-mutating relevant checks if needed.

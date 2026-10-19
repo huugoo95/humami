@@ -33,8 +33,8 @@
 
 ## 6. Delivery and rollout
 
-- [ ] Independent review; PR to develop; release. Public mode is on by default, so the release deploy is the cutover.
-- [ ] Cutover (owner-authorized): avoid uploads during the release, run `scripts/migrate-media-eu.sh` right before and right after the deploy, and re-check CDN URLs.
+- [x] Two independent reviews (f74a301 and a6d3007) with no blocker; PR #91 merged to develop (a76b5d7); release 0.6.0 PR #92 merged to master (18eb524) and deployed by run 39275742412 on 2026-10-19. Smoke checks passed; 8084 MB free on the host.
+- [x] Cutover: `scripts/migrate-media-eu.sh` ran before and after the deploy and found no new keys (copied=0, skipped=29 both times).
 - [ ] Production evidence: stable URLs across more than 6 h, optimizer MISS ≤ 1.0 s, CDN hit, `og:image` 200 after more than 12 h, guide PDF still presigned 1 h, new upload has the immutable headers in the media bucket.
 - [ ] After 30 days without rollback: remove the media bucket presigned host from `remotePatterns` if unused, and propose the legacy-bucket cleanup (M13) separately.
 
@@ -53,3 +53,14 @@
 - [x] CDN checks:
   - All 28 media objects and all 9 keys referenced by the public API return 200 via `img.humami.es`, with `Cache-Control: public, max-age=31536000, immutable` and `x-cache: Hit from cloudfront` on repeat.
   - Direct S3 access returns 403; `private/` through the CDN returns 403; HTTP redirects to HTTPS (301).
+
+## Production evidence (0.6.0, 2026-10-19)
+
+- `/`, `/meals`, `/api/meals`, `/guias/pizza-napolitana-desde-cero` and `/blog` return 200.
+- The API returns stable `https://img.humami.es/<key>` URLs, identical across calls and with no query string.
+- A CloudFront Hit returns in 0.09 s.
+- Meal pages declare `og:image` with the CDN URL.
+- Next optimizer for a new variant: MISS in 2.47 s, then HIT in 0.29 s. The origin fetch is now about 0.1 s, so the remaining MISS time is image processing CPU on the t4g.small host (follow-up).
+- Not verified live:
+  - Blog `og:image`: there are no published posts.
+  - Guide PDF presign from `humami-private-eu`: it needs the email access flow. Unit tests cover it.

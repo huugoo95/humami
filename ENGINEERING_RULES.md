@@ -4,12 +4,12 @@ This file is the engineering source of truth for Humami. If there is a conflict,
 
 ## 1) Delivery model
 
-- Every product/code change starts from a written OpenSpec change in `openspec/changes/`; retain numeric compatibility indexes in `specs/` and preserve historical specs.
-- Every non-docs PR must reference one spec ID.
-- Docs-only PRs do not require a spec unless they define/alter product behavior, API contract, or release policy.
-- No direct commits to long-lived branches (`develop`, `master`).
+- Trunk-based: `master` is the only long-lived branch and every merge deploys to production. Work on short branches and integrate through a PR with green CI (squash merge).
+- Product features start from an OpenSpec change in `openspec/changes/` (numeric index in `specs/`). Fixes, refactors, dependency updates, CI/ops and docs need no spec: the PR description carries the why, evidence and rollback.
+- Independent review (a separate agent) is required only for high-risk changes: infrastructure and deployment, authentication/security, data migrations, payments or personal data. Everything else relies on tests, CI and post-deploy verification.
+- Production safety is automated: CI gates, exact-SHA images, smoke checks and automatic rollback on failed smoke checks.
 
-Execution: [development](.agents/skills/humami-development/SKILL.md), [review](.agents/skills/humami-code-review/SKILL.md), [delivery](.agents/skills/humami-code-delivery/SKILL.md).
+Execution: [development](.agents/skills/humami-development/SKILL.md), [delivery](.agents/skills/humami-code-delivery/SKILL.md), [release](.agents/skills/humami-release/SKILL.md).
 
 ## 2) TDD (required)
 
@@ -69,20 +69,13 @@ Required in PR:
 
 ## 6) Definition of Done
 
-A task is done only when:
+A task is done when:
 
-- [ ] Spec acceptance criteria are covered
-- [ ] Tests added/updated and passing
-- [ ] Lint/format checks pass
-- [ ] Docs updated (if behavior changed)
-- [ ] PR template fully completed
+- Behaviour is covered by tests that pass, and CI is green.
+- The change is merged to `master` and the production deploy succeeded.
+- Production was verified for the affected behaviour.
+- Docs are updated if behaviour or process changed.
 
 ## 7) Pull Request requirements
 
-Each PR must include:
-
-- Spec ID + link
-- Scope summary (backend/frontend)
-- Test evidence
-- Risks + rollback note
-- Compliance checklist (`.github/pull_request_template.md`)
+Each PR states: what and why, test evidence, risk and rollback, and the spec link when one exists ([template](.github/pull_request_template.md)).

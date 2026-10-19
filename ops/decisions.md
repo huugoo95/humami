@@ -53,3 +53,13 @@ Record decisions that should persist beyond chat history.
 - Decision: Until independent object storage exists, dev uses no real S3 credentials and the proxy returns503 for image uploads.
 - Scope: Resource-capped dev containers and additive TLS/proxy routing. Existing production application containers and rollback images are retained.
 - Evidence and runtime details: openspec/changes/provision-isolated-dev-environment/validation.md.
+
+## 2026-10-19 — Trunk-based delivery without a dev environment
+- Context: Side project with one owner who does not review code; the AI implements. Git Flow (develop, release, hotfix, back-merges), mandatory specs and reviews for every change, and a dev environment on the shared t4g.small slowed delivery. The dev environment was also broken (lost nginx vhost) and consumed CPU credits and disk needed by production.
+- Decision: `master` is the only long-lived branch. Short branch → PR → green CI → squash merge → automatic production deploy. No develop, release or hotfix branches.
+- Decision: Retire dev.humami.es. Its containers and network are removed by the production deploy script; its volumes (including old dev MongoDB data) and the Atlas `humami_dev` database are left for the owner to delete.
+- Decision: Automated safety replaces human validation: CI gates, exact-SHA images, smoke checks and automatic rollback to the previous release.
+- Decision: Specs only for product features. Independent review only for high-risk changes (infrastructure, security, data migrations, payments, personal data).
+- Decision: Standing authorization to merge and deploy with green CI. Always ask first for permanent deletions, cost increases, DNS/IAM/account changes, secrets, and publishing or messaging on the owner's behalf.
+- Supersedes: 2026-09-22 delivery decisions (develop integration, release-only production) and 2026-09-24 isolated development hosting.
+- Revisit trigger: More contributors, paying customers or a need for pre-production validation.

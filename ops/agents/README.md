@@ -11,7 +11,7 @@ The current task's primary agent coordinates; these profiles do not create persi
 | Git delivery, publication or release execution | [Operations](operations.md) |
 | Independent candidate assessment | [Reviewer](reviewer.md) |
 
-Small tasks stay with the primary agent. Delegate only bounded work that can proceed independently; agree the API contract before parallel frontend/backend edits. Code integration requires an independent reviewer even when implementation is small.
+Small tasks stay with the primary agent. Delegate only bounded work that can proceed independently; agree the API contract before parallel frontend/backend edits. High-risk changes (see engineering rules) require an independent reviewer; ordinary changes rely on tests and CI.
 
 Every delegated assignment states: objective; owned files/worktree and branch if editing; dependencies and relevant spec/skill/profile paths; acceptance evidence; allowed external actions; return format (result, findings, tests, files, blockers). Pass only relevant context. Discovery/reading is not publication authority.
 

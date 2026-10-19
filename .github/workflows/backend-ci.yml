@@ -2,9 +2,9 @@ name: Backend CI
 
 on:
   pull_request:
-    branches: [develop, master]
+    branches: [master]
   push:
-    branches: [develop, master, 'feat/**', 'fix/**']
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -41,10 +41,12 @@ jobs:
           -f humami-backend/pom.xml
           -Dhumami.test.mongoUri=mongodb://127.0.0.1:27017
           verify
-      - name: Validate isolated dev Compose configuration
+      - name: Validate deployment scripts and production Compose
+        working-directory: .
         env:
           GHCR_OWNER: validation
-          DEV_IMAGE_TAG: dev-validation
-          DEV_ATLAS_MONGODB_URI: mongodb+srv://validation:validation@example.mongodb.net/humami_dev
-          DEV_WRITE_SECRET: validation-only
-        run: docker compose -f docker-compose.dev.yml config -q
+          IMAGE_TAG: validation
+        run: |
+          for script in scripts/*.sh; do bash -n "$script"; done
+          touch .env  # the real .env only exists on the host
+          docker compose -f docker-compose.images.yml --profile prod config -q

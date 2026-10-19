@@ -1,18 +1,25 @@
 ---
 name: humami-release
-description: Prepare a Humami Git Flow release or execute an explicitly requested production deployment from master with concrete image versions. Excludes normal develop integration and content publication.
+description: Follow, verify and recover Humami production deployments. Every merge to master deploys automatically; this covers watching that deploy, verifying production and recovering from failures.
 ---
 
-# Release Humami
+# Deploy, verify and recover production
 
-## Select the requested phase
-A release-preparation request permits planning/branch/PR work, not deployment. Normal feature delivery ends in develop. For Git operations use [code delivery](../humami-code-delivery/SKILL.md); for topology consult [deployment architecture](../../../docs/ghcr-deploy.md) only when needed.
+## How deployment works
+- A push to `master` runs `.github/workflows/production-deploy.yml`. It builds ARM64 images tagged with the exact commit SHA and copies the Compose file, nginx config and scripts to the host, verifying their checksums. It then runs `scripts/deploy-images.sh`.
+- The deploy script:
+  - records the running release;
+  - prunes unused images and checks free disk space;
+  - pulls the new images, recreates the containers and runs `scripts/smoke-prod.sh`.
+- **If activation or smoke checks fail, it rolls back automatically** to the previous release's images (still on disk) and the job fails. Rollback restores images only: the new `docker-compose.images.yml` and `nginx.conf` stay, so a broken config change needs a revert. Read the log: "Rolled back to …" means production runs the previous release and the new one is not deployed.
+- Deploys are serialized. The production host has about 19 GB of disk and a t4g.small CPU with burst credits; backend start can take several minutes.
 
-1. Prepare `release/<version>` from develop (or `hotfix/<name>` from master) and verify scope, checks and review. Integrate to master via PR and back-merge to develop. Do not bulk-promote unrelated accumulated changes without an agreed release scope.
-2. For production require an explicit deployment request, exact destination and an identified commit incorporated into fetched origin/master. Verify ancestry; a develop-only commit is not deployable. Unknown/stale remote state is a blocker, not proof.
-3. Check that no active incident blocks the release and that the approved host has working Docker/Compose, registry access, runtime Compose/nginx files, required environment values and mounted TLS certificates/keys. Verify existing TLS/renewal health without changing it or displaying secrets. If prerequisites are missing, stop and report them; do not substitute the local MongoDB profile for Atlas production. Record the currently running known-good image identifiers and any data compatibility constraints before changes. Do not infer deployed state from Git or assume staging exists.
-4. Use a clean checkout of the verified candidate to build images. Set `IMAGE_TAG` to its commit-derived tag and `PUBLISH_LATEST=false`, and supply registry credentials externally when invoking `scripts/release-build-push.sh`. Confirm runtime architecture compatibility: the current script defines PLATFORM but does not pass it to docker build. If the builder/host differ, resolve that gap before building rather than assuming cross-compilation.
-5. Verify the actual image digests/provenance for both images. On the authorized destination set the exact `IMAGE_TAG` and GHCR owner before `scripts/deploy-images.sh`. Never accept its implicit latest default as a production version.
-6. Verify with `scripts/smoke-prod.sh <approved-base-url>`, actual running image identifiers and relevant user behavior. The current deploy script hardcodes humami.es for smoke checks; use it only for that destination. Confirm HTTP 200 for `/`, `/meals` and `/api/meals?query=&page=1&limit=5` as well as the affected behavior. Account for nginx readiness gaps and browser cache when interpreting failures. Record candidate, images, checks, time and outcome.
+## After a merge
+1. Wait for the production workflow run for the merge SHA (in the background, not a tight polling loop).
+2. On success, verify the affected behaviour on https://humami.es: the relevant pages and API endpoints, plus a browser check when visible. Report anything not verified.
+3. On failure, read the failed log. If it rolled back, fix forward with a new PR or revert the merge. If the rollback also failed or the failure happened before activation (disk, pull, checksum), follow [recovery](references/recovery.md).
 
-If verification fails, report the failure and use [manual recovery](references/recovery.md) within the release's authorized recovery scope. Do not claim automated rollback or reverse data migrations blindly. Production credentials, certificates and private keys stay outside Git.
+## Rules
+- Never deploy `latest` or an untracked image; production always runs an exact `master` SHA.
+- Data changes are not rolled back by image rollback: design migrations to be backward compatible.
+- Record incidents in `ops/incidents.md`.
