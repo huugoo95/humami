@@ -1,6 +1,7 @@
 import { Meal } from "@/types/meal";
 import apiClient from "@/config/api";
 import Image from "next/image";
+import { IMAGE_SIZES } from "@/lib/imageSizes";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { mealMetadata } from "@/lib/brandMetadata";
@@ -118,6 +119,8 @@ export default async function MealPage({ params }: { params: { id: string } }) {
             className="h-auto w-full rounded-xl border border-humami-text-base/10 shadow-sm"
             width={1200}
             height={800}
+            sizes={IMAGE_SIZES.mealDetail}
+            priority
           />
         </div>
       )}
