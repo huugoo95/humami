@@ -205,7 +205,7 @@ jobs:
           printf '%s' "$PROD_GHCR_READ_TOKEN" | ssh "${ssh_options[@]}" "$remote" \
             "set -euo pipefail; trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT; \
              cd $app; \
-             exec 9>.deploy.lock; flock -w 900 9; \
+             exec 9>.deploy.lock; flock -w 1800 9 || { echo 'Another deploy still holds .deploy.lock'; exit 1; }; \
              (cd .incoming && printf '%s\n' '$expected_sums' | sha256sum --check --strict -); \
              for f in docker-compose.images.yml nginx/site.conf scripts/deploy-images.sh scripts/smoke-prod.sh; do mv \".incoming/\$f\" \"\$f\"; done; \
              docker login ghcr.io --username '$GHCR_OWNER' --password-stdin >/dev/null; \

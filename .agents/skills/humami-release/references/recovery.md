@@ -12,4 +12,6 @@ If the workflow itself cannot deploy (for example disk, registry or SSH problems
 3. Redeploy known-good `master` SHAs (never `latest`): `BACKEND_TAG=<sha> FRONTEND_TAG=<sha> ./scripts/deploy-images.sh`. It starts them next to the running containers and switches nginx only when they are healthy.
 4. If nginx itself is down, `docker compose -f docker-compose.images.yml --profile prod up -d --no-deps nginx` (the rendered `nginx.conf` must point at running slots).
 
+If every deploy aborts with "nginx rejected the restored config", a previous deploy was interrupted mid-switch and `nginx.conf.previous` could not be restored: check which slots are running, render the right config, then delete `nginx.conf.previous`.
+
 Application rollback does not undo data changes. Record the incident in [incidents](../../../../ops/incidents.md).

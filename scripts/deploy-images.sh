@@ -87,7 +87,7 @@ fi
 # workflow takes this lock itself (to swap in new files) and sets DEPLOY_LOCK_HELD.
 if [[ -z "${DEPLOY_LOCK_HELD:-}" ]] && command -v flock >/dev/null; then
   exec 9>"$ROOT_DIR/.deploy.lock"
-  if ! flock -w 900 9; then
+  if ! flock -w 1800 9; then
     echo "[deploy] Another deploy still holds ${ROOT_DIR}/.deploy.lock; giving up."
     exit 1
   fi
@@ -134,6 +134,10 @@ if [[ -f "$NGINX_CONF.previous" ]]; then
     echo "[deploy] Restored the confirmed nginx config."
   else
     echo "[deploy] The confirmed config's containers are gone; keeping the config nginx was switched to."
+    # nginx may never have loaded it if the deploy died before the reload.
+    if [[ "$(container_status "$NGINX_CONTAINER")" == running ]]; then
+      docker exec "$NGINX_CONTAINER" nginx -t && docker exec "$NGINX_CONTAINER" nginx -s reload || true
+    fi
   fi
   rm -f "$NGINX_CONF.previous"
 fi
@@ -238,14 +242,18 @@ for service in backend frontend; do
   active_var="${service}_active"
   target_var="${service}_target"
   case "${!active_var}" in
-    blue) idle=green ;;
-    green) idle=blue ;;
-    *) idle="${!target_var}" ;;
+    blue) idle=(green) ;;
+    green) idle=(blue) ;;
+    # Nothing serves the service through a slot, so neither slot holds anything worth keeping.
+    *) idle=(blue green) ;;
   esac
-  stale="humami-${service}-${idle}"
-  if [[ -n "$idle" && -n "$(container_status "$stale")" ]]; then
-    docker rm -f "$stale" >/dev/null && echo "[deploy] Removed stale ${stale}"
-  fi
+  [[ -n "${!target_var}" || "${!active_var}" == blue || "${!active_var}" == green ]] || continue
+  for slot in "${idle[@]}"; do
+    stale="humami-${service}-${slot}"
+    if [[ -n "$(container_status "$stale")" ]]; then
+      docker rm -f "$stale" >/dev/null && echo "[deploy] Removed stale ${stale}"
+    fi
+  done
 done
 
 # Reclaim images no container uses (running containers keep theirs) and the build cache. Volumes are never pruned.
@@ -460,9 +468,9 @@ fi
 
 # --- Commit: record the active slots, then retire the old containers --------------------------
 
+rm -f "$NGINX_CONF.previous"
 printf 'BACKEND_SLOT=%s\nFRONTEND_SLOT=%s\n' "$new_backend_slot" "$new_frontend_slot" > "$STATE_FILE.next"
 mv "$STATE_FILE.next" "$STATE_FILE"
-rm -f "$NGINX_CONF.previous"
 
 if (( ${#old_running[@]} > 0 )); then
   # Old nginx workers may still be finishing requests to the previous containers.

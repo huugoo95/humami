@@ -187,6 +187,18 @@ expect_absent humami-backend-blue
 expect_no_event DOWNTIME
 expect_no_event CREATE
 
+echo "with nothing serving through a slot, both slots are cleared"
+new_host no-active; legacy_host "$A"
+seed humami-backend-green backend-green "$C"
+seed humami-backend-blue backend-blue "$C"; echo exited > "$SIM_DIR/containers/humami-backend-blue/status"
+deploy "$B" "$A"
+expect_status 0
+expect_event "RM humami-backend-green"
+expect_live "backend-blue frontend-blue"
+expect_image humami-backend-blue "$B"
+expect_absent humami-backend-green
+expect_no_event DOWNTIME
+
 echo "nothing changed: no container is touched"
 new_host noop; slot_host green "$A" blue "$A"
 deploy "$A" "$A"
