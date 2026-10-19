@@ -41,3 +41,12 @@ jobs:
           -f humami-backend/pom.xml
           -Dhumami.test.mongoUri=mongodb://127.0.0.1:27017
           verify
+      - name: Validate deployment scripts and production Compose
+        working-directory: .
+        env:
+          GHCR_OWNER: validation
+          IMAGE_TAG: validation
+        run: |
+          for script in scripts/*.sh; do bash -n "$script"; done
+          touch .env  # the real .env only exists on the host
+          docker compose -f docker-compose.images.yml --profile prod config -q

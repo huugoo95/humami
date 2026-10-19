@@ -33,7 +33,9 @@ compose() {
 }
 
 # The image tag currently serving production, used to roll back if the new release fails smoke checks.
-previous_tag="$(docker inspect --format '{{.Config.Image}}' humami-backend 2>/dev/null | sed 's/.*://')" || previous_tag=""
+previous_tag="$(docker inspect --type container --format '{{.Config.Image}}' humami-backend 2>/dev/null | sed 's/.*://')" || previous_tag=""
+# Only exact master SHAs are valid rollback targets.
+[[ "$previous_tag" =~ ^[0-9a-f]{40}$ ]] || previous_tag=""
 echo "[deploy] Previous release: ${previous_tag:-none}"
 
 # The dev environment was retired (ops/decisions.md, 2026-10-19): remove its containers and network if present.
@@ -61,29 +63,28 @@ if (( free_mb < MIN_FREE_MB )); then
 fi
 echo "[deploy] ${free_mb} MB free under ${storage_paths[*]}"
 
+# Chained with && because set -e does not apply inside the `if` conditions that call this.
 activate() {
-  IMAGE_TAG="$1" compose up -d --force-recreate --remove-orphans
-  compose restart nginx
+  IMAGE_TAG="$1" compose up -d --force-recreate --remove-orphans && compose restart nginx
 }
 
 compose pull
-activate "$IMAGE_TAG"
 
-if ./scripts/smoke-prod.sh https://humami.es; then
+if activate "$IMAGE_TAG" && ./scripts/smoke-prod.sh https://humami.es; then
   echo "[deploy] Running with GHCR_OWNER=${GHCR_OWNER} IMAGE_TAG=${IMAGE_TAG}"
   exit 0
 fi
 
 # Automatic rollback: the previous release's images are still on disk because pruning ran before the pull.
 if [[ -z "$previous_tag" || "$previous_tag" == "$IMAGE_TAG" ]]; then
-  echo "[deploy] Smoke checks failed and there is no previous release to roll back to."
+  echo "[deploy] Release ${IMAGE_TAG} failed and there is no previous release to roll back to."
   exit 1
 fi
-echo "[deploy] Smoke checks failed for ${IMAGE_TAG}; rolling back to ${previous_tag}."
-activate "$previous_tag"
-if ./scripts/smoke-prod.sh https://humami.es; then
+# Rollback restores the previous images only; the new docker-compose.images.yml and nginx.conf stay in place.
+echo "[deploy] Release ${IMAGE_TAG} failed to activate or pass smoke checks; rolling back to ${previous_tag}."
+if activate "$previous_tag" && ./scripts/smoke-prod.sh https://humami.es; then
   echo "[deploy] Rolled back to ${previous_tag}; release ${IMAGE_TAG} is NOT deployed."
 else
-  echo "[deploy] Rollback to ${previous_tag} also failed its smoke checks; manual recovery needed."
+  echo "[deploy] Rollback to ${previous_tag} also failed (activation or smoke checks); manual recovery needed."
 fi
 exit 1

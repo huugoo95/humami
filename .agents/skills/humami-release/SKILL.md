@@ -11,7 +11,7 @@ description: Follow, verify and recover Humami production deployments. Every mer
   - records the running release;
   - prunes unused images and checks free disk space;
   - pulls the new images, recreates the containers and runs `scripts/smoke-prod.sh`.
-- **If smoke checks fail, it rolls back automatically** to the previous release (its images are still on disk) and the job fails. Read the log: "Rolled back to …" means production runs the previous release and the new one is not deployed.
+- **If activation or smoke checks fail, it rolls back automatically** to the previous release's images (still on disk) and the job fails. Rollback restores images only: the new `docker-compose.images.yml` and `nginx.conf` stay, so a broken config change needs a revert. Read the log: "Rolled back to …" means production runs the previous release and the new one is not deployed.
 - Deploys are serialized. The production host has about 19 GB of disk and a t4g.small CPU with burst credits; backend start can take several minutes.
 
 ## After a merge
