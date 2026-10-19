@@ -24,7 +24,8 @@
 
 - [x] RED: `next.config` test allows `img.humami.es`; metadata tests for an absolute CDN `og:image` and the blog post metadata.
 - [x] `remotePatterns` allows `img.humami.es` and the media bucket host (presigned fallback). The legacy S3 host is dropped, because rollback is an image rollback (see design).
-- [x] Blog post `generateMetadata` with the cover `og:image` / `twitter:image` and the brand fallback; `og:image` dimensions for CDN images.
+- [x] Blog post `generateMetadata` with the cover `og:image` / `twitter:image` and the brand fallback.
+- [ ] Follow-up: `og:image` dimensions for CDN images (uploads are normalized to 1600×900, legacy images may differ).
 
 ## 5. Tooling
 
@@ -35,7 +36,7 @@
 - [ ] Independent review; PR to develop; release. Public mode is on by default, so the release deploy is the cutover.
 - [ ] Cutover (owner-authorized): avoid uploads during the release, run `scripts/migrate-media-eu.sh` right before and right after the deploy, and re-check CDN URLs.
 - [ ] Production evidence: stable URLs across more than 6 h, optimizer MISS ≤ 1.0 s, CDN hit, `og:image` 200 after more than 12 h, guide PDF still presigned 1 h, new upload has the immutable headers in the media bucket.
-- [ ] After 30 days without rollback: remove `humami.s3.amazonaws.com` from `remotePatterns`; propose the legacy-bucket cleanup (M13) separately.
+- [ ] After 30 days without rollback: remove the media bucket presigned host from `remotePatterns` if unused, and propose the legacy-bucket cleanup (M13) separately.
 
 ## Execution log (2026-10-19)
 
