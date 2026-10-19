@@ -34,7 +34,7 @@ class AboutServiceImplTest {
         entity.setUpdatedAt(Instant.parse("2026-03-19T00:00:00Z"));
 
         when(aboutRepository.findById("main")).thenReturn(Optional.of(entity));
-        when(s3Service.getTempUrl("about/photo-key.jpg")).thenReturn("https://signed.example.com/about/photo-key.jpg");
+        when(s3Service.getImageUrl("about/photo-key.jpg")).thenReturn("https://signed.example.com/about/photo-key.jpg");
 
         AboutServiceImpl service = new AboutServiceImpl(
                 aboutRepository,
@@ -110,7 +110,7 @@ class AboutServiceImplTest {
         when(aboutRepository.findById("main")).thenReturn(Optional.of(existing));
         when(aboutRepository.save(any(AboutEntity.class))).thenAnswer(inv -> inv.getArgument(0));
         when(s3Service.uploadImage(any(), any())).thenReturn("about/new-photo.jpg");
-        when(s3Service.getTempUrl("about/new-photo.jpg")).thenReturn("https://signed.example.com/about/new-photo.jpg");
+        when(s3Service.getImageUrl("about/new-photo.jpg")).thenReturn("https://signed.example.com/about/new-photo.jpg");
 
         AboutServiceImpl service = new AboutServiceImpl(
                 aboutRepository,

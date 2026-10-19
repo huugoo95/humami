@@ -1,0 +1,15 @@
+- [x] Analyse image delivery and define phase 1 scope and acceptance criteria.
+- [x] Add failing tests for image config, runtime ownership and sizes (RED: 4/4 failed).
+- [x] Implement runtime ownership, cache TTL, remotePatterns, sizes and priority.
+- [x] Validate locally:
+  - Jest: 5 suites, 13 tests pass. Lint and build pass.
+  - Production Dockerfile image: `.next` is owned by `node`. Repeated `/_next/image?w=640` requests for a real meal image went MISS 1.43 s, then HIT 0.009 s and HIT 0.007 s, with `Cache-Control: public, max-age=2592000` and no EACCES in the logs.
+  - Expected variant for a meal card on a 2x screen: w=828 at 390/820 px viewports and w=1080 at 1440 px (previously w=1920). Calculated from Next's default widths, not observed in a browser: port 3000 is taken by another local project, and the production API only allows CORS from it.
+- [x] Address the review of 1e7d457:
+  - Image URLs are reused for 6 h (S3ServiceImplTest: RED, then 4/4 pass; backend 54 tests pass with 5 skipped).
+  - `maximumDiskCacheSize` set to 256 MB.
+  - `sizes` recalculated from each breakpoint's padding and max width.
+  - Jest: 14 tests pass; lint and build OK.
+- [x] Re-review of cf61f40: no blocker or major findings. Applied its corrected meal-card sizes, which now subtract the outer wrapper padding, and the blog 640 px breakpoint.
+- [ ] Deliver through reviewed PR.
+- [ ] Phase 2 (separate spec): stable public image URLs via CloudFront and a bucket in eu-west-3.

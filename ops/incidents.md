@@ -24,3 +24,10 @@ Use this file for short incident records and postmortem-lite notes.
 - Impact: Dev activation delayed; production application containers remained unchanged.
 - Fix: PR63 supplies the wrapper; ARM64 builds run on relevant PRs. User approved Actions Write on the two existing private packages and GitHub CLI read:packages renewal.
 - Prevention: Keep PR image builds and verify publisher/reader permissions before future deployments; never assume an old server credential still works.
+
+## 2026-10-18 — Release 0.5.2 deploy job failed on stale readiness timeout
+- Symptom: Production deployment run 39168330343 (master 57248d6) recreated all containers, then failed with `[TIMEOUT] /api/meals… did not become ready within 90s (last HTTP 502)`. Release 0.5.1 (run 36266408122) failed the same way.
+- Impact: `/api/*` returned 502 and `/guias/*` returned 404 for about 3 minutes, until the backend finished starting (ready around 21:39:46 UTC). `/` and `/meals` stayed at 200.
+- Root cause: the workflow copies `scripts/deploy-images.sh` and `scripts/smoke-prod.sh` into the server app root, but runs `./scripts/deploy-images.sh`. The server therefore runs stale copies in `scripts/` that still wait 90s, so spec 028's 480s readiness window never took effect. Backend cold start (about 3 minutes) is longer than 90s.
+- Fix: deployment accepted after manual verification. `scripts/smoke-prod.sh https://humami.es` passed, the new frontend CSS bundle is served, and the guide button was checked in a browser. Images: ghcr.io/huugoo95/humami-{backend,frontend}:57248d6da76b0ade2acbd1134b267d96a5a03464. Previous known-good: db1f901 (frontend sha256:2c2e7df1…, backend sha256:8a83695a…).
+- Prevention: pending follow-up. Copy the scripts to the path that is executed (or run the copied ones), then re-verify the readiness window.

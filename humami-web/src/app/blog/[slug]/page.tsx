@@ -2,6 +2,7 @@ import { API_BASE_URL } from "@/config/api";
 import { BlogPost } from "@/types/blog";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { IMAGE_SIZES } from "@/lib/imageSizes";
 
 async function getPost(slug: string): Promise<BlogPost | null> {
   if (!API_BASE_URL) {
@@ -44,6 +45,8 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
             alt={post.title}
             width={1200}
             height={700}
+            sizes={IMAGE_SIZES.blogCover}
+            priority
             className="h-auto w-full rounded-xl border border-humami-text-base/10"
           />
         </div>
