@@ -1,5 +1,6 @@
 import {
   BRAND_SOCIAL_IMAGE,
+  blogPostMetadata,
   mealMetadata,
   mealsMetadata,
 } from "./brandMetadata";
@@ -38,11 +39,34 @@ describe("brand metadata", () => {
       id: "tarta-queso",
       name: "Tarta de queso",
       description: "Cremosa.",
-      image: "https://humami.s3.amazonaws.com/meals/tarta.jpg",
+      image: "https://img.humami.es/tarta.jpg",
     });
 
     expect(metadata.openGraph?.images).toEqual([
-      expect.objectContaining({ url: "https://humami.s3.amazonaws.com/meals/tarta.jpg" }),
+      expect.objectContaining({ url: "https://img.humami.es/tarta.jpg" }),
     ]);
+  });
+
+  it("shares a blog post with its cover image and SEO fields", () => {
+    const metadata = blogPostMetadata({
+      slug: "pan-casero",
+      title: "Pan casero",
+      excerpt: "Resumen.",
+      seoTitle: "Cómo hacer pan casero",
+      seoDescription: "Guía paso a paso.",
+      coverImage: "https://img.humami.es/pan.jpg",
+    });
+
+    expect(metadata.title).toBe("Cómo hacer pan casero");
+    expect(metadata.alternates?.canonical).toBe("/blog/pan-casero");
+    expect(metadata.openGraph?.images).toEqual([expect.objectContaining({ url: "https://img.humami.es/pan.jpg" })]);
+    expect(metadata.twitter?.images).toEqual(["https://img.humami.es/pan.jpg"]);
+  });
+
+  it("falls back to the brand card for a blog post without cover", () => {
+    const metadata = blogPostMetadata({ slug: "notas", title: "Notas" });
+
+    expect(metadata.description).toBe("Notas en el blog de Humami.");
+    expect(metadata.openGraph?.images).toEqual([expect.objectContaining({ url: BRAND_SOCIAL_IMAGE })]);
   });
 });

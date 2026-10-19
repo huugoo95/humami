@@ -119,6 +119,15 @@ class S3ServiceImplTest {
     }
 
     @Test
+    void keepsUploadedImageKeysFlatSoNamesCannotReachPrivatePaths() throws Exception {
+        service(PUBLIC_BASE_URL).uploadImage(new MockMultipartFile("image", "a.png", "image/png", png()), "private/guides x");
+
+        ArgumentCaptor<PutObjectRequest> request = ArgumentCaptor.forClass(PutObjectRequest.class);
+        verify(s3Client).putObject(request.capture(), any(RequestBody.class));
+        assertThat(request.getValue().key()).startsWith("private_guides_x_").doesNotContain("/");
+    }
+
+    @Test
     void uploadsGuideDocumentsToThePrivateBucket() throws Exception {
         service(PUBLIC_BASE_URL).uploadGuideDocument(new MockMultipartFile("document", "g.pdf", "application/pdf", new byte[]{1, 2, 3}), "Pizza");
 

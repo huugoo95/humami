@@ -239,6 +239,7 @@ public class S3ServiceImpl implements S3Service {
     }
 
     private String generateImageKey(String name) {
-        return name.replace(" ", "_") + "_" + UUID.randomUUID() + ".jpg";
+        // Flat keys: a name with slashes must never create paths such as private/ in the media bucket.
+        return name.replaceAll("[\\s/\\\\]", "_") + "_" + UUID.randomUUID() + ".jpg";
     }
 }

@@ -239,3 +239,18 @@ These supersede the earlier configuration table and copy commands where they dif
 - **Credentials.** The existing `humami-s3` IAM user is kept, and its policy is extended to the two new buckets. An EC2 instance role was rejected for now: it would need an IMDS hop limit change for containers, and it would give the same credentials to the dev environment on the same host.
 - **Migration.** `scripts/migrate-media-eu.sh` copies object by object, preserving each `Content-Type` (some legacy keys have no extension) and adding the immutable `Cache-Control` to media objects. It skips existing objects, so re-running it is the delta copy.
 - **Ordering.** The CloudFront distribution and the `img.humami.es` DNS must serve every key before the release is deployed, because the default `public-base-url` points there.
+
+### Rollback as implemented (supersedes the "Rollback" section above)
+
+- **Code rollback:** redeploy the 0.5.4 images, frontend and backend together. They read the legacy `humami` bucket, which keeps every object from before the cutover. Images uploaded after the cutover exist only in `humami-media-eu`; copy them back first (reverse `aws s3api copy-object`, same keys).
+- **Configuration rollback (needs host access):** setting `HUMAMI_STORAGE_MEDIA_PUBLIC_BASE_URL=` (empty) in the production `.env` makes the backend presign `humami-media-eu` URLs, which `remotePatterns` still allows. The legacy `humami.s3.amazonaws.com` host is no longer allowed.
+- **Uploads around the cutover:** run `scripts/migrate-media-eu.sh` right before and right after deploying the release. It only copies missing keys.
+
+### Follow-ups and accepted risks (from the independent review of f74a301)
+
+- **Key sanitizing:** image keys are flattened (whitespace, `/` and `\` become `_`), so admin-entered names cannot create `private/` or nested keys in the media bucket.
+- **Versioning:** media bucket versioning is deferred, so deletes are unrecoverable apart from the legacy copy during the rollback window.
+- **Least privilege:** after the rollback window, remove Put/Delete on `humami`, drop ListBucket where unused, and retire the legacy bucket.
+- **Dev isolation:** dev inherits the production storage defaults but uses fake credentials (`dev-storage-disabled`), so it cannot write. Give dev its own `HUMAMI_STORAGE_*` values before it ever gets real credentials.
+- **Deleted images:** an image deleted from the media bucket stays reachable through CloudFront caches until evicted. This is acceptable for public images.
+- **Logging:** CloudFront access logging is off.
