@@ -1,0 +1,64 @@
+name: Publish content
+
+# Manual content writes (About, meals, blog, guides) executed on the production host, which holds the
+# write secret. The secret never reaches GitHub or the logs.
+on:
+  workflow_dispatch:
+    inputs:
+      method:
+        description: HTTP method
+        type: choice
+        options: [PATCH, POST, PUT]
+        default: PATCH
+      path:
+        description: API path, e.g. /api/about
+        required: true
+      payload:
+        description: JSON body
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: humami-content-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # Only the reviewed script on master may run on the production host.
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate request
+        env:
+          METHOD: ${{ inputs.method }}
+          API_PATH: ${{ inputs.path }}
+          PAYLOAD: ${{ inputs.payload }}
+        run: |
+          set -euo pipefail
+          [[ "$METHOD" =~ ^(PATCH|POST|PUT)$ ]] || { echo "Method not allowed: $METHOD"; exit 1; }
+          [[ "$API_PATH" =~ ^/api/(about|meals|blog|guides)(/[A-Za-z0-9_-][A-Za-z0-9._-]*)*$ ]] || { echo "Path not allowed: $API_PATH"; exit 1; }
+          printf '%s' "$PAYLOAD" | python3 -c 'import json, sys; json.load(sys.stdin)'
+      - name: Publish from the production host
+        env:
+          PROD_DEPLOY_HOST: ${{ secrets.PROD_DEPLOY_HOST }}
+          PROD_DEPLOY_USER: ${{ secrets.PROD_DEPLOY_USER }}
+          PROD_DEPLOY_SSH_KEY: ${{ secrets.PROD_DEPLOY_SSH_KEY }}
+          PROD_DEPLOY_KNOWN_HOSTS: ${{ secrets.PROD_DEPLOY_KNOWN_HOSTS }}
+          METHOD: ${{ inputs.method }}
+          API_PATH: ${{ inputs.path }}
+          PAYLOAD: ${{ inputs.payload }}
+        run: |
+          set -euo pipefail
+          ssh_dir=$(mktemp -d)
+          trap 'rm -rf "$ssh_dir"' EXIT
+          printf '%s\n' "$PROD_DEPLOY_SSH_KEY" > "$ssh_dir/id_ed25519"
+          printf '%s\n' "$PROD_DEPLOY_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
+          chmod 600 "$ssh_dir/id_ed25519" "$ssh_dir/known_hosts"
+          payload_b64=$(printf '%s' "$PAYLOAD" | base64 -w0)
+          ssh -i "$ssh_dir/id_ed25519" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$ssh_dir/known_hosts" "$PROD_DEPLOY_USER@$PROD_DEPLOY_HOST" \
+            "bash -s -- '$METHOD' '$API_PATH' '$payload_b64'" < scripts/publish-content.sh
