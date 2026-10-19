@@ -1,0 +1,4 @@
+- [x] Define the disk-full deployment failure and acceptance criteria.
+- [ ] Prune unused images and build cache, log disk usage and enforce a free-space minimum in `deploy-images.sh`.
+- [ ] Validate with a simulated Docker host and an independent review; deliver as hotfix PR to master and back-merge to develop.
+- [ ] Confirm the 0.5.4 production deployment and image cache behaviour.
