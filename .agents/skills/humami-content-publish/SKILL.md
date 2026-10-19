@@ -11,10 +11,10 @@ description: Publish or update reviewed Humami meals, blog articles or About con
    - JSON: `scripts/humami-api.sh PATCH /api/about --json payload.json` (or `--json -` to read stdin).
    - Images: `scripts/humami-api.sh PUT /api/meals/<id>/image --file image=photo.jpg`.
    - It prints the response body and `HTTP <status>`, and exits non-zero unless the status is 2xx.
-   - Write the payload to a file first (scratchpad for drafts, `ops/publications/` for records) and validate it.
+   - Write the payload to a file in the scratchpad (never in the repository) and validate it.
    - If the Keychain has no secret, ask Hugo to add it with `security add-generic-password -U -a humami -s humami-write-secret -w`. Never ask for it in chat and never print, log or store it elsewhere.
    - Fallback without the Keychain (another machine): the **Publish content** workflow runs [publish-content.sh](../../../scripts/publish-content.sh) on the production host with the host's secret: `gh workflow run publish-content.yml -f method=PATCH -f path=/api/about -f payload="$(cat payload.json)"`. JSON only, no images.
-4. Record source, local payload reference, destination, operation, timestamp, returned ID/slug and result in the task's publication record (redacted; use `ops/publications/` only for actual records). For meal images also record the delivered file, format, dimensions and checksum. Persist an ID as soon as creation returns, before image upload.
+4. Keep the returned ID/slug as soon as creation returns, before the image upload. Do not store publication records, payloads or images in the repository: the content lives in production.
 5. Verify the public read and relevant frontend URL for published content. A successful write is not proof the page rendered. Report partial results, including an absent image or unavailable verification.
 
 ## Failure handling
