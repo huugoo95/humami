@@ -1,12 +1,15 @@
-// `sizes` hints for remote images, matching the layouts that render them, so browsers pick
-// a variant close to the displayed width instead of the largest one.
+// `sizes` hints for remote images, matching the rendered width at each Tailwind breakpoint
+// (main `container p-6` plus each page's own padding and max width), so browsers pick a
+// variant close to the displayed width instead of the largest one.
 export const IMAGE_SIZES = {
-  // Meal grid: 1 column, 2 from md (768px), 3 from xl (1280px), inside the capped page container.
-  mealCard: "(min-width: 1536px) 480px, (min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw",
-  // Meal detail article: max-w-5xl (1024px) with padding.
-  mealDetail: "(min-width: 1088px) 960px, 100vw",
-  // Blog article: max-w-4xl (896px) with padding.
-  blogCover: "(min-width: 960px) 816px, 100vw",
+  // Meal grid: max-w-md on mobile, 1 column from sm, 2 from md, 3 from xl, capped at max-w-7xl.
+  mealCard:
+    "(min-width: 1536px) 384px, (min-width: 1280px) 352px, (min-width: 1024px) 424px, (min-width: 768px) 296px, (min-width: 640px) 528px, calc(100vw - 96px)",
+  // Meal detail article: max-w-5xl with p-5 / sm:p-8.
+  mealDetail:
+    "(min-width: 1280px) 960px, (min-width: 1024px) 912px, (min-width: 768px) 656px, (min-width: 640px) 528px, calc(100vw - 88px)",
+  // Blog article: max-w-4xl with p-6 / md:p-10.
+  blogCover: "(min-width: 1024px) 816px, (min-width: 768px) 640px, calc(100vw - 96px)",
 } as const;
 
 // Meal cards rendered above the fold on the largest layout (one row of three).

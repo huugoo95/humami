@@ -230,7 +230,7 @@ public class MealServiceImpl implements MealService {
     }
 
     private String getImageUrl(String image) throws IOException {
-        return s3Service.getTempUrl(image);
+        return s3Service.getImageUrl(image);
     }
 
     private MealResponse toResponseWithImageIfAvailable(MealEntity mealEntity) {

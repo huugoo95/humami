@@ -22,6 +22,11 @@ describe("image delivery", () => {
     expect(images.minimumCacheTTL).toBeGreaterThanOrEqual(THIRTY_DAYS_IN_SECONDS);
   });
 
+  it("bounds the optimizer disk cache", () => {
+    expect(images.maximumDiskCacheSize).toBeGreaterThan(0);
+    expect(images.maximumDiskCacheSize).toBeLessThanOrEqual(512 * 1024 * 1024);
+  });
+
   it("allows only the HTTPS meal image bucket through remotePatterns", () => {
     expect(images.domains).toBeUndefined();
     expect(images.remotePatterns).toEqual([{ protocol: "https", hostname: "humami.s3.amazonaws.com", pathname: "/**" }]);
@@ -34,6 +39,10 @@ describe("image delivery", () => {
 
   it("declares sizes for every layout that renders remote images", () => {
     expect(Object.keys(IMAGE_SIZES).sort()).toEqual(["blogCover", "mealCard", "mealDetail"]);
-    Object.values(IMAGE_SIZES).forEach((sizes) => expect(sizes).toMatch(/\d+(px|vw)$/));
+    Object.values(IMAGE_SIZES).forEach((sizes) => {
+      const entries = sizes.split(/,\s*(?![^()]*\))/);
+      expect(entries.slice(0, -1).every((entry) => /^\(min-width: \d+px\) \d+px$/.test(entry))).toBe(true);
+      expect(entries[entries.length - 1]).toMatch(/^calc\(100vw - \d+px\)$/);
+    });
   });
 });

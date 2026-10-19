@@ -71,7 +71,7 @@ public class GuideServiceImpl implements GuideService {
     public GuideResponse getPublishedBySlug(String slug) throws IOException {
         GuideEntity guide = findPublished(slug);
         GuideResponse response = guideMapper.toResponse(guide);
-        if (guide.getCoverImage() != null && !guide.getCoverImage().isBlank()) response.setCoverImage(s3Service.getTempUrl(guide.getCoverImage()));
+        if (guide.getCoverImage() != null && !guide.getCoverImage().isBlank()) response.setCoverImage(s3Service.getImageUrl(guide.getCoverImage()));
         return response;
     }
 
