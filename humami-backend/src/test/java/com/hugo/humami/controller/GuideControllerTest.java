@@ -72,4 +72,31 @@ class GuideControllerTest {
                 .andExpect(cookie().httpOnly("humami_guide_pizza-napolitana-desde-cero", true));
         verify(guideService).requestAccess(eq("pizza-napolitana-desde-cero"), any(), any());
     }
+
+    @Test
+    void shouldAcceptAccessRequestsSentByBrowsersFromTheProductionSite() throws Exception {
+        when(guideService.requestAccess(eq("pizza-napolitana-desde-cero"), any(), any())).thenReturn("opaque-token");
+        GuideAccessRequest request = new GuideAccessRequest();
+        request.setEmail("reader@example.com");
+        request.setPrivacyNoticeVersion("2026-09");
+        request.setPrivacyAccepted(true);
+
+        for (String origin : List.of("https://humami.es", "https://www.humami.es")) {
+            mockMvc.perform(post("/api/guides/pizza-napolitana-desde-cero/access")
+                            .header("Origin", origin)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk());
+        }
+    }
+
+    @Test
+    void shouldRejectAccessRequestsFromForeignOrigins() throws Exception {
+        mockMvc.perform(post("/api/guides/pizza-napolitana-desde-cero/access")
+                        .header("Origin", "https://evil.example")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isForbidden());
+        verify(guideService, never()).requestAccess(any(), any(), any());
+    }
 }
