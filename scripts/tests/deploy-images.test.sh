@@ -175,6 +175,18 @@ expect_image humami-backend-green "$C"
 expect_absent humami-backend-blue
 [[ ! -f "$SIM_ROOT/nginx.conf.previous" ]] || fail "nginx.conf.previous left behind"
 
+echo "a killed stop-first deploy keeps the config nginx was switched to"
+new_host killed-low-memory; slot_host green "$B" blue "$A"
+printf 'upstream humami_backend {\n  server backend-blue:8080;\n}\nupstream humami_frontend {\n  server frontend-blue:3000;\n}\n' > "$SIM_ROOT/nginx.conf.previous"
+seed humami-backend-blue backend-blue "$A"; echo exited > "$SIM_DIR/containers/humami-backend-blue/status"
+deploy "$B" "$A"
+expect_status 0
+expect_output "keeping the config nginx was switched to"
+expect_live "backend-green frontend-blue"
+expect_absent humami-backend-blue
+expect_no_event DOWNTIME
+expect_no_event CREATE
+
 echo "nothing changed: no container is touched"
 new_host noop; slot_host green "$A" blue "$A"
 deploy "$A" "$A"

@@ -192,17 +192,22 @@ jobs:
           ssh_options=(-i "$ssh_dir/id_ed25519" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ssh_dir/known_hosts")
           remote="$PROD_DEPLOY_USER@$PROD_DEPLOY_HOST"
           printf 'Deploying source SHA %s: backend %s, frontend %s\n' "$SOURCE_SHA" "$BACKEND_TAG" "$FRONTEND_TAG"
+          app=/home/ubuntu/apps/humami
+          # Files land in .incoming/ and are moved into place only under the host's deploy lock, so a
+          # deploy left running by a cancelled job never reads a half-copied script or config.
           # deploy-images.sh resolves the app root as its parent directory, so scripts must live in scripts/.
-          ssh "${ssh_options[@]}" "$remote" "mkdir -p /home/ubuntu/apps/humami/scripts /home/ubuntu/apps/humami/nginx"
-          scp "${ssh_options[@]}" docker-compose.images.yml "$remote:/home/ubuntu/apps/humami/"
+          ssh "${ssh_options[@]}" "$remote" "mkdir -p $app/.incoming/scripts $app/.incoming/nginx $app/scripts $app/nginx"
+          scp "${ssh_options[@]}" docker-compose.images.yml "$remote:$app/.incoming/"
           # The live nginx.conf is rendered by deploy-images.sh; the repository file is its site part.
-          scp "${ssh_options[@]}" nginx.conf "$remote:/home/ubuntu/apps/humami/nginx/site.conf"
-          scp "${ssh_options[@]}" scripts/deploy-images.sh scripts/smoke-prod.sh "$remote:/home/ubuntu/apps/humami/scripts/"
+          scp "${ssh_options[@]}" nginx.conf "$remote:$app/.incoming/nginx/site.conf"
+          scp "${ssh_options[@]}" scripts/deploy-images.sh scripts/smoke-prod.sh "$remote:$app/.incoming/scripts/"
           expected_sums=$(sha256sum scripts/deploy-images.sh scripts/smoke-prod.sh docker-compose.images.yml; sha256sum < nginx.conf | sed 's|-$|nginx/site.conf|')
           printf '%s' "$PROD_GHCR_READ_TOKEN" | ssh "${ssh_options[@]}" "$remote" \
             "set -euo pipefail; trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT; \
-             cd /home/ubuntu/apps/humami; \
-             printf '%s\n' '$expected_sums' | sha256sum --check --strict -; \
+             cd $app; \
+             exec 9>.deploy.lock; flock -w 900 9; \
+             (cd .incoming && printf '%s\n' '$expected_sums' | sha256sum --check --strict -); \
+             for f in docker-compose.images.yml nginx/site.conf scripts/deploy-images.sh scripts/smoke-prod.sh; do mv \".incoming/\$f\" \"\$f\"; done; \
              docker login ghcr.io --username '$GHCR_OWNER' --password-stdin >/dev/null; \
              chmod +x ./scripts/deploy-images.sh ./scripts/smoke-prod.sh; \
-             BACKEND_TAG='$BACKEND_TAG' FRONTEND_TAG='$FRONTEND_TAG' GHCR_OWNER='$GHCR_OWNER' ./scripts/deploy-images.sh"
+             DEPLOY_LOCK_HELD=1 BACKEND_TAG='$BACKEND_TAG' FRONTEND_TAG='$FRONTEND_TAG' GHCR_OWNER='$GHCR_OWNER' ./scripts/deploy-images.sh"

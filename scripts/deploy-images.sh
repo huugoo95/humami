@@ -83,6 +83,16 @@ if [[ ! -f "$SITE_CONF" ]]; then
   exit 1
 fi
 
+# One deploy at a time on the host, even if a cancelled job left its script running. The
+# workflow takes this lock itself (to swap in new files) and sets DEPLOY_LOCK_HELD.
+if [[ -z "${DEPLOY_LOCK_HELD:-}" ]] && command -v flock >/dev/null; then
+  exec 9>"$ROOT_DIR/.deploy.lock"
+  if ! flock -w 900 9; then
+    echo "[deploy] Another deploy still holds ${ROOT_DIR}/.deploy.lock; giving up."
+    exit 1
+  fi
+fi
+
 # Keep going if the SSH session that started the deploy drops mid-switch. Without a pty sshd
 # closes the pipes rather than sending SIGHUP, so what matters is GNU tee's -p (it survives a
 # broken pipe and keeps writing deploy.log on the host); ignoring HUP covers the rest.
@@ -94,25 +104,38 @@ if tee -p /dev/null </dev/null >/dev/null 2>&1; then
   exec > >(tee -p -a "$ROOT_DIR/deploy.log") 2>&1
 fi
 
-# One deploy at a time on the host, even if a cancelled job left its script running.
-if command -v flock >/dev/null; then
-  exec 9>"$ROOT_DIR/.deploy.lock"
-  if ! flock -w 900 9; then
-    echo "[deploy] Another deploy still holds ${ROOT_DIR}/.deploy.lock; giving up."
-    exit 1
-  fi
-fi
+# Upstream containers a rendered (or pre-slot) nginx config routes to.
+conf_containers() {
+  sed -En -e 's/^ *server ([a-z-]+):[0-9]+;$/humami-\1/p' -e 's|^ *proxy_pass http://([a-z-]+):[0-9].*|humami-\1|p' "$1"
+}
+
+conf_serviceable() { # file: every upstream container is running
+  local name
+  for name in $(conf_containers "$1"); do
+    [[ "$(container_status "$name")" == running ]] || return 1
+  done
+}
 
 # nginx.conf.previous exists only while a switch is unconfirmed. If a deploy died in that window,
-# go back to the config it replaced (its containers are still running) so the file on disk, what
-# nginx serves and the slots this deploy considers active all agree again.
-if [[ -f nginx.conf.previous ]]; then
-  echo "[deploy] Previous deploy was interrupted mid-switch; restoring its nginx config."
-  cat nginx.conf.previous > nginx.conf
-  if [[ "$(docker inspect --type container --format '{{.State.Status}}' humami-nginx 2>/dev/null || true)" == running ]]; then
-    docker exec humami-nginx nginx -t && docker exec humami-nginx nginx -s reload || true
+# make the file on disk, what nginx serves and the slots this deploy plans from agree again:
+# go back to the confirmed config when its containers still run (they were never retired),
+# otherwise keep the one nginx was switched to (for example when the old backend had been
+# stopped for memory). Any slot left over is then idle and replaced or removed by this deploy.
+if [[ -f "$NGINX_CONF.previous" ]]; then
+  echo "[deploy] Previous deploy was interrupted mid-switch."
+  if conf_serviceable "$NGINX_CONF.previous"; then
+    switched_conf="$(cat "$NGINX_CONF")"
+    cat "$NGINX_CONF.previous" > "$NGINX_CONF"
+    if [[ "$(container_status "$NGINX_CONTAINER")" == running ]] && ! { docker exec "$NGINX_CONTAINER" nginx -t && docker exec "$NGINX_CONTAINER" nginx -s reload; }; then
+      printf '%s\n' "$switched_conf" > "$NGINX_CONF"
+      echo "[deploy] nginx rejected the restored config; left the switched one in place. Manual check needed."
+      exit 1
+    fi
+    echo "[deploy] Restored the confirmed nginx config."
+  else
+    echo "[deploy] The confirmed config's containers are gone; keeping the config nginx was switched to."
   fi
-  rm -f nginx.conf.previous
+  rm -f "$NGINX_CONF.previous"
 fi
 echo "[deploy] $(date -u '+%Y-%m-%dT%H:%M:%SZ') backend ${BACKEND_TAG} frontend ${FRONTEND_TAG}"
 docker compose version || true
@@ -209,11 +232,18 @@ for service in backend frontend; do
   fi
 done
 
-# Leftovers in a target slot (for example from an interrupted deploy) never serve traffic.
-for service in "${deploying[@]+"${deploying[@]}"}"; do
+# Containers in a slot nginx does not route to (an interrupted deploy's leftovers, or the target
+# slot of this one) never serve traffic.
+for service in backend frontend; do
+  active_var="${service}_active"
   target_var="${service}_target"
-  stale="humami-${service}-${!target_var}"
-  if [[ -n "$(container_status "$stale")" ]]; then
+  case "${!active_var}" in
+    blue) idle=green ;;
+    green) idle=blue ;;
+    *) idle="${!target_var}" ;;
+  esac
+  stale="humami-${service}-${idle}"
+  if [[ -n "$idle" && -n "$(container_status "$stale")" ]]; then
     docker rm -f "$stale" >/dev/null && echo "[deploy] Removed stale ${stale}"
   fi
 done
