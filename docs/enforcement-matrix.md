@@ -1,13 +1,11 @@
 # Process versus enforcement
 
-| Requirement | Source of enforcement | Current handling |
-| --- | --- | --- |
-| Working branches and PRs | Effective GitHub branch protections | Inspect remotely; documentation alone proves nothing |
-| Tests/lint/build | Configured required CI checks on candidate | No workflows existed in the inspected base; missing gates block autonomous merge |
-| Acceptance and risk review | Independent AI review with evidence | Required by delivery policy; not equivalent to a GitHub human approval |
-| Human/code-owner approval | Effective remote rules | Respect if required; never bypass or impersonate |
-| Master-only production | Release procedure and future enforcement | Current scripts alone do not enforce origin ancestry |
+| Requirement | Enforced by |
+| --- | --- |
+| Tests, lint, build, dependency audit | Backend CI and Frontend CI on every PR to `master` and every push to `master` |
+| Production images build | Production deployment workflow on PRs to `master` (build only) |
+| Only `master` reaches production | The production workflow deploys pushes to `master` with exact-SHA images |
+| Production health | `scripts/smoke-prod.sh` after every deploy, with automatic rollback to the previous release on failure |
+| Review of high-risk changes | Independent AI review per [code review](../.agents/skills/humami-code-review/SKILL.md); not a GitHub approval |
 
-CI/protection configuration is a separate follow-up, not implemented by spec 016. Retained CODEOWNERS entries identify maintainers and may trigger actual approvals; they do not prove protections are enabled. The new policy supersedes a universally required Hugo review in prose, but does not change remote rules.
-
-Use [code delivery](../.agents/skills/humami-code-delivery/SKILL.md) for integration decisions and [follow-ups](../ops/workflow-followups.md) for prerequisites. Zero checks is not a successful gate. Manual local tests do not substitute for configured required checks.
+GitHub branch protection is not configured. Merging with failing or pending checks is a process violation even though GitHub would allow it.

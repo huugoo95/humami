@@ -1,41 +1,18 @@
 # Project Progress
 
-_Last updated: 2026-09-25_
+_Last updated: 2026-10-19_
 
-## In progress
-- Spec 023: brand-social coherence is implemented and independently reviewed
-  on e22f95a; PR #72 is open to develop. See
-  openspec/changes/brand-social-coherence/validation.md.
-- Spec 021: dev database migrated to a dedicated Atlas `humami_dev` runtime;
-  data and public endpoints verified, while the stopped local MongoDB volume
-  remains available for rollback. See openspec/changes/migrate-dev-database-to-atlas/validation.md.
-- Spec 019: dev.humami.es deployed and verified from develop07554b2; production application containers unchanged. Readiness adjustment and evidence in PR #64; archive pending acceptance. See openspec/changes/provision-isolated-dev-environment/validation.md.
-- Spec 018: critical dependency updates merged into develop through PR #60 as47078a3; production application deployment remains pending. See openspec/changes/update-critical-dependencies/validation.md.
-- Spec 017: recipe eligibility is filtered before pagination, totals corrected and stable ID ordering implemented; PR #59 merged into develop as 170341d. See openspec/changes/fix-meal-list-pagination/validation.md.
-- Spec 016: PR #58 merged into develop as dd6169c; OpenSpec archive pending.
-- Spec 013: add `PUT /api/about/image` multipart upload flow (S3-backed) and keep `GET /api/about` photo URL usable.
+## Current state
+- Production runs on `master`. Trunk-based delivery with automatic deploy and rollback since 2026-10-19 (see `ops/decisions.md`).
+- 0.6.0 (spec 034): images served from `img.humami.es` (CloudFront, bucket `humami-media-eu` in eu-west-3); guide PDFs in `humami-private-eu`.
+- Specs 029–033 shipped: guide access button, frontend audit gate, deploy script path, image cache, disk-space hotfix.
 
-## Blocked
-- Dev image storage remains disabled until independent object storage is configured (spec019).
+## Pending owner decisions
+- Delete the legacy `humami` bucket (us-east-1) after the rollback window.
+- Delete the old dev MongoDB volume on the host and the Atlas `humami_dev` database.
+- January 2027: the t4g.small free trial ends (Savings Plan, Lightsail or another VPS).
 
-## Done
-- Spec 012 merged: persist About content in MongoDB + protected `PATCH /api/about` update path.
-- Spec 011 merged: `GET /api/about` endpoint with title/story/photoUrl/updatedAt contract.
-- Spec 010 merged: backend endpoint coverage uplift for meal/blog controllers and write-auth paths.
-- Established engineering workflow and git flow documentation.
-- Added operating docs (`docs/HUMAMI.md`, `docs/BRAND.md`, `docs/DEV.md`, `docs/RECIPES.md`, `docs/CONTENT.md`, `docs/brief-template.md`).
-- Drafted new specs:
-  - `specs/002-recipe-create-auth-secret.md`
-  - `specs/003-tests-and-ci-baseline.md`
-  - `specs/004-simple-cd-safe-deploy.md`
-  - `specs/005-blog-section-foundation.md`
-  - `specs/006-seo-google-indexing-baseline.md`
-  - `specs/007-about-page-foundation.md`
-
-## Next steps
-- OpenSpec archive remains pending acceptance. CI/protection enforcement remains a separate follow-up in ops/workflow-followups.md.
-
-Historical planning notes (2026-03-19; verify against current code before acting):
-1. Review and approve specs 002–007.
-2. Break implementation into feature branches from `develop`.
-3. Deliver in this order: security -> tests/CI -> CD -> blog -> SEO -> about.
+## Follow-ups
+- Image variants generated at upload to remove optimizer CPU load on the host.
+- Media bucket versioning; tighter IAM once the legacy bucket is gone.
+- `og:image` dimensions for CDN images.

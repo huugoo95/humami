@@ -23,15 +23,8 @@ Start here:
 
 ## Development workflow
 
-The [development skill](.agents/skills/humami-development/SKILL.md) owns implementation; [code delivery](.agents/skills/humami-code-delivery/SKILL.md) owns Git Flow and PR integration. Their steps are maintained in one place. [OpenSpec](.agents/skills/humami-feature-spec/SKILL.md) owns new change definitions; [release](.agents/skills/humami-release/SKILL.md) owns master-only production releases.
+Trunk-based on `master`: short branch → PR → green CI → squash merge → automatic production deploy with smoke checks and automatic rollback. See [AGENTS.md](AGENTS.md) for how we work and what needs the owner's approval, and [code delivery](.agents/skills/humami-code-delivery/SKILL.md) for the steps. There is no dev environment; test locally.
 
 ## Current priorities
 
-See `PROGRESS.md` and active specs:
-
-- API write hardening via secret headers
-- Tests + CI baseline
-- Simple CD safety flow
-- Blog foundation
-- SEO indexing baseline
-- About page foundation
+See `PROGRESS.md` and `docs/HUMAMI.md`.

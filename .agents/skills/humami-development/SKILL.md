@@ -1,16 +1,16 @@
 ---
 name: humami-development
-description: Implement or fix Humami code from an agreed specification using project engineering rules. Excludes definition-only, editorial and deployment requests.
+description: Implement or fix Humami code end to end, from branch to verified production. Excludes definition-only, editorial and content publication requests.
 ---
 
 # Implement a Humami change
 
-1. Identify the agreed OpenSpec change (or an existing historical spec), scope and acceptance criteria. If missing, use [feature spec](../humami-feature-spec/SKILL.md); an explicit end-to-end implementation request allows necessary planning, but a definition-only request does not authorize code.
-2. Read [engineering rules](../../../ENGINEERING_RULES.md). Apply [code delivery](../humami-code-delivery/SKILL.md) for working-branch setup before edits; retain an existing valid task branch. Do not create another user-owned task to do this work.
-3. Read [architecture](../../../docs/architecture.md) only for architectural changes and [library policy](../../../docs/approved-libraries.md) when considering dependencies. For frontend consult its package/config and affected feature code; for backend consult pom.xml, controllers, DTOs and tests relevant to the change. Do not load content or production runbooks by default.
-4. Agree the API/data contract before cross-stack implementation. For independent parallel work use the [delegation index](../../../ops/agents/README.md); the coordinator owns integration.
-5. Use RED → GREEN → REFACTOR for non-trivial code. Keep evidence of the regression first, then the relevant tests. Documentation/instruction changes use reference, structure and behavioral scenario checks instead of artificial unit tests.
-6. Run relevant tests, lint and build from the affected module using its actual configuration. Investigate failing commands; do not treat unavailable infrastructure or broken scripts as passing checks. Do not modify unrelated tooling to make a report green.
-7. Check acceptance criteria and update changed knowledge. Request [independent review](../humami-code-review/SKILL.md), address findings and use [code delivery](../humami-code-delivery/SKILL.md) to complete the requested handoff.
+1. Understand the request. Product features need an agreed OpenSpec change ([feature spec](../humami-feature-spec/SKILL.md)); fixes and technical changes do not.
+2. Create a short branch from updated `master` ([code delivery](../humami-code-delivery/SKILL.md)). Read [engineering rules](../../../ENGINEERING_RULES.md); consult architecture or library policy only when relevant.
+3. Use RED → GREEN → REFACTOR for non-trivial logic. Run the affected module's tests, lint and build with its real configuration. The backend needs JDK 21 (Lombok fails on newer JDKs). Investigate failures; never treat broken tooling as passing.
+4. Check the change locally when it is user-visible (`npm run dev` in `humami-web`, optionally against the production API).
+5. For high-risk changes (see engineering rules) get an [independent review](../humami-code-review/SKILL.md) and fix blocking findings.
+6. Deliver: PR to `master`, wait for green CI, squash merge. Merging deploys to production automatically.
+7. Follow the deployment and [verify production](../humami-release/SKILL.md) for the affected behaviour. If the deploy rolled back or verification fails, fix forward or revert, and record the incident.
 
-Normally implementation ends integrated into develop through the delivery gates, not just with local edits. Respect a narrower user scope. If gates/permissions block completion, leave the deliverable pending and report the exact blocker; never include production deployment implicitly.
+Ask the owner before anything listed under "Always ask first" in [AGENTS.md](../../../AGENTS.md). Report what is merged, deployed and verified, and anything not verified.
