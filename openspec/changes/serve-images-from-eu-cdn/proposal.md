@@ -33,6 +33,7 @@ As the owner, I want public images and private guide PDFs stored separately, so 
 
 ## Scope
 
+- **Private documents move to Europe too** (decision 2026-10-19): guide PDFs go to a second private bucket `humami-private-eu` in eu-west-3 with the same keys, so nothing depends on us-east-1 and the legacy bucket can be retired.
 - **New public media bucket** in eu-west-3 (proposed name `humami-media-eu`), private with Block Public Access, holding only public images.
 - **Migration** of existing public image objects from `humami` to the new bucket with the same keys and `Cache-Control: public, max-age=31536000, immutable`; Mongo documents keep their keys unchanged.
 - **CloudFront distribution** with Origin Access Control (OAC) on `img.humami.es`, TLS certificate from ACM in us-east-1.
@@ -49,7 +50,7 @@ As the owner, I want public images and private guide PDFs stored separately, so 
 
 ## Non-goals
 
-- Moving private guide PDFs out of us-east-1, or changing how they are delivered.
+- Changing how private guide PDFs are delivered (still fresh 1-hour presigned URLs, now from `humami-private-eu`).
 - Deleting the old bucket or its image objects (a later cleanup, after the rollback window).
 - Pre-generating image variants, a custom Next image loader, or CloudFront-side resizing.
 - Persisting the optimizer cache across deploys (a Docker volume); a possible follow-up.

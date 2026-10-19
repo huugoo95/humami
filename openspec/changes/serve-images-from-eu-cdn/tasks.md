@@ -36,3 +36,10 @@
 - [ ] Cutover (owner-authorized): pause uploads, final delta copy, set `.env`, recreate the backend, run the verification script.
 - [ ] Production evidence: stable URLs across more than 6 h, optimizer MISS ≤ 1.0 s, CDN hit, `og:image` 200 after more than 12 h, guide PDF still presigned 1 h, new upload has the immutable headers in the media bucket.
 - [ ] After 30 days without rollback: remove `humami.s3.amazonaws.com` from `remotePatterns`; propose the legacy-bucket cleanup (M13) separately.
+
+## Execution log (2026-10-19)
+
+- [x] Legacy bucket `humami`: Block Public Access enabled. Verified no anonymous access (403) and that the site still works.
+- [x] Created `humami-media-eu` and `humami-private-eu` in eu-west-3 (BPA, BucketOwnerEnforced, SSE-S3, tags).
+- [x] Initial copy with `scripts/migrate-media-eu.sh`: 28 media objects (6.1 MB, with immutable Cache-Control) and 1 PDF. Re-run reports `copied=0 skipped=29`.
+- [x] Backend and frontend implementation: backend 58 tests (S3ServiceImplTest 8) and frontend 14 tests pass; lint and build OK.

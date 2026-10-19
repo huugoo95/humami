@@ -219,3 +219,23 @@ Agents do not create AWS resources or hold AWS credentials for this change. Each
 - Private guide PDFs never leave the legacy bucket; the copy excludes `private/*`, which is verified after the copy, and the backend refuses to publish `private/` keys.
 - No credentials in the repository, specs, logs or PR; IDs such as the account or distribution ID go only in the live bucket policy.
 - The public image URLs expose nothing new: the same images are already publicly reachable through presigned URLs and `/_next/image`.
+
+## Implementation decisions (2026-10-19)
+
+These supersede the earlier configuration table and copy commands where they differ.
+
+- **Two EU buckets, one region.**
+  - `humami-media-eu`: public images, served only through CloudFront OAC.
+  - `humami-private-eu`: guide PDFs under the same `private/guides/...` keys.
+  - Both are in `eu-west-3`, created with Block Public Access, BucketOwnerEnforced and SSE-S3.
+  - The legacy `humami` bucket is kept read-only for rollback, with Block Public Access now enabled. The owner deletes it after the rollback window.
+- **Configuration with production defaults.** The repository cannot edit the production `.env`, so `application.properties` carries the production values, each overridable by environment:
+  - `humami.storage.region` (`HUMAMI_STORAGE_REGION`, default `eu-west-3`);
+  - `humami.storage.media.bucket` (default `humami-media-eu`);
+  - `humami.storage.media.public-base-url` (default `https://img.humami.es`; empty means presigned media URLs);
+  - `humami.storage.private.bucket` (default `humami-private-eu`).
+  - The S3 client uses `humami.storage.region` rather than `aws.s3.region`, because production still sets `AWS_S3_REGION=us-east-1`.
+  - The unused `aws.s3.bucket-name` property is removed.
+- **Credentials.** The existing `humami-s3` IAM user is kept, and its policy is extended to the two new buckets. An EC2 instance role was rejected for now: it would need an IMDS hop limit change for containers, and it would give the same credentials to the dev environment on the same host.
+- **Migration.** `scripts/migrate-media-eu.sh` copies object by object, preserving each `Content-Type` (some legacy keys have no extension) and adding the immutable `Cache-Control` to media objects. It skips existing objects, so re-running it is the delta copy.
+- **Ordering.** The CloudFront distribution and the `img.humami.es` DNS must serve every key before the release is deployed, because the default `public-base-url` points there.
