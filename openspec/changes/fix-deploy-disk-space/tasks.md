@@ -4,5 +4,9 @@
   - With 8000 MB free, the script prunes images and build cache, then pulls, recreates and runs smoke (exit 0).
   - With 1000 MB free, it prunes, then aborts before pull (exit 1).
   - No volume commands are issued.
-- [ ] Independent review; deliver as hotfix PR to master and back-merge to develop.
+- [x] Independent review of 98ffadb: no blocker or major findings. Applied:
+  - The free-space check and logs now also cover `/var/lib/containerd` (where the failed extraction happened), taking the minimum free space.
+  - Unreadable free space fails with a clear message.
+  - Re-simulated: 8000 MB deploys; 1000 MB and empty values abort before pull.
+- [ ] Deliver as hotfix PR to master and back-merge to develop.
 - [ ] Confirm the 0.5.4 production deployment and image cache behaviour.

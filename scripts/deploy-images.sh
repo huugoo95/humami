@@ -18,9 +18,13 @@ export GHCR_OWNER IMAGE_TAG
 
 : "${MIN_FREE_MB:=3072}"
 
+# Image layers live under the Docker root or, with the containerd image store, under /var/lib/containerd.
+storage_paths=("$(docker info --format '{{.DockerRootDir}}')")
+[[ -d /var/lib/containerd ]] && storage_paths+=(/var/lib/containerd)
+
 report_disk() {
   echo "[deploy] Disk usage ($1):"
-  df -h / || true
+  df -h / "${storage_paths[@]}" || true
   docker system df || true
 }
 
@@ -31,13 +35,16 @@ docker image prune -af
 docker builder prune -af
 report_disk "after cleanup"
 
-docker_root="$(docker info --format '{{.DockerRootDir}}')"
-free_mb="$(df -Pm "$docker_root" | awk 'NR==2 {print $4}')"
-if (( free_mb < MIN_FREE_MB )); then
-  echo "[deploy] Only ${free_mb} MB free under ${docker_root}; ${MIN_FREE_MB} MB required. Aborting before pull."
+free_mb="$(df -Pm "${storage_paths[@]}" | awk 'NR > 1 {print $4}' | sort -n | head -n 1)"
+if [[ ! "$free_mb" =~ ^[0-9]+$ ]]; then
+  echo "[deploy] Could not read free space under ${storage_paths[*]}. Aborting before pull."
   exit 1
 fi
-echo "[deploy] ${free_mb} MB free under ${docker_root}"
+if (( free_mb < MIN_FREE_MB )); then
+  echo "[deploy] Only ${free_mb} MB free under ${storage_paths[*]}; ${MIN_FREE_MB} MB required. Aborting before pull."
+  exit 1
+fi
+echo "[deploy] ${free_mb} MB free under ${storage_paths[*]}"
 
 docker compose -f docker-compose.images.yml --profile prod pull
 
