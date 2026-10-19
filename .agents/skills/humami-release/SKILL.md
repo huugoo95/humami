@@ -7,11 +7,13 @@ description: Follow, verify and recover Humami production deployments. Every mer
 
 ## How deployment works
 - A push to `master` runs `.github/workflows/production-deploy.yml`. It builds ARM64 images tagged with the exact commit SHA and copies the Compose file, nginx config and scripts to the host, verifying their checksums. It then runs `scripts/deploy-images.sh`.
-- The deploy script:
-  - records the running release;
-  - prunes unused images and checks free disk space;
-  - pulls the new images, recreates the containers and runs `scripts/smoke-prod.sh`.
-- **If activation or smoke checks fail, it rolls back automatically** to the previous release's images (still on disk) and the job fails. Rollback restores images only: the new `docker-compose.images.yml` and `nginx.conf` stay, so a broken config change needs a revert. Read the log: "Rolled back to …" means production runs the previous release and the new one is not deployed.
+- The workflow first reads the release running on the host and builds only the images whose module changed (`humami-backend/**` with `.mvn`/`mvnw`, `humami-web/**`, or the workflow itself); an unchanged service keeps its running tag.
+- The deploy script runs backend and frontend in blue/green slots:
+  - a service whose tag, Compose definition or `.env` changed is started in the idle slot next to the running one; unchanged services are not touched;
+  - once the new containers answer locally, it renders `nginx.conf` (upstreams + `nginx/site.conf`, the repository's `nginx.conf`) and reloads nginx, then runs `scripts/smoke-prod.sh`;
+  - only after the smoke checks pass does it record the slots in `release.state` and remove the old containers.
+- **If the new containers never get ready, nginx rejects the config, or smoke checks fail, the old containers are still running and nginx is switched back to them**; the job fails and production keeps the previous release. "Rolled back" or "production still runs the previous release" in the log means the new one is not deployed. The new Compose file and `nginx/site.conf` stay on the host, so a broken config change needs a revert.
+- Two JVMs run side by side for a few minutes. With less than 600 MB available the script stops the old backend first (an /api outage for that deploy) and says so in the log.
 - Deploys are serialized. The production host has about 19 GB of disk and a t4g.small CPU with burst credits; backend start can take several minutes.
 
 ## After a merge

@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+# Simulated production host for deploy-images.test.sh: a stand-in for the docker CLI that keeps
+# containers as directories under $SIM_DIR/containers and nginx's live upstreams in
+# $SIM_DIR/nginx-live. Every stop or removal of a container that nginx is routing to is logged
+# as DOWNTIME, which is what the tests assert against.
+set -euo pipefail
+
+: "${SIM_DIR:?}"
+containers="$SIM_DIR/containers"
+events="$SIM_DIR/events.log"
+mkdir -p "$containers"
+
+log() { echo "$*" >> "$events"; }
+
+sha256() { if command -v sha256sum >/dev/null; then sha256sum; else shasum -a 256; fi; }
+
+field() { # container field
+  cat "$containers/$1/$2" 2>/dev/null || true
+}
+
+# Containers nginx currently routes to (legacy hosts "backend"/"frontend" map to the pre-slot names).
+live_containers() {
+  [[ -f "$SIM_DIR/nginx-live" ]] || return 0
+  sed 's/^/humami-/' "$SIM_DIR/nginx-live"
+}
+
+check_downtime() { # container being stopped or removed
+  if [[ "$(field "$1" status)" == running ]] && live_containers | grep -qx "$1"; then
+    log "DOWNTIME $1"
+  fi
+}
+
+# Hash of a service definition: its image, the host .env, and SIM_DEF_<service> for definition edits.
+service_hash() {
+  local service="$1" var
+  var="SIM_DEF_$(printf '%s' "$service" | tr '[:lower:]-' '[:upper:]_')"
+  printf '%s|%s|%s|%s' "$service" "$(service_image "$service")" "$(cat .env 2>/dev/null)" "${!var:-}" | sha256 | awk '{print $1}'
+}
+
+service_image() {
+  case "$1" in
+    backend-blue) echo "ghcr.io/${GHCR_OWNER}/humami-backend:${BACKEND_BLUE_TAG:-none}" ;;
+    backend-green) echo "ghcr.io/${GHCR_OWNER}/humami-backend:${BACKEND_GREEN_TAG:-none}" ;;
+    frontend-blue) echo "ghcr.io/${GHCR_OWNER}/humami-frontend:${FRONTEND_BLUE_TAG:-none}" ;;
+    frontend-green) echo "ghcr.io/${GHCR_OWNER}/humami-frontend:${FRONTEND_GREEN_TAG:-none}" ;;
+    nginx) echo nginx:alpine ;;
+    *) echo "fake-docker: unknown service $1" >&2; exit 1 ;;
+  esac
+}
+
+# Creates a container; probes needed before it is ready come from SIM_PROBES_<TAG> (default 2,
+# "never" never gets ready, "crash" exits straight away).
+create_container() { # name image hash
+  local name="$1" image="$2" tag mode
+  mkdir -p "$containers/$name"
+  echo "$image" > "$containers/$name/image"
+  echo "$3" > "$containers/$name/hash"
+  echo 0 > "$containers/$name/restarts"
+  echo 0 > "$containers/$name/probes"
+  tag="${image##*:}"
+  mode="SIM_PROBES_${tag}"
+  mode="${!mode:-2}"
+  echo "$mode" > "$containers/$name/needed"
+  if [[ "$mode" == crash ]]; then echo exited > "$containers/$name/status"; else echo running > "$containers/$name/status"; fi
+  log "CREATE $name $image"
+}
+
+ready() { # container
+  local needed probes
+  needed="$(field "$1" needed)"
+  [[ "$(field "$1" status)" == running ]] || return 1
+  [[ "$needed" == never || "$needed" == crash ]] && return 1
+  probes="$(field "$1" probes)"
+  (( probes >= needed ))
+}
+
+nginx_conf_hosts() {
+  sed -n -e 's/^ *server \([a-z-]*\):[0-9]*;$/\1/p' -e 's|^ *proxy_pass http://\([a-z-]*\):[0-9].*|\1|p' "$SIM_ROOT/nginx.conf"
+}
+
+nginx_test() {
+  [[ "${SIM_NGINX_T_FAIL:-0}" == 1 ]] && { echo "nginx: [emerg] simulated failure" >&2; return 1; }
+  grep -q BROKEN "$SIM_ROOT/nginx.conf" && { echo "nginx: [emerg] unexpected BROKEN" >&2; return 1; }
+  local host
+  for host in $(nginx_conf_hosts); do
+    if [[ "$(field "humami-$host" status)" != running ]]; then
+      echo "nginx: [emerg] host not found in upstream \"$host\"" >&2
+      return 1
+    fi
+  done
+}
+
+nginx_load() {
+  nginx_test || return 1
+  nginx_conf_hosts > "$SIM_DIR/nginx-live"
+  log "NGINX-LIVE $(tr '\n' ' ' < "$SIM_DIR/nginx-live")"
+}
+
+compose() {
+  local args=()
+  while (( $# > 0 )); do
+    case "$1" in
+      -f|--profile) shift 2 ;;
+      *) args+=("$1"); shift ;;
+    esac
+  done
+  set -- "${args[@]}"
+  local command="$1"; shift
+  case "$command" in
+    config)
+      [[ "$1" == --hash ]] || exit 1
+      echo "$2 $(service_hash "$2")" ;;
+    pull) log "PULL $*" ;;
+    up)
+      local service name
+      for service in "$@"; do
+        [[ "$service" == -* ]] && continue
+        name="humami-$service"
+        if [[ -d "$containers/$name" ]]; then
+          check_downtime "$name"
+          rm -rf "${containers:?}/$name"
+        fi
+        create_container "$name" "$(service_image "$service")" "$(service_hash "$service")"
+        if [[ "$service" == nginx ]]; then
+          rm -f "$SIM_DIR/nginx-live"
+          log "NGINX-RECREATED"
+          nginx_load || { echo stopped > "$containers/$name/status"; exit 1; }
+        fi
+      done ;;
+    restart) log "RESTART $*" ; [[ "$*" == nginx ]] && nginx_load ;;
+    *) echo "fake-docker: unsupported compose $command" >&2; exit 1 ;;
+  esac
+}
+
+command="$1"; shift
+case "$command" in
+  compose) compose "$@" ;;
+  info) echo "$SIM_DIR" ;;
+  system|builder|login|network|stats) [[ "$command" == network ]] && exit 1; exit 0 ;;
+  image) log "PRUNE" ;;
+  logs) echo "(logs of ${!#})" ;;
+  inspect)
+    format=""; name=""
+    while (( $# > 0 )); do
+      case "$1" in
+        --type) shift 2 ;;
+        --format) format="$2"; shift 2 ;;
+        *) name="$1"; shift ;;
+      esac
+    done
+    [[ -d "$containers/$name" ]] || { echo "Error: No such container: $name" >&2; exit 1; }
+    case "$format" in
+      *State.Status*) field "$name" status ;;
+      *Config.Image*) field "$name" image ;;
+      *config-hash*) field "$name" hash ;;
+      *RestartCount*) field "$name" restarts ;;
+      *) echo "fake-docker: unsupported format $format" >&2; exit 1 ;;
+    esac ;;
+  rm)
+    [[ "${1:-}" == -f ]] && shift
+    [[ -d "$containers/$1" ]] || exit 1
+    check_downtime "$1"
+    rm -rf "${containers:?}/$1"
+    log "RM $1" ;;
+  stop)
+    [[ "$1" == -t ]] && shift 2
+    [[ -d "$containers/$1" ]] || exit 1
+    check_downtime "$1"
+    echo exited > "$containers/$1/status"
+    log "STOP $1" ;;
+  start)
+    [[ -d "$containers/$1" ]] || exit 1
+    echo running > "$containers/$1/status"
+    echo 0 > "$containers/$1/probes"
+    log "START $1" ;;
+  exec)
+    name="$1"; shift
+    [[ "$(field "$name" status)" == running ]] || exit 1
+    if [[ "$name" == humami-nginx ]]; then
+      case "$*" in
+        "nginx -t") nginx_test ;;
+        "nginx -s reload") nginx_load ;;
+        *) exit 1 ;;
+      esac
+    else
+      echo $(( $(field "$name" probes) + 1 )) > "$containers/$name/probes"
+      ready "$name"
+    fi ;;
+  *) echo "fake-docker: unsupported command $command" >&2; exit 1 ;;
+esac

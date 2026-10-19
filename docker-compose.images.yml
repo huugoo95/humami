@@ -1,45 +1,61 @@
+# Production runtime. Backend and frontend run in blue/green slots so a deploy can start the
+# new release next to the running one and switch nginx only once it is healthy
+# (scripts/deploy-images.sh). Each slot's tag comes from <SERVICE>_<SLOT>_TAG; the deploy
+# script sets them, and the "none" default only keeps the file valid for slots it does not touch.
+x-backend: &backend
+  restart: unless-stopped
+  expose:
+    - "8080"
+  env_file:
+    - .env
+  environment:
+    SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
+    S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
+    S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
+    S3_BUCKET: ${AWS_S3_BUCKET_NAME}
+    AWS_S3_REGION: ${AWS_S3_REGION}
+    HUMAMI_WRITE_SECRET: ${HUMAMI_WRITE_SECRET}
+  profiles: ["prod"]
+
+# No host port: nginx reaches the frontend over the Compose network, and two slots cannot share one.
+x-frontend: &frontend
+  restart: unless-stopped
+  expose:
+    - "3000"
+  # Public API envs may still be provided, but browser-side runtime must not
+  # depend exclusively on them. The app keeps a relative `/api` fallback.
+  environment:
+    NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+  profiles: ["prod"]
+
 services:
-  backend:
-    image: ghcr.io/${GHCR_OWNER}/humami-backend:${IMAGE_TAG}
-    container_name: humami-backend
-    restart: unless-stopped
-    expose:
-      - "8080"
-    env_file:
-      - .env
-    environment:
-      SPRING_DATA_MONGODB_URI: ${SPRING_DATA_MONGODB_URI}
-      S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
-      S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
-      S3_BUCKET: ${AWS_S3_BUCKET_NAME}
-      AWS_S3_REGION: ${AWS_S3_REGION}
-      HUMAMI_WRITE_SECRET: ${HUMAMI_WRITE_SECRET}
-    profiles: ["prod"]
+  backend-blue:
+    <<: *backend
+    image: ghcr.io/${GHCR_OWNER}/humami-backend:${BACKEND_BLUE_TAG:-none}
+    container_name: humami-backend-blue
 
-  frontend:
-    image: ghcr.io/${GHCR_OWNER}/humami-frontend:${IMAGE_TAG}
-    container_name: humami-frontend
-    restart: unless-stopped
-    expose:
-      - "3000"
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    # Public API envs may still be provided, but browser-side runtime must not
-    # depend exclusively on them. The app keeps a relative `/api` fallback.
-    environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
-    profiles: ["prod"]
+  backend-green:
+    <<: *backend
+    image: ghcr.io/${GHCR_OWNER}/humami-backend:${BACKEND_GREEN_TAG:-none}
+    container_name: humami-backend-green
 
+  frontend-blue:
+    <<: *frontend
+    image: ghcr.io/${GHCR_OWNER}/humami-frontend:${FRONTEND_BLUE_TAG:-none}
+    container_name: humami-frontend-blue
+
+  frontend-green:
+    <<: *frontend
+    image: ghcr.io/${GHCR_OWNER}/humami-frontend:${FRONTEND_GREEN_TAG:-none}
+    container_name: humami-frontend-green
+
+  # The mounted nginx.conf is rendered by the deploy script: upstreams for the active slots
+  # followed by nginx/site.conf (the repository's nginx.conf).
   nginx:
     image: nginx:alpine
     container_name: humami-nginx
     restart: unless-stopped
-    depends_on:
-      - frontend
-      - backend
     ports:
       - "80:80"
       - "443:443"

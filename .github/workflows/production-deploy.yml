@@ -15,6 +15,7 @@ on:
       - 'nginx.conf'
       - 'scripts/deploy-images.sh'
       - 'scripts/smoke-prod.sh'
+      - 'scripts/tests/**'
   push:
     branches: [master]
     paths:
@@ -29,6 +30,7 @@ on:
       - 'nginx.conf'
       - 'scripts/deploy-images.sh'
       - 'scripts/smoke-prod.sh'
+      - 'scripts/tests/**'
 
 permissions:
   contents: read
@@ -38,20 +40,93 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Decides which images to build. A module is rebuilt when its sources differ from the release
+  # running in production (or from the PR base); otherwise the running tag is deployed again.
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      backend_tag: ${{ steps.plan.outputs.backend_tag }}
+      frontend_tag: ${{ steps.plan.outputs.frontend_tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Test the deploy script on a simulated host
+        run: |
+          shellcheck -S warning scripts/deploy-images.sh scripts/tests/deploy-images.test.sh scripts/tests/fake-docker
+          scripts/tests/deploy-images.test.sh
+      - name: Read the release running in production
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        env:
+          PROD_DEPLOY_HOST: ${{ secrets.PROD_DEPLOY_HOST }}
+          PROD_DEPLOY_USER: ${{ secrets.PROD_DEPLOY_USER }}
+          PROD_DEPLOY_SSH_KEY: ${{ secrets.PROD_DEPLOY_SSH_KEY }}
+          PROD_DEPLOY_KNOWN_HOSTS: ${{ secrets.PROD_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          ssh_dir=$(mktemp -d)
+          trap 'rm -rf "$ssh_dir"' EXIT
+          printf '%s\n' "$PROD_DEPLOY_SSH_KEY" > "$ssh_dir/id_ed25519"
+          printf '%s\n' "$PROD_DEPLOY_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
+          chmod 600 "$ssh_dir/id_ed25519" "$ssh_dir/known_hosts"
+          # Read-only: runs this commit's script from stdin; nothing is copied to the host.
+          ssh -i "$ssh_dir/id_ed25519" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$ssh_dir/known_hosts" "$PROD_DEPLOY_USER@$PROD_DEPLOY_HOST" \
+            'HUMAMI_ROOT=/home/ubuntu/apps/humami bash -s -- --status' < scripts/deploy-images.sh | tee running.env
+      - name: Plan images
+        id: plan
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          running() { [[ -f running.env ]] && sed -n "s/^$1=//p" running.env || true; }
+          # Sources shared by both images: changing the build itself rebuilds everything.
+          shared=(.github/workflows/production-deploy.yml)
+          backend_paths=(humami-backend .mvn mvnw "${shared[@]}")
+          frontend_paths=(humami-web "${shared[@]}")
+          # Prints the tag to deploy: the reference when the module is unchanged since it, else HEAD.
+          decide() {
+            local ref="$1"; shift
+            if [[ "$ref" =~ ^[0-9a-f]{40}$ ]] && git cat-file -e "${ref}^{commit}" 2>/dev/null \
+              && git diff --quiet "$ref" "$HEAD_SHA" -- "$@"; then
+              echo "$ref"
+            else
+              echo "$HEAD_SHA"
+            fi
+          }
+          if [[ "$EVENT_NAME" == pull_request ]]; then
+            backend_ref="$BASE_SHA"; frontend_ref="$BASE_SHA"
+          else
+            backend_ref="$(running backend)"; frontend_ref="$(running frontend)"
+          fi
+          backend_tag="$(decide "$backend_ref" "${backend_paths[@]}")"
+          frontend_tag="$(decide "$frontend_ref" "${frontend_paths[@]}")"
+          entries=()
+          [[ "$backend_tag" == "$HEAD_SHA" ]] && entries+=('{"module":"humami-backend","image":"humami-backend"}')
+          [[ "$frontend_tag" == "$HEAD_SHA" ]] && entries+=('{"module":"humami-web","image":"humami-frontend"}')
+          matrix="[$(IFS=,; echo "${entries[*]-}")]"
+          echo "backend: ${backend_ref:-none} -> ${backend_tag}; frontend: ${frontend_ref:-none} -> ${frontend_tag}; build: ${matrix}"
+          {
+            echo "matrix=${matrix}"
+            echo "backend_tag=${backend_tag}"
+            echo "frontend_tag=${frontend_tag}"
+          } >> "$GITHUB_OUTPUT"
+
   images:
+    needs: plan
     permissions:
       contents: read
       packages: write
-    if: github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
+    if: needs.plan.outputs.matrix != '[]' && (github.ref == 'refs/heads/master' || github.event_name == 'pull_request')
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 30
     strategy:
       matrix:
-        include:
-          - module: humami-backend
-            image: humami-backend
-          - module: humami-web
-            image: humami-frontend
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v6
       - name: Build ARM64 production image
@@ -84,8 +159,12 @@ jobs:
           docker logout ghcr.io
 
   deploy:
-    needs: images
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: [plan, images]
+    # Runs when the images were built or there was nothing to build.
+    if: >-
+      always() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+      && needs.plan.result == 'success'
+      && (needs.images.result == 'success' || needs.images.result == 'skipped')
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -100,6 +179,8 @@ jobs:
           PROD_DEPLOY_SSH_KEY: ${{ secrets.PROD_DEPLOY_SSH_KEY }}
           PROD_DEPLOY_KNOWN_HOSTS: ${{ secrets.PROD_DEPLOY_KNOWN_HOSTS }}
           SOURCE_SHA: ${{ github.sha }}
+          BACKEND_TAG: ${{ needs.plan.outputs.backend_tag }}
+          FRONTEND_TAG: ${{ needs.plan.outputs.frontend_tag }}
           GHCR_OWNER: ${{ github.repository_owner }}
         run: |
           set -euo pipefail
@@ -110,16 +191,18 @@ jobs:
           chmod 600 "$ssh_dir/id_ed25519" "$ssh_dir/known_hosts"
           ssh_options=(-i "$ssh_dir/id_ed25519" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ssh_dir/known_hosts")
           remote="$PROD_DEPLOY_USER@$PROD_DEPLOY_HOST"
-          printf 'Deploying source SHA %s as ghcr.io/%s/humami-{backend,frontend}:%s\n' "$SOURCE_SHA" "$GHCR_OWNER" "$SOURCE_SHA"
+          printf 'Deploying source SHA %s: backend %s, frontend %s\n' "$SOURCE_SHA" "$BACKEND_TAG" "$FRONTEND_TAG"
           # deploy-images.sh resolves the app root as its parent directory, so scripts must live in scripts/.
-          ssh "${ssh_options[@]}" "$remote" "mkdir -p /home/ubuntu/apps/humami/scripts"
-          scp "${ssh_options[@]}" docker-compose.images.yml nginx.conf "$remote:/home/ubuntu/apps/humami/"
+          ssh "${ssh_options[@]}" "$remote" "mkdir -p /home/ubuntu/apps/humami/scripts /home/ubuntu/apps/humami/nginx"
+          scp "${ssh_options[@]}" docker-compose.images.yml "$remote:/home/ubuntu/apps/humami/"
+          # The live nginx.conf is rendered by deploy-images.sh; the repository file is its site part.
+          scp "${ssh_options[@]}" nginx.conf "$remote:/home/ubuntu/apps/humami/nginx/site.conf"
           scp "${ssh_options[@]}" scripts/deploy-images.sh scripts/smoke-prod.sh "$remote:/home/ubuntu/apps/humami/scripts/"
-          expected_sums=$(sha256sum scripts/deploy-images.sh scripts/smoke-prod.sh)
+          expected_sums=$(sha256sum scripts/deploy-images.sh scripts/smoke-prod.sh docker-compose.images.yml; sha256sum < nginx.conf | sed 's|-$|nginx/site.conf|')
           printf '%s' "$PROD_GHCR_READ_TOKEN" | ssh "${ssh_options[@]}" "$remote" \
             "set -euo pipefail; trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT; \
              cd /home/ubuntu/apps/humami; \
              printf '%s\n' '$expected_sums' | sha256sum --check --strict -; \
              docker login ghcr.io --username '$GHCR_OWNER' --password-stdin >/dev/null; \
              chmod +x ./scripts/deploy-images.sh ./scripts/smoke-prod.sh; \
-             IMAGE_TAG='$SOURCE_SHA' GHCR_OWNER='$GHCR_OWNER' ./scripts/deploy-images.sh"
+             BACKEND_TAG='$BACKEND_TAG' FRONTEND_TAG='$FRONTEND_TAG' GHCR_OWNER='$GHCR_OWNER' ./scripts/deploy-images.sh"
