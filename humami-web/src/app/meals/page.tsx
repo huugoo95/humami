@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { IMAGE_SIZES, PRIORITY_MEAL_CARDS } from "@/lib/imageSizes";
 import apiClient from "@/config/api";
 import { Meal } from "@/types/meal";
 
@@ -168,7 +169,7 @@ export default function MealsPage() {
         ) : meals.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {meals.map((m) => (
+              {meals.map((m, index) => (
                 <div
                   id={`meal-card-${m.id}`}
                   key={m.id}
@@ -188,6 +189,8 @@ export default function MealsPage() {
                         alt={m.name}
                         width={640}
                         height={360}
+                        sizes={IMAGE_SIZES.mealCard}
+                        priority={index < PRIORITY_MEAL_CARDS}
                         className="w-full h-auto rounded-md object-cover"
                       />
                     </div>

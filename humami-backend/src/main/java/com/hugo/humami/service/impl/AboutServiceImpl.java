@@ -127,7 +127,7 @@ public class AboutServiceImpl implements AboutService {
         }
 
         try {
-            return s3Service.getTempUrl(storedPhoto);
+            return s3Service.getImageUrl(storedPhoto);
         } catch (IOException ignored) {
             return "";
         }

@@ -44,7 +44,7 @@ public class BlogPostServiceImpl implements BlogPostService {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Blog post not found"));
         BlogPostResponse response = blogPostMapper.toResponse(post);
         if (post.getCoverImage() != null && !post.getCoverImage().isBlank()) {
-            response.setCoverImage(s3Service.getTempUrl(post.getCoverImage()));
+            response.setCoverImage(s3Service.getImageUrl(post.getCoverImage()));
         }
         return response;
     }

@@ -1,6 +1,7 @@
 package com.hugo.humami.service.impl;
 
 import com.hugo.humami.service.S3Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,9 +24,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -39,27 +44,56 @@ public class S3ServiceImpl implements S3Service {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
     private final String bucketName = "humami";
-    private final int expirationImageUrlInHours = 1;
+    private static final Duration TEMP_URL_VALIDITY = Duration.ofHours(1);
+    // Image URLs are signed for 12h and reused for 6h, so every reused URL stays valid for at least 6h more.
+    private static final Duration IMAGE_URL_VALIDITY = Duration.ofHours(12);
+    private static final Duration IMAGE_URL_REUSE = Duration.ofHours(6);
 
+    private final Clock clock;
+    private final Map<String, SignedUrl> imageUrls = new ConcurrentHashMap<>();
+
+    @Autowired
     public S3ServiceImpl(S3Client s3Client, S3Presigner s3Presigner) {
+        this(s3Client, s3Presigner, Clock.systemUTC());
+    }
+
+    S3ServiceImpl(S3Client s3Client, S3Presigner s3Presigner, Clock clock) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
+        this.clock = clock;
     }
 
     @Override
     public String getTempUrl(String key) {
+        return presign(key, TEMP_URL_VALIDITY);
+    }
+
+    @Override
+    public String getImageUrl(String key) {
+        Instant now = clock.instant();
+        return imageUrls.compute(key, (ignored, cached) ->
+                cached != null && now.isBefore(cached.signedAt().plus(IMAGE_URL_REUSE))
+                        ? cached
+                        : new SignedUrl(presign(key, IMAGE_URL_VALIDITY), now)
+        ).url();
+    }
+
+    private String presign(String key, Duration validity) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .build();
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofHours(expirationImageUrlInHours))
+                .signatureDuration(validity)
                 .getObjectRequest(getObjectRequest)
                 .build();
 
         URL presignedUrl = s3Presigner.presignGetObject(presignRequest).url();
         return presignedUrl.toString();
+    }
+
+    private record SignedUrl(String url, Instant signedAt) {
     }
 
     @Override
