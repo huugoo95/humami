@@ -1,4 +1,8 @@
 - [x] Define the disk-full deployment failure and acceptance criteria.
-- [ ] Prune unused images and build cache, log disk usage and enforce a free-space minimum in `deploy-images.sh`.
-- [ ] Validate with a simulated Docker host and an independent review; deliver as hotfix PR to master and back-merge to develop.
+- [x] Prune unused images and build cache, log disk usage and enforce a free-space minimum in `deploy-images.sh`.
+- [x] Simulated validation (stub `docker` and `df`, `bash -n` OK):
+  - With 8000 MB free, the script prunes images and build cache, then pulls, recreates and runs smoke (exit 0).
+  - With 1000 MB free, it prunes, then aborts before pull (exit 1).
+  - No volume commands are issued.
+- [ ] Independent review; deliver as hotfix PR to master and back-merge to develop.
 - [ ] Confirm the 0.5.4 production deployment and image cache behaviour.
