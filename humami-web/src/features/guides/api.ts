@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/config/api";
+import { guideAccessErrorMessage } from "@/features/guides/accessErrors";
 import { getDevelopmentGuides } from "@/features/guides/localGuides";
 import type { Guide, GuideAccessRequest, GuideAccessResponse, GuideDocumentResponse } from "@/types/guide";
 
@@ -52,7 +53,7 @@ export async function requestGuideAccess(slug: string, request: GuideAccessReque
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(request),
   });
-  if (!response.ok) throw new Error("No hemos podido darte acceso ahora mismo.");
+  if (!response.ok) throw new Error(guideAccessErrorMessage(response.status));
   return (await response.json()) as GuideAccessResponse;
 }
 
