@@ -26,17 +26,21 @@ concurrency:
 
 jobs:
   publish:
+    # Only the reviewed script on master may run on the production host.
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
       - name: Validate request
         env:
+          METHOD: ${{ inputs.method }}
           API_PATH: ${{ inputs.path }}
           PAYLOAD: ${{ inputs.payload }}
         run: |
           set -euo pipefail
-          [[ "$API_PATH" =~ ^/api/(about|meals|blog|guides)(/[A-Za-z0-9._-]+)*$ ]] || { echo "Path not allowed: $API_PATH"; exit 1; }
+          [[ "$METHOD" =~ ^(PATCH|POST|PUT)$ ]] || { echo "Method not allowed: $METHOD"; exit 1; }
+          [[ "$API_PATH" =~ ^/api/(about|meals|blog|guides)(/[A-Za-z0-9_-][A-Za-z0-9._-]*)*$ ]] || { echo "Path not allowed: $API_PATH"; exit 1; }
           printf '%s' "$PAYLOAD" | python3 -c 'import json, sys; json.load(sys.stdin)'
       - name: Publish from the production host
         env:
