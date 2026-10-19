@@ -5,9 +5,15 @@ description: Publish or update reviewed Humami meals, blog articles or About con
 
 # Publish site content
 
-1. Identify artifact, operation, exact target environment and intended visibility. Present the concrete summary/payload for Hugo's review before real writes; apply existing explicit authorization if it already covers this reviewed artifact and destination. Otherwise obtain it at the write boundary. Skill discovery is not authorization.
+1. Identify artifact, operation and intended visibility. There is only production (https://humami.es). Show Hugo the final text or payload and publish once he approves it; publishing is "ask first" per [AGENTS.md](../../../AGENTS.md).
 2. Read only the selected contract: [meals](references/meals.md), [blog](references/blog.md) or [about](references/about.md). Revalidate the selected payload and, for meals, the reviewed image decision. Do not invent endpoints or assume a staging environment.
-3. Write through the **Publish content** workflow (`.github/workflows/publish-content.yml`): `gh workflow run publish-content.yml -f method=PATCH -f path=/api/about -f payload="$(cat payload.json)"`. It runs [publish-content.sh](../../../scripts/publish-content.sh) on the production host, which reads `X-HUMAMI-SECRET` from the host's `.env`; the secret never leaves the host. Multipart image uploads are not supported by the workflow yet. Never copy the secret into logs, files, commands or reports.
+3. Write with [humami-api.sh](../../../scripts/humami-api.sh). It reads the write secret from the macOS Keychain (service `humami-write-secret`, account `humami`) and never prints it:
+   - JSON: `scripts/humami-api.sh PATCH /api/about --json payload.json` (or `--json -` to read stdin).
+   - Images: `scripts/humami-api.sh PUT /api/meals/<id>/image --file image=photo.jpg`.
+   - It prints the response body and `HTTP <status>`, and exits non-zero unless the status is 2xx.
+   - Write the payload to a file first (scratchpad for drafts, `ops/publications/` for records) and validate it.
+   - If the Keychain has no secret, ask Hugo to add it with `security add-generic-password -U -a humami -s humami-write-secret -w`. Never ask for it in chat and never print, log or store it elsewhere.
+   - Fallback without the Keychain (another machine): the **Publish content** workflow runs [publish-content.sh](../../../scripts/publish-content.sh) on the production host with the host's secret: `gh workflow run publish-content.yml -f method=PATCH -f path=/api/about -f payload="$(cat payload.json)"`. JSON only, no images.
 4. Record source, local payload reference, destination, operation, timestamp, returned ID/slug and result in the task's publication record (redacted; use `ops/publications/` only for actual records). For meal images also record the delivered file, format, dimensions and checksum. Persist an ID as soon as creation returns, before image upload.
 5. Verify the public read and relevant frontend URL for published content. A successful write is not proof the page rendered. Report partial results, including an absent image or unavailable verification.
 
