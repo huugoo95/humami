@@ -3,6 +3,8 @@ import { BlogPost } from "@/types/blog";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { IMAGE_SIZES } from "@/lib/imageSizes";
+import { blogPostMetadata } from "@/lib/brandMetadata";
+import type { Metadata } from "next";
 
 async function getPost(slug: string): Promise<BlogPost | null> {
   if (!API_BASE_URL) {
@@ -20,6 +22,11 @@ async function getPost(slug: string): Promise<BlogPost | null> {
   } catch {
     return null;
   }
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = await getPost(params.slug);
+  return post ? blogPostMetadata(post) : {};
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {

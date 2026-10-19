@@ -62,3 +62,40 @@ export function mealMetadata(meal: MealMetadataInput): Metadata {
     },
   };
 }
+
+type BlogPostMetadataInput = {
+  slug: string;
+  title: string;
+  excerpt?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  coverImage?: string;
+};
+
+export function blogPostMetadata(post: BlogPostMetadataInput): Metadata {
+  const title = post.seoTitle || post.title;
+  const description = post.seoDescription || post.excerpt || post.title + " en el blog de Humami.";
+  const url = "/blog/" + post.slug;
+  const image = post.coverImage
+    ? { url: post.coverImage, alt: post.title }
+    : { ...brandSocialImage, alt: post.title + " | Humami" };
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url,
+      images: [image],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image.url],
+    },
+  };
+}

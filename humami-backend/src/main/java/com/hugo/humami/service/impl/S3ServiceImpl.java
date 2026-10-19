@@ -2,6 +2,7 @@ package com.hugo.humami.service.impl;
 
 import com.hugo.humami.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,12 +25,16 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Iterator;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -41,9 +46,15 @@ public class S3ServiceImpl implements S3Service {
     private static final int TARGET_HEIGHT = 900;
     private static final float JPEG_QUALITY = 0.80f;
 
+    private static final String IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable";
+    private static final String PRIVATE_PREFIX = "private/";
+
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
-    private final String bucketName = "humami";
+    // Public images live in the media bucket (served by CloudFront); private guide PDFs in the private bucket.
+    private final String mediaBucket;
+    private final String privateBucket;
+    private final String publicBaseUrl;
     private static final Duration TEMP_URL_VALIDITY = Duration.ofHours(1);
     // Image URLs are signed for 12h and reused for 6h, so every reused URL stays valid for at least 6h more.
     private static final Duration IMAGE_URL_VALIDITY = Duration.ofHours(12);
@@ -53,34 +64,54 @@ public class S3ServiceImpl implements S3Service {
     private final Map<String, SignedUrl> imageUrls = new ConcurrentHashMap<>();
 
     @Autowired
-    public S3ServiceImpl(S3Client s3Client, S3Presigner s3Presigner) {
-        this(s3Client, s3Presigner, Clock.systemUTC());
+    public S3ServiceImpl(S3Client s3Client, S3Presigner s3Presigner,
+                         @Value("${humami.storage.media.bucket}") String mediaBucket,
+                         @Value("${humami.storage.private.bucket}") String privateBucket,
+                         @Value("${humami.storage.media.public-base-url:}") String publicBaseUrl) {
+        this(s3Client, s3Presigner, mediaBucket, privateBucket, publicBaseUrl, Clock.systemUTC());
     }
 
-    S3ServiceImpl(S3Client s3Client, S3Presigner s3Presigner, Clock clock) {
+    S3ServiceImpl(S3Client s3Client, S3Presigner s3Presigner, String mediaBucket, String privateBucket,
+                  String publicBaseUrl, Clock clock) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
+        this.mediaBucket = mediaBucket;
+        this.privateBucket = privateBucket;
+        this.publicBaseUrl = publicBaseUrl == null ? "" : publicBaseUrl.replaceAll("/+$", "");
         this.clock = clock;
     }
 
     @Override
     public String getTempUrl(String key) {
-        return presign(key, TEMP_URL_VALIDITY);
+        return presign(privateBucket, key, TEMP_URL_VALIDITY);
     }
 
     @Override
     public String getImageUrl(String key) {
+        if (!publicBaseUrl.isEmpty()) {
+            if (key.startsWith(PRIVATE_PREFIX)) {
+                throw new IllegalArgumentException("Private objects are never served through the public CDN");
+            }
+            return publicBaseUrl + "/" + encodePath(key);
+        }
+        // Without a CDN, fall back to presigned media URLs reused across requests so caches can still hit.
         Instant now = clock.instant();
         return imageUrls.compute(key, (ignored, cached) ->
                 cached != null && now.isBefore(cached.signedAt().plus(IMAGE_URL_REUSE))
                         ? cached
-                        : new SignedUrl(presign(key, IMAGE_URL_VALIDITY), now)
+                        : new SignedUrl(presign(mediaBucket, key, IMAGE_URL_VALIDITY), now)
         ).url();
     }
 
-    private String presign(String key, Duration validity) {
+    private static String encodePath(String key) {
+        return Arrays.stream(key.split("/", -1))
+                .map(segment -> URLEncoder.encode(segment, StandardCharsets.UTF_8).replace("+", "%20"))
+                .collect(Collectors.joining("/"));
+    }
+
+    private String presign(String bucket, String key, Duration validity) {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(bucket)
                 .key(key)
                 .build();
 
@@ -103,9 +134,10 @@ public class S3ServiceImpl implements S3Service {
 
         s3Client.putObject(
                 PutObjectRequest.builder()
-                        .bucket(bucketName)
+                        .bucket(mediaBucket)
                         .key(key)
                         .contentType(MediaType.IMAGE_JPEG_VALUE)
+                        .cacheControl(IMMUTABLE_CACHE_CONTROL)
                         .build(),
                 RequestBody.fromInputStream(new ByteArrayInputStream(normalizedImage), normalizedImage.length)
         );
@@ -120,9 +152,9 @@ public class S3ServiceImpl implements S3Service {
         if (document.getSize() > 15L * 1024 * 1024) {
             throw new org.springframework.web.server.ResponseStatusException(BAD_REQUEST, "PDF must be 15 MB or smaller");
         }
-        String key = "private/guides/" + guideName.replace(" ", "_") + "_" + UUID.randomUUID() + ".pdf";
+        String key = PRIVATE_PREFIX + "guides/" + guideName.replace(" ", "_") + "_" + UUID.randomUUID() + ".pdf";
         s3Client.putObject(
-                PutObjectRequest.builder().bucket(bucketName).key(key).contentType(MediaType.APPLICATION_PDF_VALUE).build(),
+                PutObjectRequest.builder().bucket(privateBucket).key(key).contentType(MediaType.APPLICATION_PDF_VALUE).build(),
                 RequestBody.fromInputStream(document.getInputStream(), document.getSize())
         );
         return key;
@@ -135,7 +167,7 @@ public class S3ServiceImpl implements S3Service {
         }
         s3Client.deleteObject(
                 DeleteObjectRequest.builder()
-                        .bucket(bucketName)
+                        .bucket(mediaBucket)
                         .key(key)
                         .build()
         );
@@ -207,6 +239,7 @@ public class S3ServiceImpl implements S3Service {
     }
 
     private String generateImageKey(String name) {
-        return name.replace(" ", "_") + "_" + UUID.randomUUID() + ".jpg";
+        // Flat keys: a name with slashes must never create paths such as private/ in the media bucket.
+        return name.replaceAll("[\\s/\\\\]", "_") + "_" + UUID.randomUUID() + ".jpg";
     }
 }
