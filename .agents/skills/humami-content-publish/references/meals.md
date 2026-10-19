@@ -4,7 +4,7 @@ For schema/semantics consult [meal contract](../../../../docs/RECIPES.md). Befor
 
 - Create: `POST /api/meals`, JSON MealRequest. Persist returned ID immediately.
 - Update: inspect the current controller and mapper before using `PATCH`; send a complete reviewed payload when the mapper is not proven safe for arbitrary partial payloads.
-- Image: `PUT /api/meals/{id}/image`, multipart field `image`, after a create or content update succeeds.
+- Image: `PUT /api/meals/{id}/image`, multipart field `image`, after a create or content update succeeds: `scripts/humami-api.sh PUT /api/meals/<id>/image --file image=<file>`. The backend normalizes it to a 1600×900 JPEG and serves it from `https://img.humami.es/<key>`.
 - Verify: `GET /api/meals/{id}` and `/meals/{id}`, including the returned image URL when supplied.
 - Current meals have no draft/publication state: creation writes directly to the live collection. A draft must remain local until its target write is authorized.
 
