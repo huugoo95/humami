@@ -27,9 +27,12 @@ describe("image delivery", () => {
     expect(images.maximumDiskCacheSize).toBeLessThanOrEqual(512 * 1024 * 1024);
   });
 
-  it("allows only the HTTPS meal image bucket through remotePatterns", () => {
+  it("allows only the HTTPS image CDN and media bucket through remotePatterns", () => {
     expect(images.domains).toBeUndefined();
-    expect(images.remotePatterns).toEqual([{ protocol: "https", hostname: "humami.s3.amazonaws.com", pathname: "/**" }]);
+    expect(images.remotePatterns).toEqual([
+      { protocol: "https", hostname: "img.humami.es", pathname: "/**" },
+      { protocol: "https", hostname: "humami-media-eu.s3.eu-west-3.amazonaws.com", pathname: "/**" },
+    ]);
   });
 
   it("lets the runtime user write the optimizer cache", () => {

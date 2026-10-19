@@ -21,7 +21,8 @@ public class S3Config {
     @Value("${aws.s3.secret-key}")
     private String secretKey;
 
-    @Value("${aws.s3.region}")
+    // Not aws.s3.region: production still sets AWS_S3_REGION=us-east-1 for the legacy bucket.
+    @Value("${humami.storage.region}")
     private String region;
 
     @Bean

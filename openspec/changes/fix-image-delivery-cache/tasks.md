@@ -11,5 +11,9 @@
   - `sizes` recalculated from each breakpoint's padding and max width.
   - Jest: 14 tests pass; lint and build OK.
 - [x] Re-review of cf61f40: no blocker or major findings. Applied its corrected meal-card sizes, which now subtract the outer wrapper padding, and the blog 640 px breakpoint.
-- [ ] Deliver through reviewed PR.
+- [x] Delivered: PR #85 merged to develop (0a84444), deployed to production in 0.5.4 (master 6e58547) on 2026-10-19.
+- [x] Production check:
+  - The API returns the same image URL across calls (`X-Amz-Expires=43199`).
+  - `/_next/image` returned MISS in 2.7 s, then HIT in 0.17 s and 0.30 s, with `max-age=2592000`. Before (0.5.2) it was MISS on every request with `max-age=60`.
+  - In the browser (DPR 2, 1024 px viewport) the cards request w=828 (previously 1920); the first 3 cards load eagerly and the rest lazily; a repeat visit served images from the browser cache in 0 ms.
 - [ ] Phase 2 (separate spec): stable public image URLs via CloudFront and a bucket in eu-west-3.

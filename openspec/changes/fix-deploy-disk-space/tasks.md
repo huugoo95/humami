@@ -8,5 +8,9 @@
   - The free-space check and logs now also cover `/var/lib/containerd` (where the failed extraction happened), taking the minimum free space.
   - Unreadable free space fails with a clear message.
   - Re-simulated: 8000 MB deploys; 1000 MB and empty values abort before pull.
-- [ ] Deliver as hotfix PR to master and back-merge to develop.
-- [ ] Confirm the 0.5.4 production deployment and image cache behaviour.
+- [x] Delivered: PR #87 merged to master (6e58547) and back-merged to develop.
+- [x] Production deployment run 39240948149 succeeded on 2026-10-19:
+  - Script checksums OK.
+  - Disk went from 97% used (624 MB free) to 57% (7.9 GB free) after reclaiming 1.97 GB.
+  - Free-space check: 8085 MB.
+  - Smoke checks passed.
