@@ -43,3 +43,12 @@
 - [x] Created `humami-media-eu` and `humami-private-eu` in eu-west-3 (BPA, BucketOwnerEnforced, SSE-S3, tags).
 - [x] Initial copy with `scripts/migrate-media-eu.sh`: 28 media objects (6.1 MB, with immutable Cache-Control) and 1 PDF. Re-run reports `copied=0 skipped=29`.
 - [x] Backend and frontend implementation: backend 58 tests (S3ServiceImplTest 8) and frontend 14 tests pass; lint and build OK.
+- [x] ACM certificate for `img.humami.es` (us-east-1), validated by a DNS record in Route 53. Status: ISSUED.
+- [x] CloudFront:
+  - Distribution E3ROFQV56V0LD4 (`d3rw49ruee2cjh.cloudfront.net`) with OAC E1YB2D1TQ94J2V: PriceClass_100, HTTP/2+3, IPv6, redirect to HTTPS, CachingOptimized and SecurityHeadersPolicy, alias `img.humami.es`, TLSv1.2_2021 with SNI.
+  - Bucket policy grants GetObject only to this distribution; the policy status is not public.
+- [x] Route 53: A and AAAA alias records from `img.humami.es` to the distribution.
+- [x] IAM: `humami-s3` policy v3 allows List, Get, Put and Delete on `humami`, `humami-media-eu` and `humami-private-eu`; checked with an IAM simulation.
+- [x] CDN checks:
+  - All 28 media objects and all 9 keys referenced by the public API return 200 via `img.humami.es`, with `Cache-Control: public, max-age=31536000, immutable` and `x-cache: Hit from cloudfront` on repeat.
+  - Direct S3 access returns 403; `private/` through the CDN returns 403; HTTP redirects to HTTPS (301).
