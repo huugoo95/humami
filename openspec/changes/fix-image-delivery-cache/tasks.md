@@ -10,5 +10,6 @@
   - `maximumDiskCacheSize` set to 256 MB.
   - `sizes` recalculated from each breakpoint's padding and max width.
   - Jest: 14 tests pass; lint and build OK.
+- [x] Re-review of cf61f40: no blocker or major findings. Applied its corrected meal-card sizes, which now subtract the outer wrapper padding, and the blog 640 px breakpoint.
 - [ ] Deliver through reviewed PR.
 - [ ] Phase 2 (separate spec): stable public image URLs via CloudFront and a bucket in eu-west-3.
