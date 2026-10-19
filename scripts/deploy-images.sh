@@ -61,7 +61,7 @@ FRONTEND_TAG="${FRONTEND_TAG:-${IMAGE_TAG:-}}"
 : "${MIN_FREE_MB:=3072}"
 # Two JVMs run side by side while the backend switches. Below this much available memory the
 # old backend is stopped first instead (a short outage, as before slots existed).
-: "${MIN_PARALLEL_MEM_MB:=900}"
+: "${MIN_PARALLEL_MEM_MB:=700}"
 # Extra headroom required when a new frontend starts at the same time.
 : "${FRONTEND_MEM_MB:=150}"
 : "${MEMINFO_FILE:=/proc/meminfo}"
@@ -83,11 +83,36 @@ if [[ ! -f "$SITE_CONF" ]]; then
   exit 1
 fi
 
-# Keep going if the SSH session that started the deploy drops mid-switch: ignore hangups and,
-# where GNU tee is available, keep a log on the host that survives a broken output pipe.
+# Keep going if the SSH session that started the deploy drops mid-switch. Without a pty sshd
+# closes the pipes rather than sending SIGHUP, so what matters is GNU tee's -p (it survives a
+# broken pipe and keeps writing deploy.log on the host); ignoring HUP covers the rest.
 trap '' HUP
 if tee -p /dev/null </dev/null >/dev/null 2>&1; then
+  if [[ -f deploy.log ]] && (( $(wc -l < deploy.log) > 5000 )); then
+    tail -n 2000 deploy.log > deploy.log.next && mv deploy.log.next deploy.log
+  fi
   exec > >(tee -p -a "$ROOT_DIR/deploy.log") 2>&1
+fi
+
+# One deploy at a time on the host, even if a cancelled job left its script running.
+if command -v flock >/dev/null; then
+  exec 9>"$ROOT_DIR/.deploy.lock"
+  if ! flock -w 900 9; then
+    echo "[deploy] Another deploy still holds ${ROOT_DIR}/.deploy.lock; giving up."
+    exit 1
+  fi
+fi
+
+# nginx.conf.previous exists only while a switch is unconfirmed. If a deploy died in that window,
+# go back to the config it replaced (its containers are still running) so the file on disk, what
+# nginx serves and the slots this deploy considers active all agree again.
+if [[ -f nginx.conf.previous ]]; then
+  echo "[deploy] Previous deploy was interrupted mid-switch; restoring its nginx config."
+  cat nginx.conf.previous > nginx.conf
+  if [[ "$(docker inspect --type container --format '{{.State.Status}}' humami-nginx 2>/dev/null || true)" == running ]]; then
+    docker exec humami-nginx nginx -t && docker exec humami-nginx nginx -s reload || true
+  fi
+  rm -f nginx.conf.previous
 fi
 echo "[deploy] $(date -u '+%Y-%m-%dT%H:%M:%SZ') backend ${BACKEND_TAG} frontend ${FRONTEND_TAG}"
 docker compose version || true
@@ -338,7 +363,10 @@ nginx_running() {
 }
 
 previous_conf=""
-[[ -f "$NGINX_CONF" ]] && previous_conf="$(cat "$NGINX_CONF")"
+if [[ -f "$NGINX_CONF" ]]; then
+  previous_conf="$(cat "$NGINX_CONF")"
+  cp "$NGINX_CONF" "$NGINX_CONF.previous"
+fi
 
 new_backend_slot="${backend_target:-$backend_active}"
 new_frontend_slot="${frontend_target:-$frontend_active}"
@@ -376,6 +404,7 @@ switch_back() {
     fi
   fi
   remove_targets
+  rm -f "$NGINX_CONF.previous"
 }
 
 if ! activate_nginx; then
@@ -403,6 +432,7 @@ fi
 
 printf 'BACKEND_SLOT=%s\nFRONTEND_SLOT=%s\n' "$new_backend_slot" "$new_frontend_slot" > "$STATE_FILE.next"
 mv "$STATE_FILE.next" "$STATE_FILE"
+rm -f "$NGINX_CONF.previous"
 
 if (( ${#old_running[@]} > 0 )); then
   # Old nginx workers may still be finishing requests to the previous containers.

@@ -116,6 +116,7 @@ compose() {
       [[ "$1" == --hash ]] || exit 1
       echo "$2 $(service_hash "$2")" ;;
     pull) log "PULL $*" ;;
+    version) echo "Docker Compose version fake" ;;
     up)
       local service name
       for service in "$@"; do

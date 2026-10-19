@@ -13,7 +13,7 @@ description: Follow, verify and recover Humami production deployments. Every mer
   - once the new containers answer locally, it renders `nginx.conf` (upstreams + `nginx/site.conf`, the repository's `nginx.conf`) and reloads nginx, then runs `scripts/smoke-prod.sh`;
   - only after the smoke checks pass does it record the slots in `release.state` and remove the old containers. The rendered `nginx.conf` is the source of truth for which slot is live; the host keeps a `deploy.log`.
 - **If the new containers never get ready, nginx rejects the config, or smoke checks fail, the old containers are still running and nginx is switched back to them**; the job fails and production keeps the previous release. "Rolled back" or "production still runs the previous release" in the log means the new one is not deployed. The new Compose file and `nginx/site.conf` stay on the host, so a broken config change needs a revert.
-- Two JVMs run side by side for a few minutes. With less than 900 MB available (1050 MB when the frontend also changes) the script stops the old backend first (an /api outage for that deploy) and says so in the log.
+- Two JVMs run side by side for a few minutes. With less than 700 MB available (850 MB when the frontend also changes) the script stops the old backend first (an /api outage for that deploy) and says so in the log.
 - Deploys are serialized. The production host has about 19 GB of disk and a t4g.small CPU with burst credits; backend start can take several minutes.
 
 ## After a merge

@@ -32,15 +32,6 @@ on:
       - 'scripts/smoke-prod.sh'
       - 'scripts/tests/**'
 
-  # Manual run on master: redeploys master and, with rebuild, rebuilds both images
-  # (for example to pick up base image security updates).
-  workflow_dispatch:
-    inputs:
-      rebuild:
-        description: Rebuild both images even if their sources did not change
-        type: boolean
-        default: false
-
 permissions:
   contents: read
 
@@ -88,7 +79,6 @@ jobs:
         id: plan
         env:
           EVENT_NAME: ${{ github.event_name }}
-          REBUILD: ${{ inputs.rebuild || false }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
@@ -110,8 +100,6 @@ jobs:
           }
           if [[ "$EVENT_NAME" == pull_request ]]; then
             backend_ref="$BASE_SHA"; frontend_ref="$BASE_SHA"
-          elif [[ "$REBUILD" == true ]]; then
-            backend_ref=""; frontend_ref=""
           else
             backend_ref="$(running backend)"; frontend_ref="$(running frontend)"
           fi

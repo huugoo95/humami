@@ -78,7 +78,7 @@ slot_host() { # backend_slot backend_tag frontend_slot frontend_tag
 deploy() { # backend_tag frontend_tag; sets $status and $output
   set +e
   output="$(cd "$SIM_ROOT" && PATH="$SIM_DIR/bin:$PATH" GHCR_OWNER=$OWNER BACKEND_TAG="$1" FRONTEND_TAG="$2" \
-    MEMINFO_FILE="$SIM_DIR/meminfo" MIN_FREE_MB=1 READY_TIMEOUT_SECONDS=1 READY_INTERVAL_SECONDS=0 \
+    MEMINFO_FILE="$SIM_DIR/meminfo" MIN_FREE_MB=1 READY_TIMEOUT_SECONDS="${READY_TIMEOUT:-30}" READY_INTERVAL_SECONDS=0 \
     DRAIN_SECONDS=0 ./scripts/deploy-images.sh 2>&1)"
   status=$?
   set -e
@@ -155,11 +155,25 @@ expect_image humami-backend-blue "$C"
 echo "an old backend that dies during the wait is restarted when the release fails"
 new_host old-died; slot_host blue "$A" blue "$A"
 export SIM_PROBES_$B=never SIM_KILL_ON_CREATE=humami-backend-blue
-deploy "$B" "$A"
+READY_TIMEOUT=1 deploy "$B" "$A"
 expect_status 1
 expect_event "START humami-backend-blue"
 expect_running humami-backend-blue
 unset SIM_KILL_ON_CREATE
+
+echo "a deploy killed mid-switch is undone before the next one plans"
+new_host killed-mid-switch; slot_host blue "$A" blue "$A"
+cp "$SIM_ROOT/nginx.conf" "$SIM_ROOT/nginx.conf.previous"
+seed humami-backend-green backend-green "$B"
+printf 'upstream humami_backend {\n  server backend-green:8080;\n}\nupstream humami_frontend {\n  server frontend-blue:3000;\n}\n' > "$SIM_ROOT/nginx.conf"
+deploy "$C" "$A"
+expect_status 0
+expect_output "interrupted mid-switch"
+expect_no_event DOWNTIME
+expect_live "backend-green frontend-blue"
+expect_image humami-backend-green "$C"
+expect_absent humami-backend-blue
+[[ ! -f "$SIM_ROOT/nginx.conf.previous" ]] || fail "nginx.conf.previous left behind"
 
 echo "nothing changed: no container is touched"
 new_host noop; slot_host green "$A" blue "$A"
@@ -182,7 +196,7 @@ expect_no_event DOWNTIME
 echo "a release that never gets ready is never switched to"
 new_host not-ready; slot_host blue "$A" blue "$A"
 export SIM_PROBES_$B=never
-deploy "$B" "$A"
+READY_TIMEOUT=1 deploy "$B" "$A"
 expect_status 1
 expect_live "backend-blue frontend-blue"
 expect_absent humami-backend-green
@@ -247,7 +261,7 @@ echo "low memory stops the old backend first and restarts it if the release fail
 new_host low-memory; slot_host blue "$A" blue "$A"
 echo "MemAvailable:     204800 kB" > "$SIM_DIR/meminfo"
 export SIM_PROBES_$B=never
-deploy "$B" "$A"
+READY_TIMEOUT=1 deploy "$B" "$A"
 expect_status 1
 expect_output "Only 200 MB available"
 expect_event "STOP humami-backend-blue"

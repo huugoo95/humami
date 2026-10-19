@@ -68,5 +68,5 @@ Record decisions that should persist beyond chat history.
 - Context: Every deploy recreated all containers; the backend needs about 3 minutes to start on the t4g.small, so /api returned 502 for that long on each merge.
 - Decision: Backend and frontend run in blue/green Compose slots. The deploy starts only changed services in the idle slot, waits until they answer, reloads nginx onto them (no restart), runs smoke checks and then removes the old slot. Failures before that point leave the old containers serving.
 - Decision: The workflow builds an image only when its module differs from the release running in production; unchanged services keep their running tag and are not recreated.
-- Trade-off: Two JVMs run briefly side by side. Below `MIN_PARALLEL_MEM_MB` (900 MB, +150 MB when the frontend also starts) of available memory the old backend is stopped first, which brings back the outage for that deploy.
+- Trade-off: Two JVMs run briefly side by side. Below `MIN_PARALLEL_MEM_MB` (700 MB, +150 MB when the frontend also starts; tune from the memory the deploy log reports) of available memory the old backend is stopped first, which brings back the outage for that deploy.
 - Revisit trigger: Memory pressure or OOM kills during deploys, or a second host.
