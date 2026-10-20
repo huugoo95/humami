@@ -1,6 +1,6 @@
 export interface Ingredient {
     name: string;
-    quantity: number;
+    quantity: number | null;
     unit: string;
     isOptional?: boolean;
   }
@@ -36,6 +36,10 @@ export interface Ingredient {
     difficulty?: 'fácil' | 'media' | 'difícil';
     type?: string;
     servings?: number;
+    timings?: {
+      prepTimeInHours?: number | null;
+      totalTimeInHours?: number | null;
+    } | null;
     ingredientsByRecipe?: RecipeIngredientsGroup[];
     recipes: Recipe[];
     faqs?: {
