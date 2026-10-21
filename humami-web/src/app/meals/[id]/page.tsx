@@ -153,50 +153,22 @@ export default async function MealPage({ params }: { params: { id: string } }) {
         </div>
       )}
 
-      {recipes.length > 1 && (
-        <nav aria-label="Elaboraciones" className="mb-8 rounded-xl border border-humami-text-base/10 bg-white p-4">
-          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-humami-text-base/60">
-            {recipes.length} elaboraciones
-          </p>
-          <ol className="flex flex-wrap gap-2">
-            {recipes.map((recipe, idx) => (
-              <li key={idx}>
-                <a
-                  href={`#elaboracion-${idx + 1}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-humami-accent/20 bg-white px-3 py-1.5 text-sm font-medium text-humami-accent-dark hover:border-humami-accent/50"
-                >
-                  <span className="text-humami-gold">{idx + 1}</span>
-                  {recipe.name}
-                </a>
-              </li>
-            ))}
-          </ol>
-        </nav>
-      )}
-
-      {recipes.map((recipe, idx) => {
-        const steps = recipeSteps(recipe);
-        const ingredients = recipe.ingredients ?? [];
-        return (
-          <section
-            key={idx}
-            id={`elaboracion-${idx + 1}`}
-            className="scroll-mt-6 border-t border-humami-text-base/10 py-8 first-of-type:border-t-0 first-of-type:pt-0"
-          >
-            <h2 className="font-heading text-2xl text-humami-accent-dark sm:text-3xl">
-              {recipes.length > 1 && <span className="mr-2 text-humami-gold">{idx + 1}.</span>}
-              {recipe.name}
-            </h2>
-            {recipe.description && (
-              <p className="mt-2 max-w-3xl leading-relaxed text-humami-text-base/80">{recipe.description}</p>
-            )}
-
-            <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-10">
-              {ingredients.length > 0 && (
-                <div className="h-fit rounded-xl border border-humami-text-base/10 bg-white p-4 sm:p-5">
-                  <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-humami-accent-dark">
-                    Ingredientes
-                  </h3>
+      {recipes.some((recipe) => (recipe.ingredients ?? []).length > 0) && (
+        <section className="mb-10">
+          <h2 className="mb-4 font-heading text-3xl text-humami-accent-dark sm:text-4xl">Ingredientes</h2>
+          <div className="gap-4 md:columns-2">
+            {recipes.map((recipe, idx) => {
+              const ingredients = recipe.ingredients ?? [];
+              if (ingredients.length === 0) return null;
+              return (
+                <div key={idx} className="mb-4 break-inside-avoid rounded-xl border border-humami-text-base/10 border-l-4 border-l-humami-gold bg-white p-4 sm:p-5">
+                  {recipes.length > 1 && (
+                    <h3 className="mb-2 text-lg font-semibold text-humami-text-heading">
+                      <a href={`#elaboracion-${idx + 1}`} className="hover:text-humami-accent">
+                        {recipe.name}
+                      </a>
+                    </h3>
+                  )}
                   <ul className="divide-y divide-humami-text-base/10">
                     {ingredients.map((ingredient, iIndex) => {
                       const amount = formatIngredientAmount(ingredient.quantity, ingredient.unit);
@@ -218,32 +190,51 @@ export default async function MealPage({ params }: { params: { id: string } }) {
                     })}
                   </ul>
                 </div>
-              )}
+              );
+            })}
+          </div>
+        </section>
+      )}
 
-              {steps.length > 0 && (
-                <div>
-                  <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-humami-accent-dark">
-                    Paso a paso
-                  </h3>
-                  <ol className="space-y-4">
-                    {steps.map((step, sIndex) => (
-                      <li key={sIndex} className="flex gap-3">
-                        <span
-                          aria-hidden="true"
-                          className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-humami-accent text-sm font-semibold text-white"
-                        >
-                          {sIndex + 1}
-                        </span>
-                        <p className="leading-relaxed text-humami-text-base">{step}</p>
-                      </li>
-                    ))}
-                  </ol>
+      {recipes.length > 0 && (
+        <section className="mb-10">
+          <h2 className="mb-4 font-heading text-3xl text-humami-accent-dark sm:text-4xl">Elaboración</h2>
+          <div className="space-y-4">
+            {recipes.map((recipe, idx) => {
+              const steps = recipeSteps(recipe);
+              return (
+                <div
+                  key={idx}
+                  id={`elaboracion-${idx + 1}`}
+                  className="scroll-mt-6 rounded-xl border border-humami-text-base/10 border-l-4 border-l-humami-accent bg-white p-4 sm:p-6"
+                >
+                  {recipes.length > 1 && (
+                    <h3 className="font-heading text-2xl text-humami-accent-dark">{recipe.name}</h3>
+                  )}
+                  {recipe.description && (
+                    <p className="mt-1 leading-relaxed text-humami-text-base/80">{recipe.description}</p>
+                  )}
+                  {steps.length > 0 && (
+                    <ol className="mt-4 max-w-3xl space-y-4">
+                      {steps.map((step, sIndex) => (
+                        <li key={sIndex} className="flex gap-3">
+                          <span
+                            aria-hidden="true"
+                            className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-humami-accent text-sm font-semibold text-white"
+                          >
+                            {sIndex + 1}
+                          </span>
+                          <p className="leading-relaxed text-humami-text-base">{step}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
                 </div>
-              )}
-            </div>
-          </section>
-        );
-      })}
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {meal.faqs && meal.faqs.length > 0 && (
         <section className="border-t border-humami-text-base/10 pt-8">
